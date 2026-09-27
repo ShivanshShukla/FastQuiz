@@ -6,10 +6,13 @@
 export type UUID = string;
 export type ISODateString = string;
 
+export type UserRole = 'admin' | 'user';
+
 export interface User {
   id: UUID;
   name: string;
   email: string;
+  role?: UserRole;
   password_hash?: string | null;
   google_id?: string | null;
   created_at: ISODateString;
@@ -46,6 +49,22 @@ export interface Question {
   order: number;
 }
 
+export interface AdminQuestionItem extends Question {
+  topic_name?: string;
+  topic_id?: UUID;
+  quiz_title?: string;
+  submitter_email?: string;
+  submitted_at?: ISODateString;
+  reject_reason?: string;
+}
+
+export interface AdminQuizItem extends Quiz {
+  topic_name?: string;
+  total_questions: number;
+  approved_questions_count: number;
+  pending_questions_count: number;
+}
+
 export interface Bundle {
   id: UUID;
   topic_id: UUID;
@@ -77,6 +96,8 @@ export type PurchaseStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 export interface Purchase {
   id: UUID;
   user_id: UUID;
+  user_email?: string;
+  item_title?: string;
   quiz_id?: UUID | null;
   bundle_id?: UUID | null;
   amount: number;
