@@ -89,7 +89,7 @@ services:
   # ============================================================================
   auth-service:
     build:
-      context: ../services/auth-service
+      context: ./services/auth-service
       dockerfile: Dockerfile
     container_name: fastquiz-auth-service
     restart: unless-stopped
@@ -115,7 +115,7 @@ services:
 
   quiz-service:
     build:
-      context: ../services/quiz-service
+      context: ./services/quiz-service
       dockerfile: Dockerfile
     container_name: fastquiz-quiz-service
     restart: unless-stopped
@@ -146,7 +146,7 @@ services:
 
   payments-service:
     build:
-      context: ../services/payments-service
+      context: ./services/payments-service
       dockerfile: Dockerfile
     container_name: fastquiz-payments-service
     restart: unless-stopped
@@ -168,6 +168,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  # ============================================================================
+  # Frontend Applications (Profile: all, frontend)
+  # ============================================================================
+  web:
+    profiles: ["all", "frontend"]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: fastquiz-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      quiz-service:
+        condition: service_healthy
+
+  admin:
+    profiles: ["all", "frontend"]
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: fastquiz-admin
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      quiz-service:
+        condition: service_healthy
 
 volumes:
   postgres_data:

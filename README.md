@@ -48,12 +48,16 @@ npm install
 npm run build
 ```
 
-### 3. Start Local Infrastructure & Microservices
+### 3. Start Local Infrastructure, Microservices & Live Logs
+Start the entire local ecosystem in one command:
 ```bash
-docker compose -f infra/docker-compose.yml up --build -d
+docker compose up --build -d
+# or via npm script:
+npm run docker:up
 ```
 
-Services will be available at:
+Services and monitoring will be immediately available at:
+- **Dozzle Live Logs**: [http://localhost:8888](http://localhost:8888) — *Real-time log stream for all containers*
 - **Auth Service**: [http://localhost:8001/health](http://localhost:8001/health)
 - **Quiz Service**: [http://localhost:8002/health](http://localhost:8002/health)
 - **Payments Service**: [http://localhost:8003/health](http://localhost:8003/health)
@@ -61,6 +65,13 @@ Services will be available at:
 - **MongoDB**: `localhost:27017`
 - **Redis**: `localhost:6379`
 - **RabbitMQ Management**: [http://localhost:15672](http://localhost:15672) (guest / guest)
+
+To stop all services in one place:
+```bash
+docker compose down
+# or via npm script:
+npm run docker:down
+```
 
 ### 4. Run Frontend Apps Locally
 ```bash
