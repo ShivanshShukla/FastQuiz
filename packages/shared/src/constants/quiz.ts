@@ -1,0 +1,18 @@
+/**
+ * FastQuiz Business Rules & Domain Constants
+ */
+
+export const QUIZ_CONSTANTS = {
+  DEFAULT_DURATION_SECONDS: 900, // 15 minutes
+  FREE_ATTEMPTS_PER_TOPIC: 1,
+  MIN_PASSING_SCORE_PERCENT: 70,
+  DEFAULT_CURRENCY: 'USD',
+} as const;
+
+export const SERVICE_DEFAULT_PORTS = {
+  AUTH_SERVICE: 8001,
+  QUIZ_SERVICE: 8002,
+  PAYMENTS_SERVICE: 8003,
+  WEB_APP: 3000,
+  ADMIN_APP: 3001,
+} as const;
