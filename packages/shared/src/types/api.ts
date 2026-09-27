@@ -3,7 +3,19 @@
  * Directly mirrors docs/api_contract.md
  */
 
-import type { Attempt, ISODateString, Purchase, Question, Quiz, ReviewStatus, Topic, User, UUID } from './models';
+import type {
+  Attempt,
+  ISODateString,
+  Purchase,
+  PurchaseStatus,
+  Question,
+  QuestionSourceType,
+  Quiz,
+  ReviewStatus,
+  Topic,
+  User,
+  UUID,
+} from './models';
 
 // --- Global API Types ---
 
@@ -46,6 +58,7 @@ export interface UserProfileResponse {
   id: UUID;
   email: string;
   name: string;
+  role?: 'admin' | 'user';
   created_at: ISODateString;
 }
 
@@ -107,6 +120,31 @@ export interface AttemptSummary extends Omit<Attempt, 'answers'> {
 export interface ReviewQuestionRequest {
   status: ReviewStatus;
   feedback?: string;
+}
+
+// --- Admin Service Schemas ---
+
+export interface AdminQuestionsFilter {
+  status?: ReviewStatus | 'all';
+  topic_id?: UUID;
+  source_type?: QuestionSourceType | 'all';
+  search?: string;
+}
+
+export interface RejectQuestionRequest {
+  reason: string;
+}
+
+export interface AdminReviewActionResponse {
+  success: boolean;
+  status: ReviewStatus;
+  question_id: UUID;
+  reason?: string;
+}
+
+export interface PurchasesFilter {
+  status?: PurchaseStatus | 'all';
+  user_id?: UUID;
 }
 
 // --- WebSocket Timer Protocol ---
