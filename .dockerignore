@@ -1,0 +1,31 @@
+# Dependencies and package managers
+node_modules
+**/node_modules
+.pnpm-store
+
+# Build outputs and caches
+.turbo
+dist
+**/dist
+build
+**/build
+.vite
+.next
+
+# Python caches and virtual environments
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# Git and OS files
+.git
+.gitignore
+.DS_Store
+Thumbs.db
+
+# Documentation, scratch and tool files
+*.md
+.gemini
