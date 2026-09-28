@@ -17,6 +17,10 @@ export default {
           900: '#312e81',
         },
       },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+      },
     },
   },
   plugins: [],

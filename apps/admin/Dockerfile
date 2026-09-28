@@ -15,6 +15,8 @@ RUN npm run build --workspace=@fastquiz/shared
 RUN npm run build --workspace=@fastquiz/admin
 
 FROM nginx:alpine AS runner
+COPY apps/admin/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/apps/admin/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
