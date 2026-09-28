@@ -1,18 +1,9 @@
-import datetime
 import pytest
 import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-import fakeredis.aioredis
 
-from app.core.db import Base, get_db
 from app.core.jwt import create_admin_access_token
 from app.core.security import hash_password
-from app.main import app
 from app.models.admin import Admin
-from app.models.user import User, AdminNote
-import app.core.rate_limit as rate_limit_module
-
 from tests.conftest import TestSessionLocal
 
 
@@ -86,8 +77,6 @@ async def support_token():
         name="Sam Support",
     )
     return token
-
-
 
 
 @pytest.mark.asyncio
@@ -189,7 +178,8 @@ async def test_user_grants_and_notes(client, super_admin_token, sample_user):
         json={"text": "User inquired about enterprise subscription discount."},
     )
     assert res_note.status_code == 200
-    assert res_note.json()["text"] == "User inquired about enterprise subscription discount."
+    expected_text = "User inquired about enterprise subscription discount."
+    assert res_note.json()["text"] == expected_text
 
     # List notes
     res_notes = await client.get(f"/admin/users/{sample_user}/notes", headers=headers)
@@ -215,7 +205,9 @@ async def test_reveal_email_and_breakdown(client, support_token, sample_user):
 
 
 @pytest.mark.asyncio
-async def test_csv_export_permissions(client, super_admin_token, support_token, sample_user):
+async def test_csv_export_permissions(
+    client, super_admin_token, support_token, sample_user
+):
     # Support cannot export CSV (403)
     sup_headers = {"Authorization": f"Bearer {support_token}"}
     res_sup = await client.get("/admin/users/export", headers=sup_headers)

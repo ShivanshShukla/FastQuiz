@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import secrets
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -81,7 +81,7 @@ async def write_audit_log(
     event_type: str,
     status_str: str,
     admin_id: str | None = None,
-    details: dict | None = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
     ip = get_client_ip(request)
     ua = request.headers.get("user-agent", "")[:255]

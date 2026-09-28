@@ -1,4 +1,5 @@
 import datetime
+
 import fakeredis.aioredis
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -67,4 +68,3 @@ async def sample_user():
         session.add(user)
         await session.commit()
     return "usr-test-01"
-

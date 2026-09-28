@@ -1,23 +1,17 @@
 import datetime
 
-import fakeredis.aioredis
 import jwt
 import pyotp
 import pytest
 import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
+from httpx import AsyncClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import settings
-from app.core.db import Base, get_db
 from app.core.jwt import create_admin_access_token
 from app.core.security import hash_password, verify_dummy_password, verify_password
-from app.main import app
 from app.models.admin import Admin, AdminRefreshToken
-from app.routers.admin_auth import rate_limiter as global_rate_limiter
 from app.routers.admin_auth import utc_now
-
 from tests.conftest import TestSessionLocal
 
 

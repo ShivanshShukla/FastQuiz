@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging
-from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
@@ -14,6 +13,7 @@ from app.models.user import User
 from app.routers.admin_auth import get_current_admin
 from app.schemas.admin_dashboard import (
     AdminAttentionData,
+    AdminAttentionItem,
     AdminAuditActivityItem,
     AdminDashboardMetricDelta,
     AdminDashboardSummary,
@@ -286,13 +286,16 @@ async def get_dashboard_attention(
 
     attention_items = []
     if suspended_count > 0:
+        suffix = "s" if suspended_count > 1 else ""
         attention_items.append(
             AdminAttentionItem(
                 id="att-suspended",
                 type="user_report",
                 severity="medium",
-                title=f"{suspended_count} Suspended User Account{'s' if suspended_count > 1 else ''}",
-                description="Accounts flagged and suspended pending admin investigation.",
+                title=f"{suspended_count} Suspended User Account{suffix}",
+                description=(
+                    "Accounts flagged and suspended pending admin investigation."
+                ),
                 link="/users?status=suspended",
                 timestamp=utc_now().isoformat(),
             )
@@ -321,9 +324,7 @@ async def get_recent_signups(
     _admin: Admin = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ) -> list[AdminRecentSignup]:
-    res = await db.execute(
-        select(User).order_by(User.created_at.desc()).limit(limit)
-    )
+    res = await db.execute(select(User).order_by(User.created_at.desc()).limit(limit))
     users = res.scalars().all()
     return [
         AdminRecentSignup(

@@ -3,11 +3,11 @@ import datetime
 import io
 import json
 import logging
-from typing import Annotated
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,12 +18,9 @@ from app.routers.admin_auth import get_client_ip, get_current_admin
 from app.schemas.admin_users import (
     AdminActionResponse,
     AdminUserActivityItem,
-    AdminUserAttemptItem,
     AdminUserDetail,
-    AdminUserFreeGrantItem,
     AdminUserListItem,
     AdminUserNoteItem,
-    AdminUserPurchaseItem,
     AdminUserQuestionBreakdown,
     AdminUsersListResponse,
     AdminUsersSummaryChips,
@@ -47,7 +44,9 @@ def require_users_access(admin: Admin = Depends(get_current_admin)) -> Admin:
     if admin.role == "reviewer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Content Reviewer role is restricted from accessing learner directory",
+            detail=(
+                "Content Reviewer role is restricted from accessing learner directory"
+            ),
         )
     return admin
 
@@ -67,7 +66,7 @@ async def write_user_audit(
     admin: Admin,
     event_type: str,
     target_id: str,
-    details: dict | None = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
     log_entry = AdminAuditLog(
         admin_id=admin.id,
@@ -82,20 +81,28 @@ async def write_user_audit(
     await db.commit()
 
 
-
 SAMPLE_BREAKDOWN = [
     AdminUserQuestionBreakdown(
         question_id="q-brk-1",
-        prompt="What is the time complexity of finding a duplicate in an unsorted array using an in-place Floyd Cycle Detection algorithm?",
+        prompt=(
+            "What is the time complexity of finding a duplicate in an unsorted"
+            " array using an in-place Floyd Cycle Detection algorithm?"
+        ),
         options=["O(1)", "O(N)", "O(N log N)", "O(N^2)"],
         user_answer_index=1,
         correct_answer_index=1,
         is_correct=True,
-        explanation="Floyd Cycle Detection traverses the array treating indices as pointers, which completes in linear O(N) time with O(1) space.",
+        explanation=(
+            "Floyd Cycle Detection traverses the array treating indices as pointers,"
+            " which completes in linear O(N) time with O(1) space."
+        ),
     ),
     AdminUserQuestionBreakdown(
         question_id="q-brk-2",
-        prompt="In dynamic sliding window algorithms for substring problems, when is the left pointer incremented?",
+        prompt=(
+            "In dynamic sliding window algorithms for substring problems,"
+            " when is the left pointer incremented?"
+        ),
         options=[
             "Only when the right pointer reaches the end",
             "When the current window condition becomes invalid",
@@ -105,7 +112,10 @@ SAMPLE_BREAKDOWN = [
         user_answer_index=1,
         correct_answer_index=1,
         is_correct=True,
-        explanation="The left pointer contracts the window until the constraint (e.g. at most K distinct characters) is restored.",
+        explanation=(
+            "The left pointer contracts the window until the constraint"
+            " (e.g. at most K distinct characters) is restored."
+        ),
     ),
 ]
 
@@ -156,7 +166,7 @@ async def list_users(
             pass
 
     # Ordering
-    sort_col = User.created_at
+    sort_col: Any = User.created_at
     if sort_by == "last_seen_at":
         sort_col = User.last_seen_at
 
@@ -196,8 +206,8 @@ async def list_users(
             id=u.id,
             name=u.name,
             email=u.email,
-            status=u.status,
-            source=u.source,
+            status="suspended" if u.status == "suspended" else "active",
+            source="google" if u.source == "google" else "email",
             created_at=u.created_at.isoformat(),
             last_seen_at=u.last_seen_at.isoformat() if u.last_seen_at else None,
             quizzes_purchased=0,
@@ -310,8 +320,8 @@ async def get_user_detail(
         id=user.id,
         name=user.name,
         email=user.email,
-        status=user.status,
-        source=user.source,
+        status="suspended" if user.status == "suspended" else "active",
+        source="google" if user.source == "google" else "email",
         created_at=user.created_at.isoformat(),
         last_seen_at=user.last_seen_at.isoformat() if user.last_seen_at else None,
         attempts_count=0,

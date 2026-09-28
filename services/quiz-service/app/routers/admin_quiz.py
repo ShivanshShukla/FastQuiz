@@ -1,4 +1,5 @@
 from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.security import get_current_admin
@@ -88,10 +89,18 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
         "topic_id": "topic-dsa-1",
         "topic_name": "Arrays & Two Pointers",
         "quiz_title": "Two-Pointer Technique Quiz",
-        "text": "What is the minimum time complexity to determine if an array with N elements contains a pair that sums to target K when the array is already sorted?",
+        "text": (
+            "What is the minimum time complexity to determine if an array"
+            " with N elements contains a pair that sums to target K when"
+            " the array is already sorted?"
+        ),
         "options": ["O(N^2)", "O(N log N)", "O(N)", "O(1)"],
         "correct_option_index": 2,
-        "explanation": "Using two pointers starting at opposite ends of the sorted array, each step moves either the left or right pointer, inspecting at most N elements.",
+        "explanation": (
+            "Using two pointers starting at opposite ends of the sorted array,"
+            " each step moves either the left or right pointer, inspecting"
+            " at most N elements."
+        ),
         "source_type": "ai_generated",
         "review_status": "pending",
         "order": 1,
@@ -104,10 +113,16 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
         "topic_id": "topic-dsa-1",
         "topic_name": "Arrays & Two Pointers",
         "quiz_title": "Two-Pointer Technique Quiz",
-        "text": "In the Maximum Sum Subarray problem with fixed window size K, what is the best space complexity possible without modifying input?",
+        "text": (
+            "In the Maximum Sum Subarray problem with fixed window size K,"
+            " what is the best space complexity possible without modifying input?"
+        ),
         "options": ["O(K)", "O(N)", "O(1)", "O(log K)"],
         "correct_option_index": 2,
-        "explanation": "We only need to track the current window sum and max sum variables, requiring strictly O(1) auxiliary memory.",
+        "explanation": (
+            "We only need to track the current window sum and max sum"
+            " variables, requiring strictly O(1) auxiliary memory."
+        ),
         "source_type": "community",
         "review_status": "pending",
         "order": 2,
@@ -120,7 +135,11 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
         "topic_id": "topic-dsa-1",
         "topic_name": "Arrays & Two Pointers",
         "quiz_title": "Sliding Window Mastery",
-        "text": "Which condition triggers moving the left pointer in a variable-size sliding window search for the longest substring without repeating characters?",
+        "text": (
+            "Which condition triggers moving the left pointer in a variable-size"
+            " sliding window search for the longest substring without"
+            " repeating characters?"
+        ),
         "options": [
             "Current character frequency exceeds 1 in the frequency map",
             "Right pointer reaches the end of the string",
@@ -128,7 +147,11 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
             "A vowel character is encountered",
         ],
         "correct_option_index": 0,
-        "explanation": "When duplicate frequency > 1 is detected, the left pointer advances to shrink the window until the invariant (zero duplicates) is restored.",
+        "explanation": (
+            "When duplicate frequency > 1 is detected, the left pointer"
+            " advances to shrink the window until the invariant (zero"
+            " duplicates) is restored."
+        ),
         "source_type": "self_authored",
         "review_status": "pending",
         "order": 1,
@@ -141,15 +164,25 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
         "topic_id": "topic-sys-2",
         "topic_name": "System Design Fundamentals",
         "quiz_title": "Distributed Caching (Redis & Memcached)",
-        "text": "What is the primary architectural vulnerability addressed by applying Cache Stampede protection (e.g. probabilistic early expiration / mutex locking)?",
+        "text": (
+            "What is the primary architectural vulnerability addressed"
+            " by applying Cache Stampede protection (e.g. probabilistic early"
+            " expiration / mutex locking)?"
+        ),
         "options": [
-            "Massive sudden traffic spike hitting the primary database upon key expiration",
+            (
+                "Massive sudden traffic spike hitting the primary database"
+                " upon key expiration"
+            ),
             "Memory fragmentation within the Redis heap cluster",
             "Slow disk I/O when writing AOF persistence logs",
             "Packet loss across availability zone cross-connections",
         ],
         "correct_option_index": 0,
-        "explanation": "Cache stampede happens when a popular key expires and simultaneous requests concurrently hammer the DB to regenerate it.",
+        "explanation": (
+            "Cache stampede happens when a popular key expires and"
+            " simultaneous requests concurrently hammer the DB to regenerate it."
+        ),
         "source_type": "ai_generated",
         "review_status": "pending",
         "order": 1,
@@ -162,15 +195,25 @@ QUESTIONS_DB: dict[str, dict[str, Any]] = {
         "topic_id": "topic-sys-2",
         "topic_name": "System Design Fundamentals",
         "quiz_title": "Distributed Caching (Redis & Memcached)",
-        "text": "In a Write-Through caching architecture, in which order are the cache and storage layers written?",
+        "text": (
+            "In a Write-Through caching architecture, in which order"
+            " are the cache and storage layers written?"
+        ),
         "options": [
-            "Cache and storage are written synchronously together before returning success",
+            (
+                "Cache and storage are written synchronously together"
+                " before returning success"
+            ),
             "Storage is written first, cache is asynchronously updated in background",
             "Cache is written first, dirty pages flushed to storage periodically",
             "Cache is only written upon cache miss during read operations",
         ],
         "correct_option_index": 0,
-        "explanation": "Write-Through updates both cache and backing database synchronously, guaranteeing cache consistency at the expense of higher write latency.",
+        "explanation": (
+            "Write-Through updates both cache and backing database"
+            " synchronously, guaranteeing cache consistency at the expense of"
+            " higher write latency."
+        ),
         "source_type": "self_authored",
         "review_status": "pending",
         "order": 2,
@@ -210,7 +253,10 @@ async def list_questions_for_quiz(
 
 @router.get("/questions", response_model=list[AdminQuestionItem])
 async def list_admin_questions(
-    status: str = Query("pending", description="Filter by review status: pending, approved, rejected, or all"),
+    status: str = Query(
+        "pending",
+        description="Filter by review status: pending, approved, rejected, or all",
+    ),
     topic_id: str | None = Query(None, description="Optional topic filter"),
     source_type: str | None = Query(None, description="Optional source type filter"),
     search: str | None = Query(None, description="Optional search term"),
@@ -231,7 +277,8 @@ async def list_admin_questions(
     if search and search.strip():
         term = search.strip().lower()
         result = [
-            q for q in result
+            q
+            for q in result
             if term in q.get("text", "").lower()
             or term in q.get("explanation", "").lower()
             or term in q.get("quiz_title", "").lower()
@@ -255,7 +302,10 @@ async def get_admin_question(
     return AdminQuestionItem(**question)
 
 
-@router.post("/questions/{question_id}/approve", response_model=AdminReviewActionResponse)
+@router.post(
+    "/questions/{question_id}/approve",
+    response_model=AdminReviewActionResponse,
+)
 async def approve_question(
     question_id: str,
     _admin: dict[str, Any] = Depends(get_current_admin),
@@ -275,7 +325,10 @@ async def approve_question(
     )
 
 
-@router.post("/questions/{question_id}/reject", response_model=AdminReviewActionResponse)
+@router.post(
+    "/questions/{question_id}/reject",
+    response_model=AdminReviewActionResponse,
+)
 async def reject_question(
     question_id: str,
     payload: RejectQuestionRequest,

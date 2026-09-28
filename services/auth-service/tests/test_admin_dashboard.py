@@ -1,18 +1,9 @@
 import pytest
 import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-import fakeredis.aioredis
 
-from app.core.db import Base, get_db
 from app.core.jwt import create_admin_access_token
 from app.core.security import hash_password
-from app.main import app
 from app.models.admin import Admin
-from app.models.user import User
-from app.routers.admin_dashboard import router as dashboard_router
-import app.core.rate_limit as rate_limit_module
-
 from tests.conftest import TestSessionLocal
 
 
