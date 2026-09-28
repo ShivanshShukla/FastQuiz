@@ -11,6 +11,9 @@ RUN npm install
 COPY packages/shared/ ./packages/shared/
 COPY apps/admin/ ./apps/admin/
 
+ARG VITE_MOCK_ON=true
+ENV VITE_MOCK_ON=$VITE_MOCK_ON
+
 RUN npm run build --workspace=@fastquiz/shared
 RUN npm run build --workspace=@fastquiz/admin
 

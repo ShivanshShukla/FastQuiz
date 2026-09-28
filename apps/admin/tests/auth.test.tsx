@@ -4,9 +4,11 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, DEMO_ADMIN_USER, DEMO_REGULAR_USER } from '../src/context/AuthContext';
 import { ProtectedRoute } from '../src/components/ProtectedRoute';
+import { LoginPage } from '../src/pages/LoginPage';
+import { ToastProvider } from '../src/context/ToastContext';
 
 describe('Auth & ProtectedRoute', () => {
-  it('redirects unauthenticated users to /login', () => {
+  it('redirects unauthenticated users to /login after initialization', async () => {
     render(
       <MemoryRouter initialEntries={['/review']}>
         <AuthProvider initialUser={null} initialToken={null}>
@@ -25,7 +27,7 @@ describe('Auth & ProtectedRoute', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Login Page Content')).toBeInTheDocument();
+    expect(await screen.findByText('Login Page Content')).toBeInTheDocument();
     expect(screen.queryByText('Secret Review Queue')).not.toBeInTheDocument();
   });
 
@@ -75,4 +77,69 @@ describe('Auth & ProtectedRoute', () => {
     expect(screen.getByText('Secret Review Queue Content')).toBeInTheDocument();
     expect(screen.queryByText('Access Denied')).not.toBeInTheDocument();
   });
+
+  it('renders login page with 12-character requirement and no Google SSO button', () => {
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    // Verify FastQuiz Admin brand
+    expect(screen.getByText('FastQuiz Admin')).toBeInTheDocument();
+
+    // Verify Google SSO button is completely absent
+    expect(screen.queryByText(/Sign in with Google/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Google/i)).not.toBeInTheDocument();
+
+    // Verify hardware/password min 12 chars hint
+    expect(screen.getByText('Min 12 chars')).toBeInTheDocument();
+
+    // Verify identity isolation notice
+    expect(screen.getByText(/Separate admin identity domain/i)).toBeInTheDocument();
+  });
+
+  it('renders MOCK MODE indicator and dev quick keys when mock is enabled', () => {
+    // Mock location with no ?mock=false
+    delete (window as unknown as { location?: unknown }).location;
+    window.location = new URL('http://localhost:3001/?mock=true') as unknown as Location;
+
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('MOCK MODE')).toBeInTheDocument();
+    expect(screen.getByText('Dev Environment Quick Keys')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Log in as Admin/i })).toBeInTheDocument();
+  });
+
+  it('renders PRODUCTION indicator and hides dev quick keys when mock is disabled (?mock=false)', () => {
+    delete (window as unknown as { location?: unknown }).location;
+    window.location = new URL('http://localhost:3001/?mock=false') as unknown as Location;
+
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('PRODUCTION')).toBeInTheDocument();
+    expect(screen.queryByText('Dev Environment Quick Keys')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Log in as Admin/i })).not.toBeInTheDocument();
+  });
 });
+

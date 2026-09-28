@@ -4,8 +4,19 @@ import { useAuth } from '../context/AuthContext';
 import { ShieldAlert, LogOut } from 'lucide-react';
 
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { isAuthenticated, isAdmin, isInitializing, logout } = useAuth();
   const location = useLocation();
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-zinc-500">Restoring administrative session...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
@@ -24,7 +35,7 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
           </p>
           <button
             onClick={logout}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition font-medium text-sm"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition font-medium text-sm cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             Return to Login

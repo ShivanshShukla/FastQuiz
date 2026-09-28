@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { isMockEnabled } from '../config/env';
 import {
   type AdminQuestionItem,
   type QuestionSourceType,
@@ -28,6 +29,7 @@ export const ReviewQueuePage: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mockActive = isMockEnabled();
 
   const [questions, setQuestions] = useState<AdminQuestionItem[]>([]);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
@@ -51,7 +53,9 @@ export const ReviewQueuePage: React.FC = () => {
       setQuestions(fetchedQuestions);
       setTopics(fetchedTopics);
     } catch {
-      // Fallback handled in shared client
+      // In production mode, if backend has no questions or is unreachable, ensure clean empty state
+      setQuestions([]);
+      setTopics([]);
     } finally {
       setIsLoading(false);
     }
@@ -183,7 +187,7 @@ export const ReviewQueuePage: React.FC = () => {
       {/* ======================================================================= */}
       {/* 1. Top Action & Notification Banner                                    */}
       {/* ======================================================================= */}
-      {showActiveBanner && (
+      {showActiveBanner && (mockActive || filteredQuestions.length > 0) && (
         <div className="flex items-center justify-between bg-indigo-50/80 px-4 py-2.5 rounded-xl border border-indigo-200/70 text-indigo-950 text-xs">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-indigo-600 shrink-0 fill-indigo-600" />
@@ -225,24 +229,24 @@ export const ReviewQueuePage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-1">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               Content Review Queue
             </h1>
-            <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-600 font-mono text-xs font-medium border border-zinc-200">
+            <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-mono text-xs font-medium border border-zinc-200 dark:border-zinc-700">
               v2.4-prod
             </span>
           </div>
-          <p className="text-sm text-zinc-500 mt-1">
-            24 pending questions awaiting human review across DSA and System Design syllabi.
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            {filteredQuestions.length} pending questions awaiting human review across DSA and System Design syllabi.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={loadData}
-            className="h-9 px-3.5 flex items-center gap-1.5 bg-white border border-zinc-200 rounded-lg text-zinc-700 text-xs font-medium hover:bg-zinc-50 transition shadow-2xs"
+            className="h-9 px-3.5 flex items-center gap-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition shadow-2xs"
           >
-            <History className="w-4 h-4 text-zinc-500" />
+            <History className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             <span>Review History</span>
           </button>
           <button
@@ -261,25 +265,30 @@ export const ReviewQueuePage: React.FC = () => {
       </div>
 
       {/* ======================================================================= */}
-      {/* 3. KPI Metrics Deck (4 Cards)                                          */}
-      {/* ======================================================================= */}
+      {/* 3. KPI Metrics Deck (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Pending Review */}
-        <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Pending Review
             </span>
-            <Inbox className="w-4 h-4 text-indigo-600" />
+            <Inbox className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-zinc-900">{filteredQuestions.length}</span>
-              <span className="text-[11px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                Over SLA (+4)
-              </span>
+              <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{filteredQuestions.length}</span>
+              {filteredQuestions.length > 0 ? (
+                <span className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                  {mockActive ? 'Over SLA (+4)' : 'Pending'}
+                </span>
+              ) : (
+                <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                  All Clear
+                </span>
+              )}
             </div>
-            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
               <span>{sourceCounts.ai} AI</span>
               <span>•</span>
               <span>{sourceCounts.comm} Community</span>
@@ -290,69 +299,101 @@ export const ReviewQueuePage: React.FC = () => {
         </div>
 
         {/* Card 2: Reviewed Today */}
-        <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Reviewed Today
             </span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="mt-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-bold text-zinc-900">
-                18 <span className="text-sm font-normal text-zinc-400">/ 42</span>
-              </span>
-              <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                +12% pace
-              </span>
+              {mockActive ? (
+                <>
+                  <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                    18 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/ 42</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                    +12% pace
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                    0 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/ 0</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
+                    0 today
+                  </span>
+                </>
+              )}
             </div>
-            <div className="w-full bg-zinc-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
-              <div className="bg-indigo-600 h-full rounded-full" style={{ width: '42.8%' }}></div>
+            <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
+              <div
+                className="bg-indigo-600 h-full rounded-full"
+                style={{ width: mockActive ? '42.8%' : '0%' }}
+              ></div>
             </div>
           </div>
         </div>
 
         {/* Card 3: Avg Review Latency */}
-        <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Avg Time per Review
             </span>
-            <Clock className="w-4 h-4 text-zinc-500" />
+            <Clock className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-zinc-900">48s</span>
-              <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                Optimal
+              <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                {mockActive ? '48s' : '--'}
+              </span>
+              <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                {mockActive ? 'Optimal' : 'SLA Target'}
               </span>
             </div>
-            <div className="mt-1 flex items-center justify-between text-[11px] text-zinc-500">
+            <div className="mt-1 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
               <span>Target &lt; 90s SLA</span>
-              <span className="font-mono text-zinc-400">P95: 1m 12s</span>
+              <span className="font-mono text-zinc-400 dark:text-zinc-500">
+                {mockActive ? 'P95: 1m 12s' : 'No records'}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Card 4: Quality Flags */}
-        <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-2xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Quality Flags
             </span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
+            <AlertTriangle className={`w-4 h-4 ${mockActive ? 'text-rose-500' : 'text-emerald-500'}`} />
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-rose-600">2</span>
-              <span className="text-[11px] font-medium text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                High Risk
+              <span className={`text-2xl font-bold ${mockActive ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                {mockActive ? '2' : '0'}
+              </span>
+              <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded border ${
+                mockActive
+                  ? 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800'
+                  : 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800'
+              }`}>
+                {mockActive ? 'High Risk' : 'Zero Flags'}
               </span>
             </div>
-            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500 truncate">
-              <span>1 Duplication risk</span>
-              <span>•</span>
-              <span>1 AI Hallucination</span>
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+              {mockActive ? (
+                <>
+                  <span>1 Duplication risk</span>
+                  <span>•</span>
+                  <span>1 AI Hallucination</span>
+                </>
+              ) : (
+                <span>No flagged questions</span>
+              )}
             </div>
           </div>
         </div>
@@ -361,7 +402,7 @@ export const ReviewQueuePage: React.FC = () => {
       {/* ======================================================================= */}
       {/* 4. Filter & Command Bar                                                */}
       {/* ======================================================================= */}
-      <div className="bg-white rounded-xl border border-zinc-200 p-3 shadow-2xs space-y-3">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 shadow-2xs space-y-3">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Search Input with / shortcut */}
           <div className="relative flex-1 min-w-[280px]">
@@ -372,9 +413,9 @@ export const ReviewQueuePage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search question text, stem, tags... (Press /)"
-              className="w-full h-9 pl-9 pr-12 text-xs text-zinc-900 placeholder:text-zinc-400 bg-white border border-zinc-200 rounded-lg focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none transition"
+              className="w-full h-9 pl-9 pr-12 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none transition"
             />
-            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 font-mono text-[10px] text-zinc-500">
+            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
               /
             </kbd>
           </div>
@@ -387,7 +428,7 @@ export const ReviewQueuePage: React.FC = () => {
                 aria-label="Topic Filter"
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="h-9 pl-3 pr-8 bg-white border border-zinc-200 rounded-lg text-xs font-medium text-zinc-800 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
+                className="h-9 pl-3 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
               >
                 <option value="all">All Topics (DSA &amp; System Design)</option>
                 {topics.map((t) => (
@@ -404,7 +445,7 @@ export const ReviewQueuePage: React.FC = () => {
                 aria-label="Source Filter"
                 value={selectedSource}
                 onChange={(e) => setSelectedSource(e.target.value as QuestionSourceType | 'all')}
-                className="h-9 pl-3 pr-8 bg-white border border-zinc-200 rounded-lg text-xs font-medium text-zinc-800 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
+                className="h-9 pl-3 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
               >
                 <option value="all">All Sources</option>
                 <option value="ai_generated">AI-Generated</option>
@@ -419,7 +460,7 @@ export const ReviewQueuePage: React.FC = () => {
                 aria-label="Difficulty Filter"
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="h-9 pl-3 pr-8 bg-white border border-zinc-200 rounded-lg text-xs font-medium text-zinc-800 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
+                className="h-9 pl-3 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
               >
                 <option value="all">All Difficulties</option>
                 <option value="easy">Easy</option>
@@ -431,7 +472,7 @@ export const ReviewQueuePage: React.FC = () => {
             {/* Reset Button */}
             <button
               onClick={handleResetFilters}
-              className="h-9 px-2.5 text-xs text-zinc-500 hover:text-zinc-900 transition flex items-center gap-1 rounded-lg hover:bg-zinc-50"
+              className="h-9 px-2.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition flex items-center gap-1 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800"
               title="Reset all filters"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -441,18 +482,18 @@ export const ReviewQueuePage: React.FC = () => {
         </div>
 
         {/* Source Pills Row */}
-        <div className="flex items-center justify-between border-t border-zinc-100 pt-2.5">
+        <div className="flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 pt-2.5">
           <div className="flex items-center gap-1.5 overflow-x-auto">
             <button
               onClick={() => setSelectedSource('all')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
                 selectedSource === 'all'
-                  ? 'bg-indigo-50 text-indigo-900 font-semibold'
-                  : 'text-zinc-600 hover:bg-zinc-100'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
             >
               <span>All Sources</span>
-              <span className="px-1.5 py-0.2 rounded-full bg-white/80 text-[10px] font-bold border border-zinc-200">
+              <span className="px-1.5 py-0.2 rounded-full bg-white/80 dark:bg-zinc-800 text-[10px] font-bold border border-zinc-200 dark:border-zinc-700">
                 {sourceCounts.all}
               </span>
             </button>
@@ -461,44 +502,44 @@ export const ReviewQueuePage: React.FC = () => {
               onClick={() => setSelectedSource('ai_generated')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
                 selectedSource === 'ai_generated'
-                  ? 'bg-indigo-50 text-indigo-900 font-semibold'
-                  : 'text-zinc-600 hover:bg-zinc-100'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
               <span>AI-Generated</span>
-              <span className="text-zinc-400 text-[10px]">{sourceCounts.ai}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.ai}</span>
             </button>
 
             <button
               onClick={() => setSelectedSource('community')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
                 selectedSource === 'community'
-                  ? 'bg-indigo-50 text-indigo-900 font-semibold'
-                  : 'text-zinc-600 hover:bg-zinc-100'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
               <span>Community Submitted</span>
-              <span className="text-zinc-400 text-[10px]">{sourceCounts.comm}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.comm}</span>
             </button>
 
             <button
               onClick={() => setSelectedSource('self_authored')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
                 selectedSource === 'self_authored'
-                  ? 'bg-indigo-50 text-indigo-900 font-semibold'
-                  : 'text-zinc-600 hover:bg-zinc-100'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
               <span>Staff Authored</span>
-              <span className="text-zinc-400 text-[10px]">{sourceCounts.staff}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.staff}</span>
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-zinc-400 text-xs">
-            <span>Sort: <strong className="text-zinc-700">Priority (SLA)</strong></span>
+          <div className="hidden sm:flex items-center gap-2 text-zinc-400 dark:text-zinc-500 text-xs">
+            <span>Sort: <strong className="text-zinc-700 dark:text-zinc-300">Priority (SLA)</strong></span>
           </div>
         </div>
       </div>
@@ -555,11 +596,11 @@ export const ReviewQueuePage: React.FC = () => {
       {/* ======================================================================= */}
       {/* 6. High-Density Question Review Table                                  */}
       {/* ======================================================================= */}
-      <div className="bg-white rounded-xl border border-zinc-200 shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-50 border-b border-zinc-200 text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+              <tr className="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 <th className="py-2.5 pl-4 pr-1 w-10">
                   <input
                     type="checkbox"
@@ -567,7 +608,7 @@ export const ReviewQueuePage: React.FC = () => {
                       selectedIds.size > 0 && selectedIds.size === filteredQuestions.length
                     }
                     onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-zinc-300 accent-indigo-600 cursor-pointer"
+                    className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 accent-indigo-600 cursor-pointer"
                     title="Select all questions"
                   />
                 </th>
@@ -579,20 +620,20 @@ export const ReviewQueuePage: React.FC = () => {
                 <th className="py-2.5 pr-4 pl-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 text-xs">
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-zinc-400">
+                  <td colSpan={7} className="py-12 text-center text-zinc-400 dark:text-zinc-500">
                     <RefreshCw className="w-5 h-5 mx-auto animate-spin mb-2 text-indigo-600" />
                     Loading question queue...
                   </td>
                 </tr>
               ) : filteredQuestions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-zinc-500">
-                    <Inbox className="w-8 h-8 mx-auto mb-2 text-zinc-300" />
-                    <p className="font-semibold text-zinc-800">All caught up!</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                  <td colSpan={7} className="py-16 text-center text-zinc-500 dark:text-zinc-400">
+                    <Inbox className="w-8 h-8 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
+                    <p className="font-semibold text-zinc-800 dark:text-zinc-200">All caught up!</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                       No questions pending review matching current criteria.
                     </p>
                   </td>
@@ -608,10 +649,10 @@ export const ReviewQueuePage: React.FC = () => {
                       onClick={() => navigate(`/review/${q.id}`)}
                       className={`cursor-pointer transition-colors group ${
                         isSelected
-                          ? 'bg-indigo-50/50 hover:bg-indigo-50/70 border-l-4 border-l-indigo-600'
+                          ? 'bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/60 border-l-4 border-l-indigo-600'
                           : isFocused
-                          ? 'bg-zinc-50 hover:bg-zinc-100 border-l-4 border-l-zinc-400'
-                          : 'hover:bg-zinc-50/80'
+                          ? 'bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-l-4 border-l-zinc-400'
+                          : 'hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40'
                       }`}
                     >
                       {/* Checkbox */}
@@ -623,22 +664,22 @@ export const ReviewQueuePage: React.FC = () => {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => {}}
-                          className="w-4 h-4 rounded border-zinc-300 accent-indigo-600 cursor-pointer"
+                          className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 accent-indigo-600 cursor-pointer"
                         />
                       </td>
 
                       {/* Question Stem & ID */}
                       <td className="py-3 px-3">
                         <div className="flex items-start gap-2 max-w-xl">
-                          <span className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 font-mono text-[11px] text-zinc-700 font-semibold shrink-0">
+                          <span className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-[11px] text-zinc-700 dark:text-zinc-300 font-semibold shrink-0">
                             #{q.id}
                           </span>
                           <div className="flex flex-col">
-                            <span className="font-semibold text-zinc-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
                               {q.text}
                             </span>
                             {q.explanation && (
-                              <span className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">
+                              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
                                 {q.explanation}
                               </span>
                             )}
@@ -649,7 +690,7 @@ export const ReviewQueuePage: React.FC = () => {
                       {/* Domain & Topic */}
                       <td className="py-3 px-3 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
+                          <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                             {q.topic_name || 'System Design'}
                           </span>
                         </div>
@@ -657,7 +698,7 @@ export const ReviewQueuePage: React.FC = () => {
 
                       {/* Target Quiz */}
                       <td className="py-3 px-3 whitespace-nowrap">
-                        <span className="text-zinc-600 font-medium">
+                        <span className="text-zinc-600 dark:text-zinc-300 font-medium">
                           {q.quiz_title || 'General Warmup'}
                         </span>
                       </td>
@@ -665,17 +706,17 @@ export const ReviewQueuePage: React.FC = () => {
                       {/* Source & Quality Pill */}
                       <td className="py-3 px-3 whitespace-nowrap">
                         {q.source_type === 'ai_generated' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                             GPT-4o Synthesizer
                           </span>
                         ) : q.source_type === 'community' ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                             Community
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                             <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
                             Staff Authored
                           </span>
@@ -683,13 +724,13 @@ export const ReviewQueuePage: React.FC = () => {
                       </td>
 
                       {/* Submitted Timestamp */}
-                      <td className="py-3 px-3 whitespace-nowrap text-zinc-400 font-mono text-[11px]">
+                      <td className="py-3 px-3 whitespace-nowrap text-zinc-400 dark:text-zinc-500 font-mono text-[11px]">
                         2h ago
                       </td>
 
                       {/* Action */}
                       <td className="py-3 pr-4 pl-3 text-right whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-0.5 transition-transform">
                           Review <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </td>
