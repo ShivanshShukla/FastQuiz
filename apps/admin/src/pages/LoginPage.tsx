@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { ShieldCheck, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { Lock, Mail, AlertCircle, ArrowRight, ShieldCheck, Terminal } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('admin@fastquiz.dev');
@@ -53,37 +53,65 @@ export const LoginPage: React.FC = () => {
 
   const handleDemoUser = () => {
     loginDemoUser();
-    // Non-admin will trigger ProtectedRoute rejection
     navigate('/review');
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border border-slate-700">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white shadow-md mb-3">
-            <ShieldCheck className="w-7 h-7" />
+    <div className="min-h-screen bg-[#fafafa] text-zinc-900 flex flex-col items-center justify-center p-4 relative font-sans">
+      {/* Subtle background precision grid pattern */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #e4e4e7 1px, transparent 1px)',
+          backgroundSize: '24px 24px'
+        }}
+      />
+
+      <div className="relative max-w-md w-full bg-white rounded-xl shadow-xs border border-zinc-200 p-8 flex flex-col gap-6">
+        {/* Brand Header */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-2xs">
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-base font-bold text-zinc-950 tracking-tight leading-none">
+                  FastQuiz Admin
+                </h1>
+                <span className="font-mono text-[10px] text-zinc-400">v2.4.0 (Enterprise)</span>
+              </div>
+            </div>
+            <span className="font-mono text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded border border-zinc-200 font-medium">
+              INTERNAL USE
+            </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">FastQuiz Admin</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Question Review & Platform Moderation Console
-          </p>
+
+          <div className="pt-2 border-t border-zinc-100">
+            <p className="text-xs text-zinc-500 leading-normal">
+              Content Review &amp; Editorial Workbench console. Authentication restricted to verified platform reviewers.
+            </p>
+          </div>
         </div>
 
+        {/* Error Alert */}
         {errorMsg && (
-          <div role="alert" className="mb-5 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
+          <div role="alert" className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
             <span className="font-medium">{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Authentication Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1" htmlFor="email-input">
-              Admin Email Address
+            <label className="block text-xs font-semibold text-zinc-700 mb-1.5" htmlFor="email-input">
+              Reviewer Work Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
               <input
                 id="email-input"
                 type="email"
@@ -91,17 +119,20 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@fastquiz.dev"
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full pl-9 pr-3 py-2 text-xs font-mono bg-zinc-50/50 border border-zinc-200 rounded-lg text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1" htmlFor="password-input">
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-zinc-700" htmlFor="password-input">
+                Hardware / Password Key
+              </label>
+              <span className="text-[11px] text-zinc-400 font-mono">Min 8 chars</span>
+            </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
               <input
                 id="password-input"
                 type="password"
@@ -109,7 +140,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full pl-9 pr-3 py-2 text-xs font-mono bg-zinc-50/50 border border-zinc-200 rounded-lg text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               />
             </div>
           </div>
@@ -117,27 +148,27 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-2 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full mt-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            {isSubmitting ? 'Verifying...' : 'Sign in to Console'}
-            <ArrowRight className="w-4 h-4" />
+            <span>{isSubmitting ? 'Verifying...' : 'Sign in to Console'}</span>
+            <kbd className="font-mono text-[10px] bg-white/20 px-1 py-0.2 rounded text-white">↵</kbd>
+            <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
           </button>
         </form>
 
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-slate-400 font-semibold tracking-wider">or</span>
-          </div>
+        {/* Divider */}
+        <div className="relative flex items-center justify-center">
+          <div className="w-full border-t border-zinc-200"></div>
+          <span className="absolute bg-white px-2 text-[10px] uppercase font-mono text-zinc-400 font-semibold tracking-wider">
+            SSO / Federated
+          </span>
         </div>
 
-        {/* Google Sign In */}
+        {/* Google SSO Button */}
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="w-full py-2 px-4 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2.5 cursor-pointer shadow-2xs"
+          className="w-full py-2 px-4 bg-white hover:bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-700 transition flex items-center justify-center gap-2.5 cursor-pointer shadow-2xs"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -157,32 +188,45 @@ export const LoginPage: React.FC = () => {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          Sign in with Google
+          <span>Sign in with Google</span>
         </button>
 
-        {/* Quick Testing Actions */}
-        <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col gap-2">
-          <p className="text-[11px] font-semibold text-slate-400 text-center uppercase tracking-wider">
-            Reviewer Quick Access
-          </p>
+        {/* Development Quick Access Panel */}
+        <div className="pt-4 border-t border-zinc-100 flex flex-col gap-2">
+          <div className="flex items-center justify-between text-[11px] text-zinc-400">
+            <span className="flex items-center gap-1 font-mono uppercase tracking-wider text-[10px]">
+              <Terminal className="w-3 h-3 text-zinc-400" />
+              Dev Environment Quick Keys
+            </span>
+            <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+              MOCK OK
+            </span>
+          </div>
+
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
               onClick={handleDemoAdmin}
-              className="py-1.5 px-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded font-medium hover:bg-emerald-100 transition text-center cursor-pointer"
+              className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
             >
-              Log in as Admin
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Log in as Admin</span>
             </button>
             <button
               type="button"
               onClick={handleDemoUser}
-              className="py-1.5 px-2 bg-slate-100 text-slate-700 border border-slate-200 rounded font-medium hover:bg-slate-200 transition text-center cursor-pointer"
+              className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
             >
-              Test Non-Admin
+              <span>Test Non-Admin</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* Audit Footnote */}
+      <footer className="relative mt-6 text-center text-[11px] text-zinc-400 font-mono">
+        Strict audit logging enabled &bull; All review actions are cryptographic signed
+      </footer>
     </div>
   );
 };
