@@ -4,6 +4,7 @@
  */
 
 import type {
+  AdminUser,
   Attempt,
   ISODateString,
   Purchase,
@@ -60,6 +61,65 @@ export interface UserProfileResponse {
   name: string;
   role?: 'admin' | 'user';
   created_at: ISODateString;
+}
+
+// --- Admin Auth Service Schemas ---
+
+export interface AdminLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AdminAuthResponse {
+  status: 'authenticated';
+  access_token: string;
+  token_type: 'bearer';
+  expires_in: number;
+  admin: AdminUser;
+}
+
+export interface AdminTotpRequiredResponse {
+  status: 'totp_required';
+  pre_auth_token: string;
+  expires_in: number;
+}
+
+export interface AdminTotpEnrollmentRequiredResponse {
+  status: 'totp_enrollment_required';
+  pre_auth_token: string;
+  qr_code_svg: string;
+  secret: string;
+  recovery_codes: string[];
+  expires_in: number;
+}
+
+export type AdminLoginResult =
+  | AdminAuthResponse
+  | AdminTotpRequiredResponse
+  | AdminTotpEnrollmentRequiredResponse;
+
+export interface AdminTotpVerifyRequest {
+  pre_auth_token: string;
+  code: string;
+}
+
+export interface AdminTotpConfirmEnrollmentRequest {
+  pre_auth_token: string;
+  code: string;
+}
+
+export interface AdminInviteRequest {
+  email: string;
+  name: string;
+  role?: 'admin' | 'super_admin';
+}
+
+export interface AdminInviteResponse {
+  id: UUID;
+  email: string;
+  name: string;
+  role: string;
+  message: string;
 }
 
 // --- Quiz Service Schemas ---

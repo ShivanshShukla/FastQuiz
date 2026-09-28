@@ -4,10 +4,18 @@
  */
 
 import type {
+  AdminAuthResponse,
+  AdminInviteRequest,
+  AdminInviteResponse,
+  AdminLoginRequest,
+  AdminLoginResult,
   AdminQuestionItem,
   AdminQuestionsFilter,
   AdminQuizItem,
   AdminReviewActionResponse,
+  AdminTotpConfirmEnrollmentRequest,
+  AdminTotpVerifyRequest,
+  AdminUser,
   ApiErrorResponse,
   AuthResponse,
   CreateCheckoutSessionResponse,
@@ -98,6 +106,7 @@ export class FastQuizClient {
 
     try {
       const response = await fetch(url, {
+        credentials: 'include',
         ...options,
         headers: {
           ...headers,
@@ -156,6 +165,54 @@ export class FastQuizClient {
 
     getMe: (): Promise<UserProfileResponse> => {
       return this.request<UserProfileResponse>(this.config.authBaseUrl!, '/auth/me');
+    },
+  };
+
+  // --- Admin Authentication API ---
+
+  public readonly adminAuth = {
+    login: (data: AdminLoginRequest): Promise<AdminLoginResult> => {
+      return this.request<AdminLoginResult>(this.config.authBaseUrl!, '/admin/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    confirmTotpEnrollment: (data: AdminTotpConfirmEnrollmentRequest): Promise<AdminAuthResponse> => {
+      return this.request<AdminAuthResponse>(this.config.authBaseUrl!, '/admin/auth/totp/confirm-enrollment', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    verifyTotp: (data: AdminTotpVerifyRequest): Promise<AdminAuthResponse> => {
+      return this.request<AdminAuthResponse>(this.config.authBaseUrl!, '/admin/auth/totp/verify', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    refreshToken: (): Promise<AdminAuthResponse> => {
+      return this.request<AdminAuthResponse>(this.config.authBaseUrl!, '/admin/auth/refresh', {
+        method: 'POST',
+      });
+    },
+
+    logout: (): Promise<{ success: boolean }> => {
+      return this.request<{ success: boolean }>(this.config.authBaseUrl!, '/admin/auth/logout', {
+        method: 'POST',
+      });
+    },
+
+    getMe: (): Promise<AdminUser> => {
+      return this.request<AdminUser>(this.config.authBaseUrl!, '/admin/auth/me');
+    },
+
+    invite: (data: AdminInviteRequest): Promise<AdminInviteResponse> => {
+      return this.request<AdminInviteResponse>(this.config.authBaseUrl!, '/admin/auth/invite', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
     },
   };
 

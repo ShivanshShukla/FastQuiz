@@ -4,6 +4,8 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, DEMO_ADMIN_USER, DEMO_REGULAR_USER } from '../src/context/AuthContext';
 import { ProtectedRoute } from '../src/components/ProtectedRoute';
+import { LoginPage } from '../src/pages/LoginPage';
+import { ToastProvider } from '../src/context/ToastContext';
 
 describe('Auth & ProtectedRoute', () => {
   it('redirects unauthenticated users to /login', () => {
@@ -74,5 +76,30 @@ describe('Auth & ProtectedRoute', () => {
 
     expect(screen.getByText('Secret Review Queue Content')).toBeInTheDocument();
     expect(screen.queryByText('Access Denied')).not.toBeInTheDocument();
+  });
+
+  it('renders login page with 12-character requirement and no Google SSO button', () => {
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    // Verify FastQuiz Admin brand
+    expect(screen.getByText('FastQuiz Admin')).toBeInTheDocument();
+
+    // Verify Google SSO button is completely absent
+    expect(screen.queryByText(/Sign in with Google/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Google/i)).not.toBeInTheDocument();
+
+    // Verify hardware/password min 12 chars hint
+    expect(screen.getByText('Min 12 chars')).toBeInTheDocument();
+
+    // Verify identity isolation notice
+    expect(screen.getByText(/Separate admin identity domain/i)).toBeInTheDocument();
   });
 });

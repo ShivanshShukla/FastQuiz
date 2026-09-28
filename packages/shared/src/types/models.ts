@@ -7,6 +7,7 @@ export type UUID = string;
 export type ISODateString = string;
 
 export type UserRole = 'admin' | 'user';
+export type AdminRole = 'super_admin' | 'admin';
 
 export interface User {
   id: UUID;
@@ -15,6 +16,15 @@ export interface User {
   role?: UserRole;
   password_hash?: string | null;
   google_id?: string | null;
+  created_at: ISODateString;
+}
+
+export interface AdminUser {
+  id: UUID;
+  name: string;
+  email: string;
+  role: AdminRole;
+  totp_enabled: boolean;
   created_at: ISODateString;
 }
 

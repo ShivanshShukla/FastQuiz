@@ -1,27 +1,38 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
-import { FastQuizClient, type User, type UserRole } from '@fastquiz/shared';
+import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import {
+  FastQuizClient,
+  type AdminUser,
+  type User,
+} from '@fastquiz/shared';
+import { type TotpChallengeState } from '../components/TotpChallengeModal';
+
+export type AnyAuthUser = AdminUser | User;
 
 export interface AuthContextValue {
-  user: User | null;
+  user: AnyAuthUser | null;
   accessToken: string | null;
-  role: UserRole | null;
+  role: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   client: FastQuizClient;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  totpChallenge: TotpChallengeState | null;
+  login: (email: string, password: string) => Promise<{ requiresTotp: boolean }>;
+  confirmTotp: (code: string) => Promise<void>;
+  verifyTotp: (code: string) => Promise<void>;
+  clearTotpChallenge: () => void;
   loginDemoAdmin: () => void;
   loginDemoUser: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const DEMO_ADMIN_USER: User = {
+export const DEMO_ADMIN_USER: AdminUser = {
   id: 'usr-admin-1',
-  name: 'Alex Reviewer (Admin)',
+  name: 'Alex Reviewer (Super Admin)',
   email: 'admin@fastquiz.dev',
-  role: 'admin',
+  role: 'super_admin',
+  totp_enabled: true,
   created_at: '2026-01-01T00:00:00Z',
 };
 
@@ -35,12 +46,13 @@ export const DEMO_REGULAR_USER: User = {
 
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
-  initialUser?: User | null;
+  initialUser?: AnyAuthUser | null;
   initialToken?: string | null;
 }> = ({ children, initialUser = null, initialToken = null }) => {
   // Store token and user strictly in-memory (never in localStorage)
-  const [user, setUser] = useState<User | null>(initialUser);
+  const [user, setUser] = useState<AnyAuthUser | null>(initialUser);
   const [accessToken, setAccessToken] = useState<string | null>(initialToken);
+  const [totpChallenge, setTotpChallenge] = useState<TotpChallengeState | null>(null);
 
   // Initialize shared FastQuizClient with in-memory token resolver
   const client = useMemo(() => {
@@ -49,44 +61,88 @@ export const AuthProvider: React.FC<{
     });
   }, [accessToken]);
 
-  const login = async (email: string, password: string): Promise<void> => {
-    try {
-      const response = await client.auth.login({ email, password });
-      const userObj = response.user;
-      const token = response.tokens.access_token;
+  // Attempt silent session restoration from httpOnly cookie on mount
+  useEffect(() => {
+    if (initialUser || initialToken) return;
 
-      // Verify admin role
-      if (userObj.role !== 'admin') {
-        throw new Error('Access Denied: Your account does not have administrator privileges.');
+    let isMounted = true;
+    const restoreSession = async () => {
+      try {
+        const response = await client.adminAuth.refreshToken();
+        if (isMounted && response?.access_token) {
+          setUser(response.admin);
+          setAccessToken(response.access_token);
+          client.setAccessToken(response.access_token);
+        }
+      } catch {
+        // No active session cookie found - stay logged out
+      }
+    };
+
+    restoreSession();
+    return () => {
+      isMounted = false;
+    };
+  }, [client, initialUser, initialToken]);
+
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ requiresTotp: boolean }> => {
+    try {
+      const response = await client.adminAuth.login({ email, password });
+
+      if (response.status === 'authenticated') {
+        setUser(response.admin);
+        setAccessToken(response.access_token);
+        client.setAccessToken(response.access_token);
+        setTotpChallenge(null);
+        return { requiresTotp: false };
       }
 
-      setUser(userObj);
-      setAccessToken(token);
-      client.setAccessToken(token);
+      // Step 2: TOTP Challenge required
+      setTotpChallenge(response);
+      return { requiresTotp: true };
     } catch (err: unknown) {
-      // In offline/dev mode, check if credentials match admin convention
+      // In offline/demo fallback mode, check if credentials match admin convention
       if (email.toLowerCase().includes('admin')) {
         loginDemoAdmin();
-        return;
+        return { requiresTotp: false };
       }
       throw err;
     }
   };
 
-  const loginWithGoogle = async (): Promise<void> => {
-    // Simulated Google OAuth response returning admin claims
-    const googleAdmin: User = {
-      id: 'usr-google-admin-99',
-      name: 'Google Admin User',
-      email: 'admin.google@fastquiz.dev',
-      role: 'admin',
-      google_id: 'goog-123456789',
-      created_at: new Date().toISOString(),
-    };
-    const mockToken = 'mock-google-admin-jwt-token';
-    setUser(googleAdmin);
-    setAccessToken(mockToken);
-    client.setAccessToken(mockToken);
+  const confirmTotp = async (code: string): Promise<void> => {
+    if (!totpChallenge || !('pre_auth_token' in totpChallenge)) {
+      throw new Error('No active TOTP challenge in progress');
+    }
+    const response = await client.adminAuth.confirmTotpEnrollment({
+      pre_auth_token: totpChallenge.pre_auth_token,
+      code,
+    });
+    setUser(response.admin);
+    setAccessToken(response.access_token);
+    client.setAccessToken(response.access_token);
+    setTotpChallenge(null);
+  };
+
+  const verifyTotp = async (code: string): Promise<void> => {
+    if (!totpChallenge || !('pre_auth_token' in totpChallenge)) {
+      throw new Error('No active TOTP challenge in progress');
+    }
+    const response = await client.adminAuth.verifyTotp({
+      pre_auth_token: totpChallenge.pre_auth_token,
+      code,
+    });
+    setUser(response.admin);
+    setAccessToken(response.access_token);
+    client.setAccessToken(response.access_token);
+    setTotpChallenge(null);
+  };
+
+  const clearTotpChallenge = (): void => {
+    setTotpChallenge(null);
   };
 
   const loginDemoAdmin = (): void => {
@@ -94,6 +150,7 @@ export const AuthProvider: React.FC<{
     setUser(DEMO_ADMIN_USER);
     setAccessToken(token);
     client.setAccessToken(token);
+    setTotpChallenge(null);
   };
 
   const loginDemoUser = (): void => {
@@ -101,17 +158,24 @@ export const AuthProvider: React.FC<{
     setUser(DEMO_REGULAR_USER);
     setAccessToken(token);
     client.setAccessToken(token);
+    setTotpChallenge(null);
   };
 
-  const logout = (): void => {
+  const logout = async (): Promise<void> => {
+    try {
+      await client.adminAuth.logout();
+    } catch {
+      // Ignore network errors on logout
+    }
     setUser(null);
     setAccessToken(null);
     client.setAccessToken(null);
+    setTotpChallenge(null);
   };
 
   const role = user?.role ?? null;
   const isAuthenticated = Boolean(user && accessToken);
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'super_admin';
 
   return (
     <AuthContext.Provider
@@ -122,8 +186,11 @@ export const AuthProvider: React.FC<{
         isAuthenticated,
         isAdmin,
         client,
+        totpChallenge,
         login,
-        loginWithGoogle,
+        confirmTotp,
+        verifyTotp,
+        clearTotpChallenge,
         loginDemoAdmin,
         loginDemoUser,
         logout,
