@@ -269,11 +269,15 @@ services:
     build:
       context: .
       dockerfile: apps/admin/Dockerfile
+      args:
+        VITE_MOCK_ON: ${MOCK_ON:-true}
     container_name: fastquiz-admin
     restart: unless-stopped
     ports:
       - "3001:80"
     depends_on:
+      auth-service:
+        condition: service_healthy
       quiz-service:
         condition: service_healthy
     healthcheck:

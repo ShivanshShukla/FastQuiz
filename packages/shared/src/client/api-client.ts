@@ -34,7 +34,27 @@ import type {
   TopicSummary,
   UserProfileResponse,
   UUID,
+  AdminDashboardDateRange,
+  AdminDashboardSummary,
+  AdminTimeseriesData,
+  AdminFunnelData,
+  AdminTopQuizItem,
+  AdminAttentionData,
+  AdminRecentSignup,
+  AdminRecentPurchase,
+  AdminAuditActivityItem,
+  AdminUsersListParams,
+  AdminUsersListResponse,
+  AdminUserDetail,
+  AdminUserQuestionBreakdown,
+  AdminUserNoteItem,
+  SuspendUserRequest,
+  UnsuspendUserRequest,
+  GrantQuizRequest,
+  ResetFreeGrantRequest,
+  CreateAdminNoteRequest,
 } from '../types';
+import { adminMockStore } from './mock-admin-data';
 
 export class FastQuizApiError extends Error {
   public readonly status: number;
@@ -65,10 +85,10 @@ export class FastQuizClient {
 
   constructor(config: ClientConfig = {}) {
     this.config = {
-      baseUrl: config.baseUrl || '',
-      authBaseUrl: config.authBaseUrl || config.baseUrl || 'http://localhost:8001',
-      quizBaseUrl: config.quizBaseUrl || config.baseUrl || 'http://localhost:8002',
-      paymentsBaseUrl: config.paymentsBaseUrl || config.baseUrl || 'http://localhost:8003',
+      baseUrl: config.baseUrl ?? '',
+      authBaseUrl: config.authBaseUrl ?? config.baseUrl ?? 'http://localhost:8001',
+      quizBaseUrl: config.quizBaseUrl ?? config.baseUrl ?? 'http://localhost:8002',
+      paymentsBaseUrl: config.paymentsBaseUrl ?? config.baseUrl ?? 'http://localhost:8003',
       getAccessToken: config.getAccessToken,
       useMockFallback: config.useMockFallback ?? true,
     };
@@ -102,7 +122,8 @@ export class FastQuizClient {
 
   private async request<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
     const headers = await this.getHeaders();
-    const url = `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const url = baseUrl ? `${baseUrl.replace(/\/$/, '')}${cleanPath}` : cleanPath;
 
     try {
       const response = await fetch(url, {
@@ -117,7 +138,15 @@ export class FastQuizClient {
       if (!response.ok) {
         let errorData: ApiErrorResponse;
         try {
-          errorData = (await response.json()) as ApiErrorResponse;
+          const raw = (await response.json()) as Record<string, unknown>;
+          errorData = {
+            error_code: (raw.error_code as string) || 'HTTP_ERROR',
+            message:
+              (raw.message as string) ||
+              (raw.detail as string) ||
+              `Request failed with status ${response.status} (${response.statusText})`,
+            details: (raw.details as Record<string, unknown>) || null,
+          };
         } catch {
           errorData = {
             error_code: 'HTTP_ERROR',
@@ -407,6 +436,265 @@ export class FastQuizClient {
 
     getPurchaseHistory: (): Promise<PurchaseHistoryResponse> => {
       return this.request<PurchaseHistoryResponse>(this.config.paymentsBaseUrl!, '/purchases/history');
+    },
+  };
+
+  // --- Admin Dashboard API ---
+
+  public readonly adminDashboard = {
+    getSummary: async (range: AdminDashboardDateRange = '7d', from?: string, to?: string): Promise<AdminDashboardSummary> => {
+      const qs = new URLSearchParams({ range });
+      if (from) qs.set('from', from);
+      if (to) qs.set('to', to);
+      try {
+        return await this.request<AdminDashboardSummary>(this.config.authBaseUrl!, `/admin/dashboard/summary?${qs.toString()}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getDashboardSummary(range);
+      }
+    },
+
+    getTimeseries: async (range: AdminDashboardDateRange = '7d', from?: string, to?: string): Promise<AdminTimeseriesData> => {
+      const qs = new URLSearchParams({ range });
+      if (from) qs.set('from', from);
+      if (to) qs.set('to', to);
+      try {
+        return await this.request<AdminTimeseriesData>(this.config.authBaseUrl!, `/admin/dashboard/timeseries?${qs.toString()}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getDashboardTimeseries(range);
+      }
+    },
+
+    getFunnel: async (range: AdminDashboardDateRange = '7d', from?: string, to?: string): Promise<AdminFunnelData> => {
+      const qs = new URLSearchParams({ range });
+      if (from) qs.set('from', from);
+      if (to) qs.set('to', to);
+      try {
+        return await this.request<AdminFunnelData>(this.config.authBaseUrl!, `/admin/dashboard/funnel?${qs.toString()}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getDashboardFunnel();
+      }
+    },
+
+    getTopQuizzes: async (by: 'revenue' | 'attempts' = 'revenue', limit: number = 5): Promise<AdminTopQuizItem[]> => {
+      const qs = new URLSearchParams({ by, limit: String(limit) });
+      try {
+        return await this.request<AdminTopQuizItem[]>(this.config.authBaseUrl!, `/admin/dashboard/top-quizzes?${qs.toString()}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getTopQuizzes(by, limit);
+      }
+    },
+
+    getAttention: async (): Promise<AdminAttentionData> => {
+      try {
+        return await this.request<AdminAttentionData>(this.config.authBaseUrl!, '/admin/dashboard/attention');
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getAttentionItems();
+      }
+    },
+
+    getRecentSignups: async (limit: number = 8): Promise<AdminRecentSignup[]> => {
+      try {
+        return await this.request<AdminRecentSignup[]>(this.config.authBaseUrl!, `/admin/dashboard/recent-signups?limit=${limit}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getRecentSignups(limit);
+      }
+    },
+
+    getRecentPurchases: async (limit: number = 8): Promise<AdminRecentPurchase[]> => {
+      try {
+        return await this.request<AdminRecentPurchase[]>(this.config.authBaseUrl!, `/admin/dashboard/recent-purchases?limit=${limit}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getRecentPurchases(limit);
+      }
+    },
+
+    getRecentAuditActivity: async (limit: number = 8): Promise<AdminAuditActivityItem[]> => {
+      try {
+        return await this.request<AdminAuditActivityItem[]>(this.config.authBaseUrl!, `/admin/dashboard/recent-audit?limit=${limit}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getRecentAuditActivity(limit);
+      }
+    },
+  };
+
+  // --- Admin Users API ---
+
+  public readonly adminUsers = {
+    list: async (params: AdminUsersListParams = {}): Promise<AdminUsersListResponse> => {
+      const qs = new URLSearchParams();
+      if (params.search) qs.set('search', params.search);
+      if (params.status && params.status !== 'all') qs.set('status', params.status);
+      if (params.has_purchased && params.has_purchased !== 'all') qs.set('has_purchased', params.has_purchased);
+      if (params.source && params.source !== 'all') qs.set('source', params.source);
+      if (params.signup_from) qs.set('signup_from', params.signup_from);
+      if (params.signup_to) qs.set('signup_to', params.signup_to);
+      if (params.last_active_from) qs.set('last_active_from', params.last_active_from);
+      if (params.last_active_to) qs.set('last_active_to', params.last_active_to);
+      if (params.sort_by) qs.set('sort_by', params.sort_by);
+      if (params.sort_order) qs.set('sort_order', params.sort_order);
+      if (params.page) qs.set('page', String(params.page));
+      if (params.page_size) qs.set('page_size', String(params.page_size));
+
+      try {
+        return await this.request<AdminUsersListResponse>(this.config.authBaseUrl!, `/admin/users?${qs.toString()}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.listUsers(params);
+      }
+    },
+
+    getDetail: async (userId: UUID): Promise<AdminUserDetail> => {
+      try {
+        return await this.request<AdminUserDetail>(this.config.authBaseUrl!, `/admin/users/${userId}`);
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const u = adminMockStore.getUser(userId);
+        if (!u) {
+          throw new FastQuizApiError(404, {
+            error_code: 'NOT_FOUND',
+            message: `User ${userId} not found`,
+          });
+        }
+        return u;
+      }
+    },
+
+    suspend: async (userId: UUID, req: SuspendUserRequest): Promise<{ success: boolean; status: string }> => {
+      try {
+        return await this.request<{ success: boolean; status: string }>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/suspend`,
+          {
+            method: 'POST',
+            body: JSON.stringify(req),
+          }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const ok = adminMockStore.suspendUser(userId, req.reason);
+        return { success: ok, status: 'suspended' };
+      }
+    },
+
+    unsuspend: async (userId: UUID, req: UnsuspendUserRequest): Promise<{ success: boolean; status: string }> => {
+      try {
+        return await this.request<{ success: boolean; status: string }>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/unsuspend`,
+          {
+            method: 'POST',
+            body: JSON.stringify(req),
+          }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const ok = adminMockStore.unsuspendUser(userId, req.reason);
+        return { success: ok, status: 'active' };
+      }
+    },
+
+    grantQuiz: async (userId: UUID, req: GrantQuizRequest): Promise<{ success: boolean; quiz_id: string }> => {
+      try {
+        return await this.request<{ success: boolean; quiz_id: string }>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/grants`,
+          {
+            method: 'POST',
+            body: JSON.stringify(req),
+          }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const ok = adminMockStore.grantQuiz(userId, req.quiz_id, req.reason);
+        return { success: ok, quiz_id: req.quiz_id };
+      }
+    },
+
+    resetFreeGrant: async (userId: UUID, req: ResetFreeGrantRequest): Promise<{ success: boolean; topic_id: string }> => {
+      try {
+        return await this.request<{ success: boolean; topic_id: string }>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/free-grants/reset`,
+          {
+            method: 'POST',
+            body: JSON.stringify(req),
+          }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const ok = adminMockStore.resetFreeGrant(userId, req.topic_id, req.reason);
+        return { success: ok, topic_id: req.topic_id };
+      }
+    },
+
+    getQuestionBreakdown: async (userId: UUID, attemptId: UUID): Promise<AdminUserQuestionBreakdown[]> => {
+      try {
+        return await this.request<AdminUserQuestionBreakdown[]>(
+          this.config.quizBaseUrl!,
+          `/admin/users/${userId}/attempts/${attemptId}/breakdown`
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        return adminMockStore.getQuestionBreakdown(attemptId);
+      }
+    },
+
+    addNote: async (userId: UUID, req: CreateAdminNoteRequest): Promise<AdminUserNoteItem> => {
+      try {
+        return await this.request<AdminUserNoteItem>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/notes`,
+          {
+            method: 'POST',
+            body: JSON.stringify(req),
+          }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const note = adminMockStore.addNote(userId, req.text);
+        if (!note) throw new Error('User not found');
+        return note;
+      }
+    },
+
+    revealEmail: async (userId: UUID): Promise<{ email: string }> => {
+      try {
+        return await this.request<{ email: string }>(
+          this.config.authBaseUrl!,
+          `/admin/users/${userId}/reveal-email`,
+          { method: 'POST' }
+        );
+      } catch (err) {
+        if (!this.config.useMockFallback) throw err;
+        const u = adminMockStore.getUser(userId);
+        return { email: u ? u.email : '' };
+      }
+    },
+
+    exportCsv: async (params: AdminUsersListParams = {}): Promise<string> => {
+      const res = adminMockStore.listUsers({ ...params, page: 1, page_size: 1000 });
+      const headers = ['User ID', 'Name', 'Email', 'Status', 'Source', 'Created At', 'Last Seen At', 'Quizzes Purchased', 'Total Spent ($)', 'Attempts Count'];
+      const rows = res.items.map((u) => [
+        u.id,
+        `"${u.name.replace(/"/g, '""')}"`,
+        `"${u.email.replace(/"/g, '""')}"`,
+        u.status,
+        u.source,
+        u.created_at,
+        u.last_seen_at || '',
+        u.quizzes_purchased,
+        u.total_spent.toFixed(2),
+        u.attempts_count,
+      ]);
+      return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     },
   };
 }

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     DEFAULT_DURATION_SECONDS: int = 900
     FREE_ATTEMPTS_PER_TOPIC: int = 1
 
+    # Admin Authentication
+    ADMIN_JWT_SECRET: str = "admin-secret-key-change-in-production-67890"
+    ADMIN_JWT_AUDIENCE: str = "fastquiz-admin"
+    JWT_ALGORITHM: str = "HS256"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

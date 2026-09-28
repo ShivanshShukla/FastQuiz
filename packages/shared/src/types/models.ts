@@ -7,16 +7,22 @@ export type UUID = string;
 export type ISODateString = string;
 
 export type UserRole = 'admin' | 'user';
-export type AdminRole = 'super_admin' | 'admin';
+export type AdminRole = 'super_admin' | 'admin' | 'finance' | 'reviewer' | 'support';
+export type UserStatus = 'active' | 'suspended';
+export type UserSource = 'email' | 'google';
 
 export interface User {
   id: UUID;
   name: string;
   email: string;
   role?: UserRole;
+  status?: UserStatus;
+  source?: UserSource;
   password_hash?: string | null;
   google_id?: string | null;
+  last_seen_at?: ISODateString | null;
   created_at: ISODateString;
+  updated_at?: ISODateString | null;
 }
 
 export interface AdminUser {

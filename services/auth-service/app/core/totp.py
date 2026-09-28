@@ -88,7 +88,8 @@ def generate_totp_provisioning_uri(email: str, secret: str) -> str:
 
 
 def generate_qr_code_svg(uri: str) -> str:
-    """Generates an inline SVG string for the QR code using Segno."""
+    """Generates a responsive inline SVG string for the QR code using Segno.
+    Uses omitsize=True to ensure SVG has a viewBox and scales to any container,
+    light='#fff' for solid white background contrast, and border=2 for quiet zone."""
     qr = segno.make(uri, error="m")
-    # Generates a clean standalone SVG string
-    return qr.svg_inline(scale=4, border=2)
+    return qr.svg_inline(omitsize=True, border=2, light="#fff")

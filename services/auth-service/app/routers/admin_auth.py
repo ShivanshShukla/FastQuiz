@@ -128,7 +128,7 @@ async def set_refresh_cookie_and_create_session(
         value=raw_token,
         httponly=True,
         secure=is_production,
-        samesite="strict",
+        samesite="lax",
         path=REFRESH_COOKIE_PATH,
         max_age=int(expires_delta.total_seconds()),
     )
@@ -483,12 +483,57 @@ async def refresh_admin_token(
             detail="Invalid session",
         )
 
-    # Token Reuse Detection: If already revoked, terminate all sessions for this admin!
+    # Token Reuse Detection: Allow 30-second grace window for concurrent requests
+    rotation_grace_period_seconds = 30.0
     if session_record.revoked_at is not None:
+        delta = utc_now() - ensure_utc(session_record.revoked_at)
+        revocation_age = delta.total_seconds()
+        if revocation_age < rotation_grace_period_seconds:
+            logger.info(
+                "Refresh token presented within grace window (age=%.2fs) "
+                "for admin_id=%s. Returning active session.",
+                revocation_age,
+                session_record.admin_id,
+            )
+            # Find the active replacement session for this admin
+            active_result = await db.execute(
+                select(AdminRefreshToken)
+                .where(
+                    AdminRefreshToken.admin_id == session_record.admin_id,
+                    AdminRefreshToken.revoked_at.is_(None),
+                )
+                .order_by(AdminRefreshToken.created_at.desc())
+            )
+            active_session = active_result.scalars().first()
+            if active_session and ensure_utc(active_session.expires_at) > utc_now():
+                admin_result = await db.execute(
+                    select(Admin).where(Admin.id == session_record.admin_id)
+                )
+                admin = admin_result.scalars().first()
+                if admin and admin.is_active:
+                    access_token, expires_in = create_admin_access_token(
+                        admin.id, admin.email, admin.role, admin.name
+                    )
+                    return AdminAuthSuccessResponse(
+                        status="authenticated",
+                        access_token=access_token,
+                        token_type="bearer",
+                        expires_in=expires_in,
+                        admin=AdminProfileResponse(
+                            id=admin.id,
+                            email=admin.email,
+                            name=admin.name,
+                            role=admin.role,
+                            totp_enabled=admin.totp_enabled,
+                            created_at=admin.created_at.isoformat(),
+                        ),
+                    )
+
         logger.warning(
-            "Reuse of revoked refresh token detected for admin_id=%s! "
+            "Reuse of revoked refresh token detected for admin_id=%s (age=%.2fs)! "
             "Revoking all sessions.",
             session_record.admin_id,
+            revocation_age,
         )
         await db.execute(
             update(AdminRefreshToken)

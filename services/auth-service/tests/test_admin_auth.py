@@ -1,9 +1,12 @@
+import datetime
+
 import fakeredis.aioredis
 import jwt
 import pyotp
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import settings
@@ -11,46 +14,11 @@ from app.core.db import Base, get_db
 from app.core.jwt import create_admin_access_token
 from app.core.security import hash_password, verify_dummy_password, verify_password
 from app.main import app
-from app.models.admin import Admin
+from app.models.admin import Admin, AdminRefreshToken
 from app.routers.admin_auth import rate_limiter as global_rate_limiter
+from app.routers.admin_auth import utc_now
 
-# Use in-memory SQLite for high-speed, isolated unit test suite
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
-TestSessionLocal = async_sessionmaker(
-    bind=test_engine, class_=AsyncSession, expire_on_commit=False
-)
-
-
-@pytest_asyncio.fixture(scope="function", autouse=True)
-async def setup_test_db():
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    # Inject fake redis
-    fake_redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
-    global_rate_limiter._redis = fake_redis
-
-    yield
-
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-async def override_get_db():
-    async with TestSessionLocal() as session:
-        yield session
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-
-@pytest_asyncio.fixture
-async def client():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        yield ac
+from tests.conftest import TestSessionLocal
 
 
 @pytest_asyncio.fixture
@@ -288,12 +256,35 @@ async def test_cookie_refresh_rotation_and_logout(
     assert new_cookie is not None
     assert new_cookie != initial_cookie  # Must be rotated!
 
-    # Reusing the old revoked cookie must trigger 401 compromised session
+    # Immediate reuse within grace period succeeds (parallel requests)
+    concurrent_res = await client.post(
+        "/admin/auth/refresh",
+        cookies={"admin_refresh_token": initial_cookie},
+    )
+    assert concurrent_res.status_code == 200
+
+    # Simulate expired grace period (> 30s) by shifting revoked_at back
+    from app.core.security import hash_token
+
+    initial_hash = hash_token(initial_cookie)
+    async with TestSessionLocal() as session:
+        result = await session.execute(
+            select(AdminRefreshToken).where(
+                AdminRefreshToken.token_hash == initial_hash
+            )
+        )
+        old_record = result.scalars().first()
+        if old_record:
+            old_record.revoked_at = utc_now() - datetime.timedelta(seconds=45)
+            await session.commit()
+
+    # Reusing revoked cookie outside grace period must trigger 401
     reuse_res = await client.post(
         "/admin/auth/refresh",
         cookies={"admin_refresh_token": initial_cookie},
     )
     assert reuse_res.status_code == 401
+    assert "Compromised session" in reuse_res.json()["detail"]
 
     # Logout with current cookie
     logout_res = await client.post(

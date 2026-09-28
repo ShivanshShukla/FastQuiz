@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Lock, Mail, AlertCircle, ArrowRight, ShieldCheck, Terminal, ShieldAlert } from 'lucide-react';
 import { TotpChallengeModal } from '../components/TotpChallengeModal';
+import { isMockEnabled } from '../config/env';
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@fastquiz.dev');
-  const [password, setPassword] = useState('AdminSecret123!');
+  const mockActive = isMockEnabled();
+  const [email, setEmail] = useState(mockActive ? 'admin@fastquiz.dev' : '');
+  const [password, setPassword] = useState(mockActive ? 'AdminSecret123!' : '');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totpLoading, setTotpLoading] = useState(false);
@@ -21,12 +23,21 @@ export const LoginPage: React.FC = () => {
     clearTotpChallenge,
     loginDemoAdmin,
     loginDemoUser,
+    isAuthenticated,
+    isInitializing,
   } = useAuth();
   const { success } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   const destination = (location.state as { from?: { pathname: string } })?.from?.pathname || '/review';
+
+  // If already authenticated and done initializing, redirect directly to dashboard
+  React.useEffect(() => {
+    if (isAuthenticated && !isInitializing) {
+      navigate(destination, { replace: true });
+    }
+  }, [isAuthenticated, isInitializing, navigate, destination]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,9 +131,17 @@ export const LoginPage: React.FC = () => {
                 <span className="font-mono text-[10px] text-zinc-400">v2.4.0 (Enterprise)</span>
               </div>
             </div>
-            <span className="font-mono text-[10px] bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded border border-zinc-200 font-medium">
-              INTERNAL ONLY
-            </span>
+            <div className="flex items-center gap-1.5">
+              {mockActive ? (
+                <span className="font-mono text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 font-medium">
+                  MOCK MODE
+                </span>
+              ) : (
+                <span className="font-mono text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                  PRODUCTION
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="pt-2 border-t border-zinc-100">
@@ -202,35 +221,37 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Development Quick Access Panel */}
-        <div className="pt-3 border-t border-zinc-100 flex flex-col gap-2">
-          <div className="flex items-center justify-between text-[11px] text-zinc-400">
-            <span className="flex items-center gap-1 font-mono uppercase tracking-wider text-[10px]">
-              <Terminal className="w-3 h-3 text-zinc-400" />
-              Dev Environment Quick Keys
-            </span>
-            <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-              MOCK OK
-            </span>
-          </div>
+        {mockActive && (
+          <div className="pt-3 border-t border-zinc-100 flex flex-col gap-2">
+            <div className="flex items-center justify-between text-[11px] text-zinc-400">
+              <span className="flex items-center gap-1 font-mono uppercase tracking-wider text-[10px]">
+                <Terminal className="w-3 h-3 text-zinc-400" />
+                Dev Environment Quick Keys
+              </span>
+              <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                MOCK OK
+              </span>
+            </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={handleDemoAdmin}
-              className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Log in as Admin</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleDemoUser}
-              className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
-            >
-              <span>Test Non-Admin</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={handleDemoAdmin}
+                className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Log in as Admin</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleDemoUser}
+                className="py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 border border-zinc-200 rounded font-medium transition text-center cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+              >
+                <span>Test Non-Admin</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* TOTP 2FA Verification Modal */}
