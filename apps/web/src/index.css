@@ -1,23 +1,114 @@
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: #213547;
-  background-color: #ffffff;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #fafafa;
+    --color-surface-container: #f4f4f5;
+    --color-surface-container-high: #e4e4e7;
+    --color-surface-container-highest: #d4d4d8;
+    --color-outline: #71717a;
+    --color-outline-variant: #e4e4e7;
+    --color-on-surface: #09090b;
+    --color-on-surface-variant: #52525b;
+    --color-primary: #4f46e5;
+    --color-primary-container: #6366f1;
+    --color-secondary: #f59e0b;
+    --color-tertiary: #10b981;
+    --color-border: #e4e4e7;
+  }
+
+  .dark {
+    --color-background: #09090b;
+    --color-surface: #121215;
+    --color-surface-container-lowest: #09090b;
+    --color-surface-container-low: #0e0e11;
+    --color-surface-container: #18181b;
+    --color-surface-container-high: #222226;
+    --color-surface-container-highest: #27272a;
+    --color-outline: #71717a;
+    --color-outline-variant: #27272a;
+    --color-on-surface: #fafafa;
+    --color-on-surface-variant: #a1a1aa;
+    --color-primary: #6366f1;
+    --color-primary-container: #4f46e5;
+    --color-secondary: #f59e0b;
+    --color-tertiary: #10b981;
+    --color-border: #27272a;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(161, 161, 170, 0.2);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(161, 161, 170, 0.4);
+  }
 }
 
-body {
-  margin: 0;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
+.font-tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  width: 100%;
+/* Linear-style Clean Interactive Button Classes */
+.btn-tactile-primary,
+.btn-primary-action {
+  background-color: #6366f1;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+  font-weight: 600;
+}
+.btn-tactile-primary:hover,
+.btn-primary-action:hover {
+  background-color: #4f46e5;
+}
+.btn-tactile-primary:active,
+.btn-primary-action:active {
+  transform: scale(0.98);
+}
+
+.btn-tactile-secondary {
+  background-color: transparent;
+  border: 1px solid #27272a;
+  color: #f4f4f5;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+.btn-tactile-secondary:hover {
+  background-color: #18181b;
+}
+
+.btn-tactile-outline {
+  background-color: transparent;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+.dark .btn-tactile-outline {
+  border-color: #27272a;
+}
+.btn-tactile-outline:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }

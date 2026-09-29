@@ -1,54 +1,41 @@
-import React, { useState } from 'react';
-import { FastQuizClient, QUIZ_CONSTANTS, type TopicSummary } from '@fastquiz/shared';
-import './App.css';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import { MainLayout } from './components/Layout/MainLayout';
+import { DashboardPage } from './pages/DashboardPage';
+import { TopicDetailPage } from './pages/TopicDetailPage';
+import { QuizRunnerPage } from './pages/QuizRunnerPage';
+import { QuizResultsPage } from './pages/QuizResultsPage';
+import { TopicsCatalogPage } from './pages/TopicsCatalogPage';
+import { PricingPage } from './pages/PricingPage';
+import { LoginPage } from './pages/LoginPage';
 
 export const App: React.FC = () => {
-  const [topics] = useState<TopicSummary[]>([
-    {
-      id: 'topic-1',
-      name: 'Arrays & Two Pointers',
-      description: 'Master core interview patterns with high-frequency questions.',
-      total_quizzes: 4,
-      free_attempt_available: true,
-    },
-    {
-      id: 'topic-2',
-      name: 'System Design Fundamentals',
-      description: 'Caching, replication, sharding, and consensus building blocks.',
-      total_quizzes: 6,
-      free_attempt_available: true,
-    },
-  ]);
-
-  // Instantiate shared API client
-  const client = React.useMemo(() => new FastQuizClient(), []);
-
   return (
-    <div>
-      <header className="header">
-        <h1>FastQuiz ⚡</h1>
-        <p>Prep Fast. Master Interviews. Pay Only For What You Need.</p>
-        <small style={{ opacity: 0.8 }}>{Boolean(client) ? 'Client Ready' : 'Initializing'}</small>
-      </header>
-
-      <main>
-        <h2>Available Topics</h2>
-        <p>Every topic includes {QUIZ_CONSTANTS.FREE_ATTEMPTS_PER_TOPIC} free full quiz attempt.</p>
-
-        <div className="card-grid">
-          {topics.map((topic) => (
-            <div key={topic.id} className="quiz-card">
-              <span className="badge">
-                {topic.free_attempt_available ? '1 Free Attempt' : 'Paid'}
-              </span>
-              <h3>{topic.name}</h3>
-              <p>{topic.description}</p>
-              <small>{topic.total_quizzes} Quizzes Available</small>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="curriculum" element={<DashboardPage />} />
+                <Route path="topics" element={<TopicsCatalogPage />} />
+                <Route path="topics/:topicId" element={<TopicDetailPage />} />
+                <Route path="quiz/:quizId/take" element={<QuizRunnerPage />} />
+                <Route path="attempts/:attemptId/results" element={<QuizResultsPage />} />
+                <Route path="pricing" element={<PricingPage />} />
+                <Route path="pricing-and-bundles" element={<PricingPage />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
