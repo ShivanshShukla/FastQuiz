@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { MainLayout } from './components/Layout/MainLayout';
+import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { TopicDetailPage } from './pages/TopicDetailPage';
 import { QuizRunnerPage } from './pages/QuizRunnerPage';
@@ -11,6 +12,7 @@ import { QuizResultsPage } from './pages/QuizResultsPage';
 import { TopicsCatalogPage } from './pages/TopicsCatalogPage';
 import { PricingPage } from './pages/PricingPage';
 import { LoginPage } from './pages/LoginPage';
+import { LoadingDemoPage } from './pages/LoadingDemoPage';
 
 export const App: React.FC = () => {
   return (
@@ -20,8 +22,9 @@ export const App: React.FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<MainLayout />}>
-                <Route index element={<DashboardPage />} />
+                <Route index element={<LandingPage />} />
                 <Route path="curriculum" element={<DashboardPage />} />
+                <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="topics" element={<TopicsCatalogPage />} />
                 <Route path="topics/:topicId" element={<TopicDetailPage />} />
                 <Route path="quiz/:quizId/take" element={<QuizRunnerPage />} />
@@ -29,6 +32,7 @@ export const App: React.FC = () => {
                 <Route path="pricing" element={<PricingPage />} />
                 <Route path="pricing-and-bundles" element={<PricingPage />} />
                 <Route path="login" element={<LoginPage />} />
+                <Route path="loading" element={<LoadingDemoPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>

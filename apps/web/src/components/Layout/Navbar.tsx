@@ -7,7 +7,7 @@ import { BrandLogo } from '../Common/BrandLogo';
 import { UserAvatar } from '../Common/UserAvatar';
 
 const navLinks = [
-  { label: 'Curriculum', path: '/' },
+  { label: 'Curriculum', path: '/curriculum' },
   { label: 'Topics', path: '/topics' },
   { label: 'Mock Tests', path: '/topics?filter=mock' },
   { label: 'Pricing', path: '/pricing' },
@@ -22,8 +22,8 @@ export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/' || location.pathname === '/curriculum';
+    if (path === '/curriculum') {
+      return location.pathname === '/curriculum' || location.pathname === '/dashboard';
     }
     const basePath = path.split('?')[0];
     return location.pathname === basePath;
@@ -137,12 +137,20 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center px-3 py-1.5 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white transition-colors"
-            >
-              Sign in
-            </Link>
+            <div className="flex items-center gap-1.5">
+              <Link
+                to="/login"
+                className="px-2.5 py-1.5 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 text-xs font-medium transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/quiz/quiz-cache-1/take"
+                className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition-colors shadow-sm"
+              >
+                Start Free
+              </Link>
+            </div>
           )}
 
           {/* Mobile menu trigger */}
@@ -205,13 +213,22 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              onClick={() => setMobileOpen(false)}
-              className="block text-center px-3 py-2 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium"
-            >
-              Sign in
-            </Link>
+            <div className="flex items-center gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/quiz/quiz-cache-1/take"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-3 py-2 rounded-md bg-indigo-600 text-white text-xs font-medium"
+              >
+                Start Free
+              </Link>
+            </div>
           )}
         </div>
       )}
