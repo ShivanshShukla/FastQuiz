@@ -4,41 +4,41 @@
 
 @layer base {
   :root {
-    --color-background: #faf8ff;
+    --color-background: #ffffff;
     --color-surface: #ffffff;
     --color-surface-container-lowest: #ffffff;
-    --color-surface-container-low: #f8fafc;
-    --color-surface-container: #f1f5f9;
-    --color-surface-container-high: #e2e8f0;
-    --color-surface-container-highest: #cbd5e1;
-    --color-outline: #64748b;
-    --color-outline-variant: #e2e8f0;
-    --color-on-surface: #0f172a;
-    --color-on-surface-variant: #64748b;
+    --color-surface-container-low: #fafafa;
+    --color-surface-container: #f4f4f5;
+    --color-surface-container-high: #e4e4e7;
+    --color-surface-container-highest: #d4d4d8;
+    --color-outline: #71717a;
+    --color-outline-variant: #e4e4e7;
+    --color-on-surface: #09090b;
+    --color-on-surface-variant: #52525b;
     --color-primary: #4f46e5;
     --color-primary-container: #6366f1;
-    --color-secondary: #f97316;
+    --color-secondary: #f59e0b;
     --color-tertiary: #10b981;
-    --color-border: #e2e8f0;
+    --color-border: #e4e4e7;
   }
 
   .dark {
-    --color-background: #0b0f19;
-    --color-surface: #0f131d;
-    --color-surface-container-lowest: #0a0e18;
-    --color-surface-container-low: #111827;
-    --color-surface-container: #171b26;
-    --color-surface-container-high: #1e2433;
-    --color-surface-container-highest: #283144;
-    --color-outline: #4b5563;
-    --color-outline-variant: #283145;
-    --color-on-surface: #f8fafc;
-    --color-on-surface-variant: #94a3b8;
+    --color-background: #09090b;
+    --color-surface: #121215;
+    --color-surface-container-lowest: #09090b;
+    --color-surface-container-low: #0e0e11;
+    --color-surface-container: #18181b;
+    --color-surface-container-high: #222226;
+    --color-surface-container-highest: #27272a;
+    --color-outline: #71717a;
+    --color-outline-variant: #27272a;
+    --color-on-surface: #fafafa;
+    --color-on-surface-variant: #a1a1aa;
     --color-primary: #6366f1;
     --color-primary-container: #4f46e5;
-    --color-secondary: #f97316;
+    --color-secondary: #f59e0b;
     --color-tertiary: #10b981;
-    --color-border: #283145;
+    --color-border: #27272a;
   }
 
   html, body {
@@ -47,9 +47,10 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--color-background);
     color: var(--color-on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Hide scrollbars for clean presentation while preserving scrollability */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -58,61 +59,56 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.2);
+    background: rgba(161, 161, 170, 0.2);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.4);
+    background: rgba(161, 161, 170, 0.4);
   }
-}
-
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-}
-
-.fill-1 {
-  font-variation-settings: 'FILL' 1;
 }
 
 .font-tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* 3D Tactile Buttons Physics */
-.btn-tactile-primary {
-  box-shadow: 0 4px 0 0 #312e81, 0 0 20px rgba(99, 102, 241, 0.4);
-  transition: all 0.1s ease;
+/* Linear-style Clean Interactive Button Classes */
+.btn-tactile-primary,
+.btn-primary-action {
+  background-color: #6366f1;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+  font-weight: 600;
 }
-.btn-tactile-primary:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #312e81, 0 0 10px rgba(99, 102, 241, 0.3);
+.btn-tactile-primary:hover,
+.btn-primary-action:hover {
+  background-color: #4f46e5;
+}
+.btn-tactile-primary:active,
+.btn-primary-action:active {
+  transform: scale(0.98);
 }
 
 .btn-tactile-secondary {
-  box-shadow: 0 4px 0 0 #c2410c, 0 0 18px rgba(249, 115, 22, 0.35);
-  transition: all 0.1s ease;
+  background-color: transparent;
+  border: 1px solid #27272a;
+  color: #f4f4f5;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
 }
-.btn-tactile-secondary:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 0 #c2410c, 0 0 10px rgba(249, 115, 22, 0.25);
+.btn-tactile-secondary:hover {
+  background-color: #18181b;
 }
 
 .btn-tactile-outline {
-  box-shadow: 0 3px 0 0 rgba(0, 0, 0, 0.2);
-  transition: all 0.1s ease;
+  background-color: transparent;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
 }
-.btn-tactile-outline:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.2);
+.dark .btn-tactile-outline {
+  border-color: #27272a;
+}
+.btn-tactile-outline:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }

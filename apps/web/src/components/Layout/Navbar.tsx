@@ -1,124 +1,220 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Sun, Moon, Search, Zap, Flame } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Sun, Moon, Search, Menu, X, LogOut, Activity } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../Common/BrandLogo';
 import { UserAvatar } from '../Common/UserAvatar';
 
+const navLinks = [
+  { label: 'Curriculum', path: '/' },
+  { label: 'Topics', path: '/topics' },
+  { label: 'Mock Tests', path: '/topics?filter=mock' },
+  { label: 'Pricing', path: '/pricing' },
+];
+
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navLinks = [
-    { label: 'Curriculum', path: '/' },
-    { label: 'Mock Tests', path: '/topics' },
-    { label: 'Diagnostic Results', path: '/attempts/att-seed-1/results' },
-    { label: 'Pricing', path: '/pricing' },
-  ];
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/' || location.pathname === '/curriculum';
+    }
+    const basePath = path.split('?')[0];
+    return location.pathname === basePath;
+  };
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = query.trim();
+    navigate(q ? `/topics?q=${encodeURIComponent(q)}` : '/topics');
+    setMobileOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMobileOpen(false);
+    navigate('/');
+  };
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2d3748] shadow-sm dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-colors">
-      <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4">
-        {/* Brand Logo & Title */}
-        <div className="flex items-center gap-3 shrink-0">
-          <Link
-            to="/"
-            className="flex items-center transition-transform active:scale-95"
-            aria-label="FastQuiz Home"
-          >
-            <BrandLogo size="md" showBadge={true} />
-          </Link>
-        </div>
-
-        {/* Center Rounded Navigation */}
-        <nav
-          className="hidden lg:flex items-center p-1 bg-slate-100 dark:bg-[#171b26] border border-slate-200 dark:border-[#2d3748] rounded-full shadow-inner"
-          aria-label="Primary navigation"
+    <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+      <div className="h-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="flex items-center shrink-0 transition-opacity hover:opacity-85"
+          aria-label="FastQuiz Home"
         >
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            return (
+          <BrandLogo size="md" showBadge={true} />
+        </Link>
+
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                isActive(link.path)
+                  ? 'text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Right Controls */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Minimal Search Input */}
+          <form
+            onSubmit={submitSearch}
+            className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 focus-within:border-zinc-400 dark:focus-within:border-zinc-700 transition-colors"
+          >
+            <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search topics..."
+              aria-label="Search topics"
+              className="bg-transparent border-none text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none w-24 lg:w-32 placeholder:text-zinc-400"
+            />
+            <kbd className="hidden lg:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-200/60 dark:bg-zinc-800 px-1 py-0.5 rounded">
+              ⌘K
+            </kbd>
+          </form>
+
+          {/* Understated Streak Metric */}
+          {isAuthenticated && user && (
+            <div
+              className="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-mono"
+              title={`Consecutive Streak: ${user.streakDays || 4} days`}
+            >
+              <Activity className="w-3 h-3 text-emerald-500" />
+              <span>{user.streakDays || 4}d Streak</span>
+            </div>
+          )}
+
+          {/* Clean Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-zinc-400 hover:text-zinc-100" /> : <Moon className="w-4 h-4 text-zinc-600" />}
+          </button>
+
+          {/* User Account / Auth */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
+              <UserAvatar src={user.avatarUrl} name={user.name} size="md" />
+              <div className="hidden xl:flex flex-col text-left min-w-0">
+                <span className="text-xs font-medium text-zinc-900 dark:text-zinc-200 leading-none truncate">
+                  {user.name}
+                </span>
+                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">
+                  {user.tierTitle}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                aria-label="Log out"
+                title="Log out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center px-3 py-1.5 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white transition-colors"
+            >
+              Sign in
+            </Link>
+          )}
+
+          {/* Mobile menu trigger */}
+          <button
+            type="button"
+            className="md:hidden p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 space-y-3">
+          <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
+            {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-1.5 rounded-full font-headline text-sm transition-all ${
-                  isActive
-                    ? 'bg-primary text-white font-bold shadow-[0_0_12px_rgba(99,102,241,0.35)]'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#1e2433]'
+                onClick={() => setMobileOpen(false)}
+                className={`px-3 py-2 rounded-md text-xs font-medium ${
+                  isActive(link.path)
+                    ? 'text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80'
+                    : 'text-zinc-600 dark:text-zinc-400'
                 }`}
               >
                 {link.label}
               </Link>
-            );
-          })}
-        </nav>
+            ))}
+          </nav>
 
-        {/* Right Controls Strip */}
-        <div className="flex items-center gap-3 shrink-0">
-          {/* Quick Search */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#171b26] border border-slate-200 dark:border-[#2d3748] text-slate-400 text-sm focus-within:border-primary/50 transition-all">
-            <Search className="w-4 h-4 text-slate-400" />
+          <form onSubmit={submitSearch} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+            <Search className="w-3.5 h-3.5 text-zinc-400" />
             <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent border-none text-xs text-slate-900 dark:text-slate-200 focus:outline-none w-20 lg:w-28"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search topics..."
+              aria-label="Search topics"
+              className="bg-transparent border-none text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none w-full"
             />
-            <span className="hidden xl:inline px-1 py-0.2 rounded bg-slate-200 dark:bg-[#1e2433] text-[10px] font-mono text-slate-400">
-              ⌘K
-            </span>
-          </div>
+          </form>
 
-          {/* Momentum Flame Streak Pill */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-950/60 border border-orange-300 dark:border-orange-500/40 text-orange-600 dark:text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
-            <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
-            <span className="font-headline text-xs font-bold">{user?.streakDays || 4}-Day Streak</span>
-            <span className="hidden sm:inline text-[11px] font-semibold text-orange-500 dark:text-orange-300/80 pl-1 border-l border-orange-400/30">
-              +{user?.xp || 240} XP
-            </span>
-          </div>
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-[#171b26] border border-slate-200 dark:border-[#2d3748] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
-          </button>
-
-          {/* CTA: Get All Access */}
-          <Link
-            to="/pricing"
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white font-headline text-sm font-bold shadow-[0_0_16px_rgba(99,102,241,0.35)] hover:brightness-110 active:translate-y-0.5 border border-indigo-400/30 transition-all gap-1.5"
-          >
-            <Zap className="w-3.5 h-3.5 fill-current" />
-            <span>Get All Access</span>
-          </Link>
-
-          {/* User Profile Avatar with Pro Scholar badge */}
-          <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-[#2d3748]">
-            <div className="relative flex items-center gap-2.5">
-              <UserAvatar
-                src={user?.avatarUrl}
-                name={user?.name || 'Rohan V.'}
-                size="md"
-              />
-              <div className="hidden xl:flex flex-col text-left">
-                <span className="font-headline text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">
-                  {user?.name || 'Rohan V.'}
-                </span>
-                <span className="font-headline text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 leading-tight mt-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  {user?.tierTitle || 'Pro Scholar'}
-                </span>
+          {isAuthenticated && user ? (
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-2 min-w-0">
+                <UserAvatar src={user.avatarUrl} name={user.name} size="sm" />
+                <span className="text-xs font-medium truncate text-zinc-900 dark:text-zinc-100">{user.name}</span>
               </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
+              >
+                Log out
+              </button>
             </div>
-          </div>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center px-3 py-2 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
-      </div>
+      )}
     </header>
   );
 };

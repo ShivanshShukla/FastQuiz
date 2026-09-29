@@ -52,18 +52,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // fallback
     }
-    return DEFAULT_USER; // Default logged in as Rohan V. for seamless preview matching Stitch
+    return null;
   });
 
   const [token, setToken] = useState<string | null>(() => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        return window.localStorage.getItem('fastquiz_access_token') || 'demo-jwt-token-rohan';
+        return window.localStorage.getItem('fastquiz_access_token');
       }
     } catch {
       // fallback
     }
-    return 'demo-jwt-token-rohan';
+    return null;
   });
 
   useEffect(() => {

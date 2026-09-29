@@ -1,188 +1,199 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Flame,
-  Zap,
-  CheckCircle,
-  TrendingUp,
-  Clock,
   ArrowRight,
-  BookOpen,
-  Award,
-  Sparkles,
+  CheckCircle2,
+  Clock,
+  Layers,
+  BarChart2,
+  Terminal,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { webMockStore } from '../services/webMockStore';
 
 export const DashboardPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const topics = webMockStore.getTopics();
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Engineer';
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-12 py-8 space-y-10 text-left">
-      {/* Section 1: Welcome & Motivational Momentum Strip */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 via-white to-slate-100 dark:from-[#171b26] dark:via-[#141925] dark:to-[#111827] border border-slate-200 dark:border-[#2d3748] shadow-[0_8px_32px_rgba(0,0,0,0.2)] p-6 lg:p-8">
-        <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-indigo-600/15 blur-3xl pointer-events-none"></div>
-        <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-orange-600/15 blur-3xl pointer-events-none"></div>
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/70 border border-indigo-300 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 font-headline text-xs font-semibold tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              ACTIVE SPRINT: DISTRIBUTED SYSTEMS
-            </div>
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Welcome back, {user?.name?.split(' ')[0] || 'Rohan'}! 🚀
-            </h1>
-            <p className="font-body text-base sm:text-lg text-slate-600 dark:text-slate-300">
-              You're on a{' '}
-              <span className="font-bold text-orange-600 dark:text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]">
-                {user?.streakDays || 4}-day streak
-              </span>{' '}
-              — complete today's quiz to protect your streak and lock in algorithmic muscle memory!
-            </p>
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-left">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>FASTQUIZ ENVIRONMENT • PRO PREP</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+            {isAuthenticated ? `Welcome back, ${firstName}` : 'Technical Assessment Curriculum'}
+          </h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl">
+            Precision engineering diagnostics and system design problem sets designed for senior and staff engineering interviews.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-4 shrink-0">
-            <Link
-              to="/topics/distributed-caching"
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white font-headline text-sm font-bold shadow-[0_4px_16px_rgba(99,102,241,0.4)] hover:brightness-110 active:translate-y-0.5 border border-indigo-400/30 transition-all flex items-center gap-2"
-            >
-              <span>Daily Workout</span>
-              <Zap className="w-4 h-4 fill-current" />
-            </Link>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link
+            to="/topics/distributed-caching"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white transition-colors shadow-sm"
+          >
+            <span>Resume Active Assessment</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Engineering Metrics Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Metric 1 */}
+        <div className="p-4 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-zinc-500 text-xs">
+            <span className="font-medium">Completed Quizzes</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          </div>
+          <div className="mt-3">
+            <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
+              3 <span className="text-xs font-normal text-zinc-500 font-sans">/ 12 modules</span>
+            </div>
+            <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div className="bg-emerald-500 h-full rounded-full" style={{ width: '25%' }} />
+            </div>
           </div>
         </div>
 
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-200 dark:border-[#2d3748]/70">
-          {/* Stat 1: Momentum */}
-          <div className="p-4 rounded-xl bg-white dark:bg-[#111827]/90 border border-slate-200 dark:border-[#2d3748] shadow-sm flex items-center gap-3.5 group hover:border-orange-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-950/70 border border-orange-300 dark:border-orange-500/40 flex items-center justify-center text-orange-600 dark:text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.2)]">
-              <Flame className="w-6 h-6 fill-current animate-pulse" />
-            </div>
-            <div>
-              <div className="font-headline text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Momentum
-              </div>
-              <div className="font-headline text-lg text-slate-900 dark:text-white font-extrabold flex items-center gap-1.5">
-                {user?.streakDays || 4}-Day Streak
-                <span className="inline-block w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
-              </div>
-            </div>
+        {/* Metric 2 */}
+        <div className="p-4 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-zinc-500 text-xs">
+            <span className="font-medium">Average Score</span>
+            <BarChart2 className="w-4 h-4 text-indigo-500" />
           </div>
-
-          {/* Stat 2: Target Readiness */}
-          <div className="p-4 rounded-xl bg-white dark:bg-[#111827]/90 border border-slate-200 dark:border-[#2d3748] shadow-sm flex items-center gap-3.5 group hover:border-primary/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 border border-indigo-300 dark:border-primary/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
-              <TrendingUp className="w-6 h-6" />
+          <div className="mt-3">
+            <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
+              88.4%
             </div>
-            <div>
-              <div className="font-headline text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Target Readiness
-              </div>
-              <div className="font-headline text-lg text-slate-900 dark:text-white font-extrabold">
-                88% Staff Level
-              </div>
-            </div>
-          </div>
-
-          {/* Stat 3: Quizzes Mastered */}
-          <div className="p-4 rounded-xl bg-white dark:bg-[#111827]/90 border border-slate-200 dark:border-[#2d3748] shadow-sm flex items-center gap-3.5 group hover:border-emerald-500/50 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
-              <CheckCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="font-headline text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Completed
-              </div>
-              <div className="font-headline text-lg text-slate-900 dark:text-white font-extrabold">
-                24 Modules
-              </div>
-            </div>
-          </div>
-
-          {/* Stat 4: Time Logged */}
-          <div className="p-4 rounded-xl bg-white dark:bg-[#111827]/90 border border-slate-200 dark:border-[#2d3748] shadow-sm flex items-center gap-3.5 group hover:border-slate-400 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
-              <Clock className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="font-headline text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Weekly Practice
-              </div>
-              <div className="font-headline text-lg text-slate-900 dark:text-white font-extrabold">
-                4.8 hrs Logged
-              </div>
+            <div className="text-xs text-zinc-500 mt-1 font-mono">
+              Top 10% benchmark
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Section 2: Curriculum Tracks & Topic Bento Grid */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Metric 3 */}
+        <div className="p-4 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-zinc-500 text-xs">
+            <span className="font-medium">Time Practiced</span>
+            <Clock className="w-4 h-4 text-zinc-400" />
+          </div>
+          <div className="mt-3">
+            <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
+              4.8 <span className="text-xs font-normal text-zinc-500 font-sans">hours</span>
+            </div>
+            <div className="text-xs text-zinc-500 mt-1 font-mono">
+              Across 3 tracks
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 4 */}
+        <div className="p-4 rounded-lg bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-zinc-500 text-xs">
+            <span className="font-medium">Strongest Topic</span>
+            <Layers className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="mt-3">
+            <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+              Distributed Systems
+            </div>
+            <div className="text-xs text-zinc-500 mt-1 font-mono">
+              100% on Caching Algorithms
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured In-Progress Track Banner */}
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50">
+              IN PROGRESS
+            </span>
+            <span className="text-xs text-zinc-500">Track 1 of 3</span>
+          </div>
+          <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+            Distributed Caching & Invalidation Dilemmas
+          </h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Cache-aside vs write-through patterns, Redis cluster failover, and probabilistic cache stampede prevention.
+          </p>
+        </div>
+
+        <Link
+          to="/quiz/quiz-seed-1/take"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-colors shrink-0 shadow-sm"
+        >
+          <Terminal className="w-3.5 h-3.5" />
+          <span>Launch Quiz Arena</span>
+        </Link>
+      </div>
+
+      {/* Curriculum Tracks Section */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-headline text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-primary" />
-              Interview Curriculum Tracks
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              Curriculum Tracks
             </h2>
-            <p className="font-body text-sm text-slate-500 dark:text-[#94A3B8]">
-              High-frequency domains calibrated for Staff & Senior engineering loops.
+            <p className="text-xs text-zinc-500">
+              Structured modules with verified technical answer keys and code walkthroughs.
             </p>
           </div>
           <Link
             to="/topics"
-            className="text-primary font-headline text-xs font-bold hover:underline flex items-center gap-1 self-start sm:self-auto"
+            className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition-colors"
           >
-            <span>View All Tracks</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>View All Tracks ({topics.length})</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {topics.map((topic) => (
             <div
               key={topic.id}
-              className="group relative rounded-2xl bg-white dark:bg-[#171b26] border border-slate-200 dark:border-[#2d3748] p-6 shadow-md hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:-translate-y-1 flex flex-col justify-between"
+              className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 p-5 flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
             >
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary font-headline text-xs font-bold uppercase tracking-wider">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 uppercase">
                     {topic.category}
                   </span>
-                  {topic.freeGrantAvailable && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-headline text-xs font-bold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      1 Free Quiz
-                    </span>
-                  )}
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    {topic.totalQuizzes} quizzes
+                  </span>
                 </div>
 
                 <div>
-                  <h3 className="font-headline text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors leading-snug">
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">
                     {topic.title}
                   </h3>
-                  <p className="font-body text-xs text-slate-600 dark:text-[#94A3B8] mt-2 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
                     {topic.description}
                   </p>
                 </div>
-
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-[#94A3B8] pt-2 border-t border-slate-100 dark:border-[#2d3748]/60">
-                  <span>{topic.totalQuizzes} Quizzes Total</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    {topic.faangRelevancePercent}% FAANG Relevance
-                  </span>
-                </div>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between">
+                <span className="text-[11px] text-zinc-400 font-mono">
+                  Senior / Staff
+                </span>
                 <Link
                   to={`/topics/${topic.slug}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#1e2433] hover:bg-primary dark:hover:bg-primary text-slate-800 dark:text-white hover:text-white font-headline text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors"
                 >
-                  <span>Explore Track</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Open Track</span>
+                  <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
@@ -190,59 +201,48 @@ export const DashboardPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 3: Recent Performance & Verified Scorecard Telemetry */}
-      <section className="rounded-2xl bg-white dark:bg-[#171b26] border border-slate-200 dark:border-[#2d3748] p-6 lg:p-7 shadow-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-[#2d3748]">
+      {/* Recent Diagnostic Attempts Table */}
+      <section className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <div>
-            <h2 className="font-headline text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-emerald-500" />
-              Recent Diagnostic Sessions
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              Recent Assessment Runs
             </h2>
-            <p className="font-body text-xs text-slate-500 dark:text-[#94A3B8]">
-              Your recent attempts, percentiles, and verified diagnostic benchmarks.
+            <p className="text-xs text-zinc-500">
+              Verified test runs with question-level breakdown and diagnostic matrices.
             </p>
           </div>
           <Link
             to="/attempts/att-seed-1/results"
-            className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#1e2433] border border-slate-200 dark:border-[#2d3748] text-primary font-headline text-xs font-bold hover:bg-slate-200 dark:hover:bg-[#283144] transition-all self-start sm:self-auto"
+            className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition-colors"
           >
-            Open Latest Diagnostic Matrix →
+            <span>Latest Report</span>
+            <ExternalLink className="w-3 h-3" />
           </Link>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-[#2d3748]/60 pt-2">
-          <div className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-[#10B981]/20 border border-emerald-300 dark:border-[#10B981]/40 text-emerald-600 dark:text-[#10B981] flex items-center justify-center shrink-0">
-                <CheckCircle className="w-5 h-5" />
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="space-y-0.5">
+              <div className="font-medium text-zinc-900 dark:text-zinc-200">
+                Cache Invalidation & Thundering Herd Dilemmas
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-headline text-xs font-bold text-slate-900 dark:text-white">
-                    Quiz 1: Cache Strategies & Invalidation Dilemmas
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono text-[10px] font-bold">
-                    90% ACCURACY
-                  </span>
-                </div>
-                <p className="font-body text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
-                  Distributed Caching • 9/10 Valid • Latency: 6m 18s • Staff Level L6 Passed
-                </p>
+              <div className="text-zinc-500 text-[11px] font-mono">
+                Completed today • 10 MCQs • Time: 6m 18s
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
+                  90% SCORE (9/10)
+                </span>
+              </div>
               <Link
                 to="/attempts/att-seed-1/results"
-                className="px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 text-primary font-headline text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all"
+                className="px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium shrink-0"
               >
-                View Matrix
-              </Link>
-              <Link
-                to="/quiz/quiz-cache-1/take"
-                className="px-4 py-1.5 rounded-lg bg-slate-100 dark:bg-[#1e2433] text-slate-700 dark:text-slate-300 font-headline text-xs font-semibold hover:text-white transition-all"
-              >
-                Retake
+                Review Matrix
               </Link>
             </div>
           </div>

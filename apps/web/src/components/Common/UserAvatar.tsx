@@ -9,16 +9,16 @@ interface UserAvatarProps {
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({
   src,
-  name = 'Rohan V.',
+  name = 'Learner',
   size = 'md',
   className = '',
 }) => {
   const [hasError, setHasError] = useState(false);
 
   const sizeClasses = {
-    sm: 'w-7 h-7 text-xs',
-    md: 'w-9 h-9 text-xs',
-    lg: 'w-12 h-12 text-sm',
+    sm: 'w-6 h-6 text-[10px]',
+    md: 'w-7 h-7 text-xs',
+    lg: 'w-9 h-9 text-xs',
   };
 
   const initials = name
@@ -34,7 +34,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   if (hasError) {
     return (
       <div
-        className={`${sizeClasses[size]} rounded-full bg-gradient-to-tr from-primary to-indigo-600 flex items-center justify-center font-headline font-bold text-white shadow-[0_0_10px_rgba(99,102,241,0.4)] ring-2 ring-primary/60 shrink-0 ${className}`}
+        className={`${sizeClasses[size]} rounded-full bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700/80 flex items-center justify-center font-medium text-zinc-700 dark:text-zinc-200 shrink-0 ${className}`}
         aria-label={name}
         title={name}
       >
@@ -48,7 +48,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       src={avatarSrc}
       alt={name}
       onError={() => setHasError(true)}
-      className={`${sizeClasses[size]} rounded-full object-cover ring-2 ring-primary/60 shadow-[0_0_10px_rgba(99,102,241,0.4)] shrink-0 ${className}`}
+      className={`${sizeClasses[size]} rounded-full object-cover border border-zinc-200 dark:border-zinc-800 shrink-0 ${className}`}
     />
   );
 };
