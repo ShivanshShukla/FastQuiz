@@ -13,8 +13,10 @@ import {
 } from 'lucide-react';
 import { BrandLogo } from '../Common/BrandLogo';
 import { useToast } from '../../context/ToastContext';
+import { isMockEnabled } from '../../config/env';
 
 export const Footer: React.FC = () => {
+  const mockActive = isMockEnabled();
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -54,7 +56,9 @@ export const Footer: React.FC = () => {
                 Deconstruct Staff-Level Distributed Edge Cases
               </h3>
               <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                Join 8,500+ engineers receiving real interview dilemmas: Redis Sentinel split-brain healing, XFetch cache stampede math, and CPU memory consistency. No spam, ever.
+                {mockActive
+                  ? 'Join 8,500+ engineers receiving real interview dilemmas: Redis Sentinel split-brain healing, XFetch cache stampede math, and CPU memory consistency. No spam, ever.'
+                  : 'Receive real staff interview dilemmas: Redis Sentinel split-brain healing, XFetch cache stampede math, and CPU memory consistency. No spam, ever.'}
               </p>
             </div>
 
@@ -186,7 +190,7 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs text-zinc-500 dark:text-zinc-400">
               <li>
-                <Link to="/quiz/quiz-cache-1/take" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+                <Link to={mockActive ? '/quiz/quiz-cache-1/take' : '/topics'} className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                   Free Diagnostics
                 </Link>
               </li>
@@ -201,7 +205,7 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/attempts/att-seed-1/results" className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+                <Link to={mockActive ? '/attempts/att-seed-1/results' : '/curriculum'} className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                   Diagnostic Telemetry
                 </Link>
               </li>

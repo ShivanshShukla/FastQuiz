@@ -30,6 +30,8 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, name?: string) => void;
   loginGuest: () => void;
+  loginOAuth: (provider: 'google' | 'github') => void;
+  signup: (name: string, email: string) => void;
   logout: () => void;
   addXp: (amount: number) => void;
 }
@@ -110,6 +112,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginOAuth = (provider: 'google' | 'github') => {
+    const isGoogle = provider === 'google';
+    const oAuthUser: UserProfile = {
+      id: isGoogle ? 'usr-google-alex' : 'usr-github-alex',
+      name: isGoogle ? 'Alex Chen' : 'Alex Chen',
+      email: isGoogle ? 'alex.chen@gmail.com' : 'alex-chen@github.com',
+      role: 'user',
+      tierTitle: isGoogle ? 'Google Engineer' : 'Open Source Architect',
+      streakDays: isGoogle ? 6 : 5,
+      xp: isGoogle ? 350 : 310,
+      avatarUrl: '/assets/avatar.png',
+      isPro: true,
+    };
+    setUser(oAuthUser);
+    const mockToken = `oauth-${provider}-${Date.now()}`;
+    setToken(mockToken);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('fastquiz_access_token', mockToken);
+        window.localStorage.setItem('fastquiz_user', JSON.stringify(oAuthUser));
+      }
+    } catch {
+      // fallback
+    }
+  };
+
+  const signup = (name: string, email: string) => {
+    const newUser: UserProfile = {
+      id: `usr-new-${Date.now()}`,
+      name: name.trim() || 'New Engineer',
+      email: email.trim(),
+      role: 'user',
+      tierTitle: 'Emerging Scholar',
+      streakDays: 1,
+      xp: 50,
+      avatarUrl: '/assets/avatar.png',
+      isPro: false,
+    };
+    setUser(newUser);
+    const mockToken = `jwt-signup-${Date.now()}`;
+    setToken(mockToken);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('fastquiz_access_token', mockToken);
+        window.localStorage.setItem('fastquiz_user', JSON.stringify(newUser));
+      }
+    } catch {
+      // fallback
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -138,6 +191,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         login,
         loginGuest,
+        loginOAuth,
+        signup,
         logout,
         addXp,
       }}

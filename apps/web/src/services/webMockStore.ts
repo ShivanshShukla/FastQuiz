@@ -431,13 +431,19 @@ const MOCK_TOPICS: TopicData[] = [
   },
 ];
 
+import { isMockEnabled } from '../config/env';
+
 class WebMockStore {
-  private topics: TopicData[] = MOCK_TOPICS;
+  private topics: TopicData[] = [];
   private attempts: Map<string, DiagnosticResult> = new Map();
-  private purchasedItemIds: Set<string> = new Set(['quiz-cache-3']);
+  private purchasedItemIds: Set<string> = new Set();
 
   constructor() {
-    this.seedDefaultAttempt();
+    if (isMockEnabled()) {
+      this.topics = [...MOCK_TOPICS];
+      this.purchasedItemIds.add('quiz-cache-3');
+      this.seedDefaultAttempt();
+    }
   }
 
   private seedDefaultAttempt() {
@@ -532,15 +538,18 @@ class WebMockStore {
   }
 
   public getTopics(): TopicData[] {
+    if (this.topics.length === 0 && isMockEnabled()) {
+      this.topics = [...MOCK_TOPICS];
+    }
     return this.topics;
   }
 
   public getTopic(topicIdOrSlug: string): TopicData | undefined {
-    return this.topics.find((t) => t.id === topicIdOrSlug || t.slug === topicIdOrSlug);
+    return this.getTopics().find((t) => t.id === topicIdOrSlug || t.slug === topicIdOrSlug);
   }
 
   public getQuiz(quizId: string): QuizData | undefined {
-    for (const topic of this.topics) {
+    for (const topic of this.getTopics()) {
       const q = topic.quizzes.find((item) => item.id === quizId);
       if (q) return q;
     }
@@ -548,8 +557,8 @@ class WebMockStore {
   }
 
   public submitAttempt(submission: AttemptSubmission): DiagnosticResult {
-    const quiz = this.getQuiz(submission.quizId) || this.topics[0].quizzes[0];
-    const questions = quiz.questions;
+    const quiz = this.getQuiz(submission.quizId) || this.getTopics()[0]?.quizzes[0];
+    const questions = quiz ? quiz.questions : [];
     let correctCount = 0;
 
     const questionsReview = questions.map((q, idx) => {
@@ -575,7 +584,7 @@ class WebMockStore {
       };
     });
 
-    const totalCount = questions.length;
+    const totalCount = questions.length || 1;
     const scorePercent = Math.round((correctCount / totalCount) * 100);
     const mins = Math.floor(submission.timeSpentSeconds / 60);
     const secs = submission.timeSpentSeconds % 60;
@@ -583,12 +592,12 @@ class WebMockStore {
 
     const result: DiagnosticResult = {
       attemptId: submission.attemptId,
-      quizTitle: quiz.title,
-      topicTitle: this.getTopic(quiz.topicId)?.title || 'System Design',
+      quizTitle: quiz?.title || 'Diagnostic Evaluation',
+      topicTitle: quiz ? (this.getTopic(quiz.topicId)?.title || 'System Design') : 'System Design',
       scorePercent,
       correctCount,
       totalCount,
-      benchmarkPassed: scorePercent >= quiz.passMarkPercent,
+      benchmarkPassed: scorePercent >= (quiz?.passMarkPercent || 80),
       candidateTier: scorePercent >= 90 ? 'Top 8% Candidate' : scorePercent >= 75 ? 'Top 25% Candidate' : 'Emerging Candidate',
       latencyFormatted: latencyFormatted || '6m 18s',
       targetLatencyFormatted: '8m 00s (-21%)',
@@ -634,7 +643,19 @@ class WebMockStore {
   }
 
   public getAttemptResult(attemptId: string): DiagnosticResult | undefined {
-    return this.attempts.get(attemptId) || this.attempts.get('att-seed-1');
+    return this.attempts.get(attemptId) || (isMockEnabled() ? this.attempts.get('att-seed-1') : undefined);
+  }
+
+  public setMockData(enabled: boolean): void {
+    if (enabled) {
+      this.topics = [...MOCK_TOPICS];
+      this.purchasedItemIds.add('quiz-cache-3');
+      this.seedDefaultAttempt();
+    } else {
+      this.topics = [];
+      this.attempts.clear();
+      this.purchasedItemIds.clear();
+    }
   }
 
   public purchaseItem(itemId: string): boolean {

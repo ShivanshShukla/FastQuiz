@@ -1,25 +1,50 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QuizRunnerPage } from '../src/pages/QuizRunnerPage';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { AuthProvider } from '../src/context/AuthContext';
 import { ToastProvider } from '../src/context/ToastContext';
+import { webMockStore } from '../src/services/webMockStore';
 
-describe('QuizRunnerPage', () => {
+const renderQuizRunner = () =>
+  render(
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <QuizRunnerPage />
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+
+describe('QuizRunnerPage - Production Fallback (mock=false)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    webMockStore.setMockData(false);
+  });
+
+  it('renders Assessment Not Available fallback when mock data is disabled', () => {
+    renderQuizRunner();
+
+    expect(screen.getByText(/Assessment Not Available/i)).toBeDefined();
+    expect(screen.getByText(/mock mode is currently inactive/i)).toBeDefined();
+    expect(screen.getByRole('link', { name: /Return to Curriculum/i })).toBeDefined();
+  });
+});
+
+describe('QuizRunnerPage - Mock Mode Enabled (mock=true)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('fastquiz_mock_override', 'true');
+    webMockStore.setMockData(true);
+  });
+
   it('renders question slate and options', () => {
-    render(
-      <ThemeProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <QuizRunnerPage />
-            </BrowserRouter>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    );
+    renderQuizRunner();
 
     // Verify Question 01 header and options
     expect(screen.getByText(/Question 01/i)).toBeDefined();
@@ -29,17 +54,7 @@ describe('QuizRunnerPage', () => {
   });
 
   it('selects option on click and marks current selection', () => {
-    render(
-      <ThemeProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <QuizRunnerPage />
-            </BrowserRouter>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    );
+    renderQuizRunner();
 
     // Option B: Probabilistic early expiration
     const optionB = screen.getByText(/probabilistic early expiration/i);
@@ -49,17 +64,7 @@ describe('QuizRunnerPage', () => {
   });
 
   it('toggles flag for review button', () => {
-    render(
-      <ThemeProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <QuizRunnerPage />
-            </BrowserRouter>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    );
+    renderQuizRunner();
 
     const flagBtn = screen.getByText(/Flag for Review/i);
     fireEvent.click(flagBtn);

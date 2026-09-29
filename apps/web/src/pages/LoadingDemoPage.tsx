@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LoadingScreen } from '../components/Common/LoadingScreen';
 import { Play, Sliders, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { isMockEnabled, getMockModeSource } from '../config/env';
 
 export const LoadingDemoPage: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
@@ -37,7 +38,7 @@ export const LoadingDemoPage: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-left space-y-8">
       {/* Header */}
-      <div className="space-y-2 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="space-y-3 pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-2 text-xs font-mono text-indigo-600 dark:text-indigo-400 font-medium">
           <Sliders className="w-3.5 h-3.5" />
           <span>DEVELOPER PLAYGROUND • TELEMETRY UTILITY</span>
@@ -48,6 +49,25 @@ export const LoadingDemoPage: React.FC = () => {
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
           Configure and preview the high-resilience loading screen designed for slow networks, long diagnostic runtime handshakes, and sandbox provisioning.
         </p>
+
+        {/* Mock Environment Status Badge */}
+        <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px]">
+          <span className="text-zinc-500">MOCK ENVIRONMENT:</span>
+          <span
+            className={`px-2 py-0.5 rounded font-semibold ${
+              isMockEnabled()
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800'
+                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
+            }`}
+          >
+            {isMockEnabled() ? 'ACTIVE' : 'INACTIVE'} (source: {getMockModeSource()})
+          </span>
+          {!isMockEnabled() && (
+            <span className="text-zinc-400">
+              (All dummy data disabled. Append <code className="text-indigo-500">?mock=true</code> to preview dummy datasets)
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Control Panel */}

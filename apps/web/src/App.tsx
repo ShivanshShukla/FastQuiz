@@ -30,8 +30,9 @@ export const App: React.FC = () => {
                 <Route path="quiz/:quizId/take" element={<QuizRunnerPage />} />
                 <Route path="attempts/:attemptId/results" element={<QuizResultsPage />} />
                 <Route path="pricing" element={<PricingPage />} />
-                <Route path="pricing-and-bundles" element={<PricingPage />} />
-                <Route path="login" element={<LoginPage />} />
+                <Route path="login" element={<LoginPage initialMode="login" />} />
+                <Route path="signup" element={<LoginPage initialMode="signup" />} />
+                <Route path="register" element={<LoginPage initialMode="signup" />} />
                 <Route path="loading" element={<LoadingDemoPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>

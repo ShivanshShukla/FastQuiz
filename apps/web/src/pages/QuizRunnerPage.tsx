@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   CheckCircle,
   ArrowRight,
@@ -20,8 +20,8 @@ export const QuizRunnerPage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const quiz = webMockStore.getQuiz(quizId) || webMockStore.getTopics()[0].quizzes[0];
-  const questions: QuestionData[] = quiz.questions;
+  const quiz = webMockStore.getQuiz(quizId) || webMockStore.getTopics()[0]?.quizzes?.[0];
+  const questions: QuestionData[] = quiz?.questions || [];
 
   // Active question index (0-based)
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -46,14 +46,14 @@ export const QuizRunnerPage: React.FC = () => {
     const submissionId = `att-${Date.now()}`;
     webMockStore.submitAttempt({
       attemptId: submissionId,
-      quizId: quiz.id,
+      quizId: quiz?.id || quizId,
       answers,
       flaggedQuestions: Array.from(flagged),
       timeSpentSeconds: 8 * 60 + 39 - remainingSeconds || 378,
     });
     showToast('Assessment submitted. Generating diagnostic matrix...', 'success');
     navigate(`/attempts/${submissionId}/results`);
-  }, [quiz.id, answers, flagged, remainingSeconds, navigate, showToast]);
+  }, [quiz?.id, quizId, answers, flagged, remainingSeconds, navigate, showToast]);
 
   // Countdown tick
   useEffect(() => {
@@ -130,6 +130,23 @@ export const QuizRunnerPage: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentIndex, answers, handleNext, handlePrev]);
+
+  if (!quiz || questions.length === 0) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Assessment Not Available</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
+          The requested assessment is unavailable or mock mode is currently inactive.
+        </p>
+        <Link
+          to="/curriculum"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors"
+        >
+          Return to Curriculum
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-zinc-50 dark:bg-zinc-950 min-h-[calc(100vh-56px)] text-left transition-colors">

@@ -16,59 +16,81 @@ import { webMockStore, DiagnosticResult } from '../services/webMockStore';
 import { AccuracyGauge } from '../components/Quiz/AccuracyGauge';
 import { PaywallCard } from '../components/Checkout/PaywallCard';
 import { useToast } from '../context/ToastContext';
+import { isMockEnabled } from '../config/env';
 
 export const QuizResultsPage: React.FC = () => {
   const { attemptId = 'att-seed-1' } = useParams<{ attemptId: string }>();
   const { showToast } = useToast();
   const [copying, setCopying] = useState(false);
 
-  const result: DiagnosticResult = webMockStore.getAttemptResult(attemptId) || {
-    attemptId,
-    quizTitle: 'Quiz 1: Cache Strategies & Invalidation Dilemmas',
-    topicTitle: 'Distributed Caching: Redis, Memcached & Cache Invalidation',
-    scorePercent: 90,
-    correctCount: 9,
-    totalCount: 10,
-    benchmarkPassed: true,
-    candidateTier: 'Top 8% Candidate',
-    latencyFormatted: '6m 18s',
-    targetLatencyFormatted: '8m 00s (-21%)',
-    percentile: '92nd %ile',
-    levelBand: 'L6 / Staff',
-    streakDays: 4,
-    xpEarned: 50,
-    subSkills: [
-      {
-        name: 'Cache Invalidation',
-        description: 'TTL heuristics, active stampede mitigation, & XFetch.',
-        scorePercent: 100,
-        questionCountText: '2/2 Questions',
-        status: 'Mastered',
-      },
-      {
-        name: 'Eviction Policies',
-        description: 'LRU, LFU, 2Q buffers, and memory ceiling eviction.',
-        scorePercent: 100,
-        questionCountText: '3/3 Questions',
-        status: 'Mastered',
-      },
-      {
-        name: 'Consistency & Writes',
-        description: 'Write-Through vs Write-Back risk in financial ledgers.',
-        scorePercent: 0,
-        questionCountText: '0/1 Question',
-        status: 'Needs Review',
-      },
-      {
-        name: 'Distributed Hashing',
-        description: 'Consistent hash rings, virtual vnodes, & partition healing.',
-        scorePercent: 100,
-        questionCountText: '4/4 Questions',
-        status: 'Mastered',
-      },
-    ],
-    questionsReview: [],
-  };
+  const mockFallback: DiagnosticResult | undefined = isMockEnabled()
+    ? {
+        attemptId,
+        quizTitle: 'Quiz 1: Cache Strategies & Invalidation Dilemmas',
+        topicTitle: 'Distributed Caching: Redis, Memcached & Cache Invalidation',
+        scorePercent: 90,
+        correctCount: 9,
+        totalCount: 10,
+        benchmarkPassed: true,
+        candidateTier: 'Top 8% Candidate',
+        latencyFormatted: '6m 18s',
+        targetLatencyFormatted: '8m 00s (-21%)',
+        percentile: '92nd %ile',
+        levelBand: 'L6 / Staff',
+        streakDays: 4,
+        xpEarned: 50,
+        subSkills: [
+          {
+            name: 'Cache Invalidation',
+            description: 'TTL heuristics, active stampede mitigation, & XFetch.',
+            scorePercent: 100,
+            questionCountText: '2/2 Questions',
+            status: 'Mastered',
+          },
+          {
+            name: 'Eviction Policies',
+            description: 'LRU, LFU, 2Q buffers, and memory ceiling eviction.',
+            scorePercent: 100,
+            questionCountText: '3/3 Questions',
+            status: 'Mastered',
+          },
+          {
+            name: 'Consistency & Writes',
+            description: 'Write-Through vs Write-Back risk in financial ledgers.',
+            scorePercent: 0,
+            questionCountText: '0/1 Question',
+            status: 'Needs Review',
+          },
+          {
+            name: 'Distributed Hashing',
+            description: 'Consistent hash rings, virtual vnodes, & partition healing.',
+            scorePercent: 100,
+            questionCountText: '4/4 Questions',
+            status: 'Mastered',
+          },
+        ],
+        questionsReview: [],
+      }
+    : undefined;
+
+  const result: DiagnosticResult | undefined = webMockStore.getAttemptResult(attemptId) || mockFallback;
+
+  if (!result) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Attempt Record Not Found</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
+          No diagnostic results found for this attempt ID. Start a new diagnostic assessment to generate your performance score.
+        </p>
+        <Link
+          to="/curriculum"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors"
+        >
+          Browse Curriculum Tracks
+        </Link>
+      </div>
+    );
+  }
 
   const handleShare = () => {
     setCopying(true);

@@ -6,6 +6,7 @@ import { LandingPage } from '../src/pages/LandingPage';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { AuthProvider } from '../src/context/AuthContext';
 import { ToastProvider } from '../src/context/ToastContext';
+import { webMockStore } from '../src/services/webMockStore';
 
 const renderLandingPage = () =>
   render(
@@ -20,12 +21,13 @@ const renderLandingPage = () =>
     </ThemeProvider>
   );
 
-describe('LandingPage Component', () => {
+describe('LandingPage Component - Production Mode (mock=false)', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    webMockStore.setMockData(false);
   });
 
-  it('renders hero headline, eyebrow badge, CTAs, and trust metrics', () => {
+  it('renders hero headline, eyebrow badge, and generic CTAs without dummy stats', () => {
     renderLandingPage();
 
     // Check eyebrow and hero headline
@@ -37,72 +39,41 @@ describe('LandingPage Component', () => {
     expect(screen.getAllByRole('link', { name: /Start Free Diagnostic/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /Explore All Curriculum Tracks/i })).toBeDefined();
 
-    // Check Trust metrics
-    expect(screen.getByText(/10,000\+/i)).toBeDefined();
-    expect(screen.getByText(/Engineers Benchmarked/i)).toBeDefined();
-    expect(screen.getAllByText(/₹0 Free/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/FAANG Loop Correlation/i)).toBeDefined();
+    // Trust metrics with dummy data MUST NOT be present
+    expect(screen.queryByText(/10,000\+/i)).toBeNull();
+    expect(screen.queryByText(/Engineers Benchmarked/i)).toBeNull();
+    expect(screen.queryByText(/FAANG Loop Correlation/i)).toBeNull();
   });
 
-  it('allows interacting with the live sample question and reveals verified explanation', () => {
+  it('hides synthetic live sample question in production mode', () => {
     renderLandingPage();
 
-    // Question stem
-    expect(screen.getAllByText(/Cache Stampede/i).length).toBeGreaterThan(0);
-
-    // Verify button is disabled initially
-    const verifyBtn = screen.getByRole('button', { name: /Verify Answer/i });
-    expect(verifyBtn).toBeDefined();
-
-    // Select Option B (probabilistic early expiration)
-    const optionB = screen.getByText(/XFetch algorithm/i);
-    fireEvent.click(optionB);
-
-    // Click verify
-    fireEvent.click(verifyBtn);
-
-    // Should now show optimal explanation and code
-    expect(screen.getByText(/Optimal Staff Architecture: Option B/i)).toBeDefined();
-    expect(screen.getByText(/delta \* beta \* ln\(rand\(\)\)/i)).toBeDefined();
-    expect(screen.getByText(/ShouldRefresh/i)).toBeDefined();
-
-    // Toggle hide code
-    const hideCodeBtn = screen.getByRole('button', { name: /Hide Code/i });
-    fireEvent.click(hideCodeBtn);
-    expect(screen.queryByText(/ShouldRefresh/i)).toBeNull();
-
-    // Toggle show code
-    const showCodeBtn = screen.getByRole('button', { name: /Show Code/i });
-    fireEvent.click(showCodeBtn);
-    expect(screen.getByText(/ShouldRefresh/i)).toBeDefined();
-
-    // Try again reset
-    const tryAgainBtn = screen.getByRole('button', { name: /Try Again/i });
-    fireEvent.click(tryAgainBtn);
-    expect(screen.getByRole('button', { name: /Verify Answer/i })).toBeDefined();
+    expect(screen.queryByText(/Cache Stampede/i)).toBeNull();
+    expect(screen.queryByText(/INTERACTIVE DEMO • TEST YOUR INSTINCTS NOW/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /Verify Answer/i })).toBeNull();
   });
 
-  it('renders curriculum tracks and comparison matrix', () => {
+  it('renders clean empty state for curriculum tracks when mock data is disabled', () => {
     renderLandingPage();
 
-    // Comparison section
-    expect(screen.getByText(/Why FastQuiz vs. Traditional Annual Subscriptions/i)).toBeDefined();
-    expect(screen.getByText(/Traditional Prep Platforms/i)).toBeDefined();
-    expect(screen.getByText(/FastQuiz Approach/i)).toBeDefined();
-
-    // Curriculum tracks
-    expect(screen.getByText(/Distributed Caching: Redis, Memcached & Cache Invalidation/i)).toBeDefined();
-    expect(screen.getByText(/Arrays, Two Pointers & In-Place Algorithms/i)).toBeDefined();
-    expect(screen.getByText(/Concurrency, Mutexes & Memory Barriers/i)).toBeDefined();
+    expect(screen.getByText(/No curriculum tracks published yet/i)).toBeDefined();
+    expect(screen.getByText(/\?mock=true/i)).toBeDefined();
+    expect(screen.queryByText(/Distributed Caching: Redis, Memcached & Cache Invalidation/i)).toBeNull();
   });
 
-  it('toggles FAQ accordion questions correctly', () => {
+  it('hides dummy scoreboard preview and dummy testimonials in production mode', () => {
     renderLandingPage();
 
-    // First FAQ item is open by default
+    expect(screen.queryByText(/BENCHMARK PASSED • TOP 8% CANDIDATE/i)).toBeNull();
+    expect(screen.queryByText(/Vikram S\. • Staff Infra Engineer/i)).toBeNull();
+    expect(screen.queryByText(/Ananya M\. • Senior Systems Engineer/i)).toBeNull();
+  });
+
+  it('toggles FAQ accordion questions correctly in production mode', () => {
+    renderLandingPage();
+
     expect(screen.getByText(/Every single curriculum track/i)).toBeDefined();
 
-    // Click second FAQ item to expand
     const secondFaqQuestion = screen.getByText(/How does the pay-per-track model work\?/i);
     fireEvent.click(secondFaqQuestion);
 
@@ -113,17 +84,52 @@ describe('LandingPage Component', () => {
     window.localStorage.setItem(
       'fastquiz_user',
       JSON.stringify({
-        id: 'usr-rohan-1',
-        name: 'Rohan V.',
-        email: 'rohan.v@techscholar.dev',
+        id: 'usr-sarah-1',
+        name: 'Sarah Connor',
+        email: 'sarah@skynet.dev',
         role: 'user',
         tierTitle: 'Pro Scholar',
       })
     );
-    window.localStorage.setItem('fastquiz_access_token', 'demo-token');
+    window.localStorage.setItem('fastquiz_access_token', 'token-123');
 
     renderLandingPage();
 
-    expect(screen.getByRole('link', { name: /Resume Your Curriculum/i })).toBeDefined();
+    expect(screen.getByRole('link', { name: /Resume Your Curriculum \(Sarah\)/i })).toBeDefined();
+  });
+});
+
+describe('LandingPage Component - Mock Mode Enabled (mock=true)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('fastquiz_mock_override', 'true');
+    webMockStore.setMockData(true);
+  });
+
+  it('renders trust stats, interactive challenge, curriculum tracks, and testimonials when mock=true', () => {
+    renderLandingPage();
+
+    // Trust stats
+    expect(screen.getByText(/10,000\+/i)).toBeDefined();
+    expect(screen.getByText(/Engineers Benchmarked/i)).toBeDefined();
+
+    // Live challenge
+    expect(screen.getAllByText(/Cache Stampede/i).length).toBeGreaterThan(0);
+    const verifyBtn = screen.getByRole('button', { name: /Verify Answer/i });
+    expect(verifyBtn).toBeDefined();
+
+    // Select option B and verify
+    const optionB = screen.getByText(/XFetch algorithm/i);
+    fireEvent.click(optionB);
+    fireEvent.click(verifyBtn);
+
+    expect(screen.getByText(/Optimal Staff Architecture: Option B/i)).toBeDefined();
+
+    // Curriculum tracks
+    expect(screen.getByText(/Distributed Caching: Redis, Memcached & Cache Invalidation/i)).toBeDefined();
+
+    // Scoreboard preview and testimonials
+    expect(screen.getByText(/BENCHMARK PASSED • TOP 8% CANDIDATE/i)).toBeDefined();
+    expect(screen.getByText(/Vikram S\./i)).toBeDefined();
   });
 });
