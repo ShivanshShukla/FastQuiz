@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sun, Moon, Search, Zap } from 'lucide-react';
+import { Sun, Moon, Search, Zap, Flame } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { BrandLogo } from '../Common/BrandLogo';
+import { UserAvatar } from '../Common/UserAvatar';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -17,26 +19,16 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-[#111827]/90 dark:bg-[#111827]/90 bg-white/90 backdrop-blur-xl border-b border-[#2d3748] dark:border-[#2d3748] border-slate-200 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-colors">
+    <header className="fixed top-0 w-full z-50 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-xl border-b border-slate-200 dark:border-[#2d3748] shadow-sm dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-colors">
       <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4">
         {/* Brand Logo & Title */}
         <div className="flex items-center gap-3 shrink-0">
           <Link
             to="/"
-            className="flex items-center gap-2.5 transition-transform active:scale-95"
+            className="flex items-center transition-transform active:scale-95"
             aria-label="FastQuiz Home"
           >
-            <img
-              alt="FastQuiz Brand Logo"
-              className="h-8 w-auto object-contain brightness-110 drop-shadow-[0_0_12px_rgba(99,102,241,0.35)]"
-              src="https://lh3.googleusercontent.com/aida/AEtjO1V1HgzPJzHCKD-ssJjJEKyPrkwFMck1aF8jXkjn61PtW_BZMb0NLdcji9ju7zD8iv-NwPxaenCqzwJBEp7Iv0PylsXnRX9NnaICUCiyfRWkSeE2-YpAJrn4lOOXg2omX1nRngyS51o8-V7bHUj6XaphQQAH0KqN8sajYT8ReJJDyuydKZhzHc5_Nvl6ZW7bA6LaXi0a7xqi4cV53ZIiTWFeI-H_d5xI9nlr5ROtGap0ThvbGMRTnRSec-4"
-            />
-            <div className="flex items-center gap-1.5 font-headline text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-              FastQuiz{' '}
-              <span className="text-indigo-600 dark:text-indigo-400 font-headline text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/15 border border-primary/30">
-                • Prep
-              </span>
-            </div>
+            <BrandLogo size="md" showBadge={true} />
           </Link>
         </div>
 
@@ -80,12 +72,7 @@ export const Navbar: React.FC = () => {
 
           {/* Momentum Flame Streak Pill */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-950/60 border border-orange-300 dark:border-orange-500/40 text-orange-600 dark:text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
-            <span
-              className="material-symbols-outlined text-[18px] text-orange-500 fill-1 animate-pulse"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              local_fire_department
-            </span>
+            <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
             <span className="font-headline text-xs font-bold">{user?.streakDays || 4}-Day Streak</span>
             <span className="hidden sm:inline text-[11px] font-semibold text-orange-500 dark:text-orange-300/80 pl-1 border-l border-orange-400/30">
               +{user?.xp || 240} XP
@@ -114,13 +101,10 @@ export const Navbar: React.FC = () => {
           {/* User Profile Avatar with Pro Scholar badge */}
           <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-[#2d3748]">
             <div className="relative flex items-center gap-2.5">
-              <img
-                alt="Profile"
-                className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/60 shadow-[0_0_10px_rgba(99,102,241,0.4)]"
-                src={
-                  user?.avatarUrl ||
-                  'https://lh3.googleusercontent.com/aida/AEtjO1UqIx93fD3QQEE3C22qcCiZQUkEfNSSdLSA3GM9pAgqT1z0CgkE5W4AAPqdv4ueHW3aZrTq7QhQbxM8nSq_vYBMgPrbKXX0Dbn_aHCWRvySQ3ct-yoOpPyuwO84nOZPVTHvqtcpZkKhxQpiVBZaSU0HxQH1lCMNtB4-YfLC2pAucHvIFL5ZfTnUmxJntDM2h3R95wI5dEiEtQhEWEQHo_1ArE97PVqhg6pXmC-s3QcfqBPMSpkqf4COCWQ'
-                }
+              <UserAvatar
+                src={user?.avatarUrl}
+                name={user?.name || 'Rohan V.'}
+                size="md"
               />
               <div className="hidden xl:flex flex-col text-left">
                 <span className="font-headline text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">

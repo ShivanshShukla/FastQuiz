@@ -20,7 +20,7 @@ const DEFAULT_USER: UserProfile = {
   tierTitle: 'Pro Scholar',
   streakDays: 4,
   xp: 240,
-  avatarUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1UqIx93fD3QQEE3C22qcCiZQUkEfNSSdLSA3GM9pAgqT1z0CgkE5W4AAPqdv4ueHW3aZrTq7QhQbxM8nSq_vYBMgPrbKXX0Dbn_aHCWRvySQ3ct-yoOpPyuwO84nOZPVTHvqtcpZkKhxQpiVBZaSU0HxQH1lCMNtB4-YfLC2pAucHvIFL5ZfTnUmxJntDM2h3R95wI5dEiEtQhEWEQHo_1ArE97PVqhg6pXmC-s3QcfqBPMSpkqf4COCWQ',
+  avatarUrl: '/assets/avatar.png',
   isPro: true,
 };
 
@@ -42,7 +42,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (typeof window !== 'undefined' && window.localStorage) {
         const saved = window.localStorage.getItem('fastquiz_user');
         if (saved) {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          if (parsed && (!parsed.avatarUrl || parsed.avatarUrl.includes('googleusercontent.com'))) {
+            parsed.avatarUrl = '/assets/avatar.png';
+          }
+          return parsed;
         }
       }
     } catch {

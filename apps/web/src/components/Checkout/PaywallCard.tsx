@@ -189,11 +189,9 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
 
       {/* Social Proof Endorsement Quote */}
       <div className="mt-5 pt-4 bg-slate-100 dark:bg-[#0a0e18]/80 border border-slate-200 dark:border-[#283145] p-4 rounded-xl flex items-center gap-3">
-        <img
-          className="w-10 h-10 rounded-full object-cover shrink-0 ring-1 ring-slate-300 dark:ring-[#283145]"
-          alt="Senior SRE Siddharth"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZoxpQ8QKeg1O3KgDxk1j4h_bpF78STcTVrYdjr95GZbpAw1ULnvKxqKILarIw9l3QyzoQfKo0XyvKg6I9c3s3-YaaZgalwHikg83thiRnbVpa82bVePWTsuvvBzGlFTcoaRatremN9Tfv-JQnBNBvxhWvEeRHtRZteRhaoF_N-elD-JThdPr4Dyinfb4lakc2y3H-uGZJZkEGYFj4fXgCwuBTE51z2FZH47cZ0LcM2mYW94jma8Gc"
-        />
+        <div className="w-10 h-10 rounded-full bg-indigo-600/20 text-indigo-500 font-headline font-bold text-xs flex items-center justify-center shrink-0 ring-1 ring-indigo-500/40">
+          SN
+        </div>
         <div>
           <p className="font-body text-xs text-slate-700 dark:text-[#CBD5E1] italic leading-snug">
             "The cache invalidation and thundering herd diagrams here directly mirrored my actual Uber L5 loop."
