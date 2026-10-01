@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { LoadingScreen } from '../components/Common/LoadingScreen';
-import { Play, Sliders, CheckCircle2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { isMockEnabled, getMockModeSource } from '../config/env';
+import React, { useState } from "react";
+import { LoadingScreen } from "../components/Common/LoadingScreen";
+import { Play, Sliders, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { isMockEnabled, getMockModeSource } from "../config/env";
 
 export const LoadingDemoPage: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
   const [customTimeout, setCustomTimeout] = useState(3);
-  const [customMessage, setCustomMessage] = useState('');
+  const [customMessage, setCustomMessage] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -47,7 +47,9 @@ export const LoadingDemoPage: React.FC = () => {
           Application Loading Screen
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
-          Configure and preview the high-resilience loading screen designed for slow networks, long diagnostic runtime handshakes, and sandbox provisioning.
+          Configure and preview the high-resilience loading screen designed for
+          slow networks, long diagnostic runtime handshakes, and sandbox
+          provisioning.
         </p>
 
         {/* Mock Environment Status Badge */}
@@ -56,15 +58,18 @@ export const LoadingDemoPage: React.FC = () => {
           <span
             className={`px-2 py-0.5 rounded font-semibold ${
               isMockEnabled()
-                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800'
-                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
+                ? "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800"
+                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700"
             }`}
           >
-            {isMockEnabled() ? 'ACTIVE' : 'INACTIVE'} (source: {getMockModeSource()})
+            {isMockEnabled() ? "ACTIVE" : "INACTIVE"} (source:{" "}
+            {getMockModeSource()})
           </span>
           {!isMockEnabled() && (
             <span className="text-zinc-400">
-              (All dummy data disabled. Append <code className="text-indigo-500">?mock=true</code> to preview dummy datasets)
+              (All dummy data disabled. Append{" "}
+              <code className="text-indigo-500">?mock=true</code> to preview
+              dummy datasets)
             </span>
           )}
         </div>
@@ -90,7 +95,8 @@ export const LoadingDemoPage: React.FC = () => {
               className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-indigo-500"
             />
             <span className="text-[11px] text-zinc-400">
-              Leave blank to automatically cycle through calibrated diagnostic runtime steps.
+              Leave blank to automatically cycle through calibrated diagnostic
+              runtime steps.
             </span>
           </div>
 
@@ -113,7 +119,8 @@ export const LoadingDemoPage: React.FC = () => {
               className="w-full cursor-pointer accent-indigo-600"
             />
             <span className="text-[11px] text-zinc-400">
-              When network or runtime exceeds this duration, the recovery panel automatically animates in.
+              When network or runtime exceeds this duration, the recovery panel
+              automatically animates in.
             </span>
           </div>
         </div>

@@ -4,15 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/web/**'
-      - 'packages/shared/**'
-      - '.github/workflows/web.yml'
+      - "apps/web/**"
+      - "packages/shared/**"
+      - ".github/workflows/web.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/web/**'
-      - 'packages/shared/**'
-      - '.github/workflows/web.yml'
+      - "apps/web/**"
+      - "packages/shared/**"
+      - ".github/workflows/web.yml"
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -37,6 +37,9 @@ jobs:
 
       - name: Type Check Web
         run: npm run typecheck --workspace=@fastquiz/web
+
+      - name: Run Web Tests
+        run: npm run test --workspace=@fastquiz/web
 
       - name: Build Web Application
         run: npm run build --workspace=@fastquiz/web

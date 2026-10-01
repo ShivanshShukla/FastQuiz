@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   type TopicSummary,
   type AdminQuizItem,
   type Question,
-} from '@fastquiz/shared';
-import {
-  Folder,
-  BookOpen,
-  Check,
-  RefreshCw,
-} from 'lucide-react';
+} from "@fastquiz/shared";
+import { Folder, BookOpen, Check, RefreshCw } from "lucide-react";
 
 export const ContentBrowserPage: React.FC = () => {
   const { client } = useAuth();
@@ -111,7 +106,8 @@ export const ContentBrowserPage: React.FC = () => {
           </span>
         </div>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Explore production syllabus content: Topics &rarr; Quizzes &rarr; Questions.
+          Explore production syllabus content: Topics &rarr; Quizzes &rarr;
+          Questions.
         </p>
       </div>
 
@@ -132,7 +128,9 @@ export const ContentBrowserPage: React.FC = () => {
                 Loading topics...
               </div>
             ) : topics.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 dark:text-zinc-500 text-xs">No topics found.</div>
+              <div className="p-8 text-center text-zinc-400 dark:text-zinc-500 text-xs">
+                No topics found.
+              </div>
             ) : (
               topics.map((topic) => {
                 const isSelected = topic.id === selectedTopicId;
@@ -142,18 +140,22 @@ export const ContentBrowserPage: React.FC = () => {
                     onClick={() => setSelectedTopicId(topic.id)}
                     className={`w-full text-left p-3.5 flex items-start justify-between transition ${
                       isSelected
-                        ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-3 border-indigo-600'
-                        : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200'
+                        ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-3 border-indigo-600"
+                        : "hover:bg-zinc-50 dark:hover:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200"
                     }`}
                   >
                     <div className="flex items-start gap-2.5 min-w-0 pr-2">
                       <Folder
                         className={`w-4 h-4 mt-0.5 shrink-0 ${
-                          isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500'
+                          isSelected
+                            ? "text-indigo-600 dark:text-indigo-400"
+                            : "text-zinc-400 dark:text-zinc-500"
                         }`}
                       />
                       <div className="truncate">
-                        <div className="text-xs font-semibold truncate text-zinc-900 dark:text-zinc-100">{topic.name}</div>
+                        <div className="text-xs font-semibold truncate text-zinc-900 dark:text-zinc-100">
+                          {topic.name}
+                        </div>
                         <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1 font-normal">
                           {topic.description}
                         </div>
@@ -173,7 +175,8 @@ export const ContentBrowserPage: React.FC = () => {
         <div className="md:col-span-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs overflow-hidden flex flex-col">
           <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 truncate">
-              2. Quizzes {activeTopic ? `in ${activeTopic.name}` : ''} ({quizzes.length})
+              2. Quizzes {activeTopic ? `in ${activeTopic.name}` : ""} (
+              {quizzes.length})
             </span>
           </div>
 
@@ -184,7 +187,9 @@ export const ContentBrowserPage: React.FC = () => {
                 Loading quizzes...
               </div>
             ) : quizzes.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 dark:text-zinc-500 text-xs">No quizzes found.</div>
+              <div className="p-8 text-center text-zinc-400 dark:text-zinc-500 text-xs">
+                No quizzes found.
+              </div>
             ) : (
               quizzes.map((quiz) => {
                 const isSelected = quiz.id === selectedQuizId;
@@ -194,23 +199,26 @@ export const ContentBrowserPage: React.FC = () => {
                     onClick={() => setSelectedQuizId(quiz.id)}
                     className={`w-full text-left p-3.5 flex items-start justify-between transition ${
                       isSelected
-                        ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-3 border-indigo-600'
-                        : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200'
+                        ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-3 border-indigo-600"
+                        : "hover:bg-zinc-50 dark:hover:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200"
                     }`}
                   >
                     <div className="flex items-start gap-2.5 min-w-0 pr-2">
                       <BookOpen
                         className={`w-4 h-4 mt-0.5 shrink-0 ${
-                          isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-500'
+                          isSelected
+                            ? "text-indigo-600 dark:text-indigo-400"
+                            : "text-zinc-400 dark:text-zinc-500"
                         }`}
                       />
                       <div className="truncate">
-                        <div className="text-xs font-semibold truncate text-zinc-900 dark:text-zinc-100">{quiz.title}</div>
+                        <div className="text-xs font-semibold truncate text-zinc-900 dark:text-zinc-100">
+                          {quiz.title}
+                        </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <span
-                            className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50"
-                          >
-                            {(quiz as unknown as { status?: string }).status || 'published'}
+                          <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
+                            {(quiz as unknown as { status?: string }).status ||
+                              "published"}
                           </span>
                           <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
                             ${((quiz.price || 0) / 100).toFixed(2)}
@@ -232,7 +240,8 @@ export const ContentBrowserPage: React.FC = () => {
         <div className="md:col-span-4 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-2xs overflow-hidden flex flex-col">
           <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 truncate">
-              3. Questions {activeQuiz ? `in ${activeQuiz.title}` : ''} ({questions.length})
+              3. Questions {activeQuiz ? `in ${activeQuiz.title}` : ""} (
+              {questions.length})
             </span>
           </div>
 
@@ -256,17 +265,24 @@ export const ContentBrowserPage: React.FC = () => {
                     <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 shrink-0">
                       Q{idx + 1}
                     </span>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">{q.text}</p>
+                    <p className="font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">
+                      {q.text}
+                    </p>
                   </div>
 
                   <div className="space-y-1 pl-6">
                     {q.options.map((opt, oIdx) => {
-                      const isCorrect = oIdx === ((q as unknown as { correct_index?: number }).correct_index ?? q.correct_option_index);
+                      const isCorrect =
+                        oIdx ===
+                        ((q as unknown as { correct_index?: number })
+                          .correct_index ?? q.correct_option_index);
                       return (
                         <div
                           key={oIdx}
                           className={`flex items-center gap-1.5 text-[11px] ${
-                            isCorrect ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-zinc-500 dark:text-zinc-400'
+                            isCorrect
+                              ? "text-emerald-700 dark:text-emerald-400 font-semibold"
+                              : "text-zinc-500 dark:text-zinc-400"
                           }`}
                         >
                           {isCorrect ? (

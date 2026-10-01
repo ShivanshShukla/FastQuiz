@@ -1,13 +1,19 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { isMockEnabled } from '../config/env';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { isMockEnabled } from "../config/env";
 import {
   type AdminQuestionItem,
   type QuestionSourceType,
   type TopicSummary,
-} from '@fastquiz/shared';
+} from "@fastquiz/shared";
 import {
   Search,
   ArrowRight,
@@ -22,7 +28,7 @@ import {
   FileDown,
   RotateCcw,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const ReviewQueuePage: React.FC = () => {
   const { client } = useAuth();
@@ -33,21 +39,23 @@ export const ReviewQueuePage: React.FC = () => {
 
   const [questions, setQuestions] = useState<AdminQuestionItem[]>([]);
   const [topics, setTopics] = useState<TopicSummary[]>([]);
-  const [selectedTopic, setSelectedTopic] = useState<string>('all');
-  const [selectedSource, setSelectedSource] = useState<QuestionSourceType | 'all'>('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [selectedSource, setSelectedSource] = useState<
+    QuestionSourceType | "all"
+  >("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
   const [showActiveBanner, setShowActiveBanner] = useState(true);
 
   // Load questions and topics
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [fetchedQuestions, fetchedTopics] = await Promise.all([
-        client.admin.getQuestions({ status: 'pending' }),
+        client.admin.getQuestions({ status: "pending" }),
         client.admin.getTopics(),
       ]);
       setQuestions(fetchedQuestions);
@@ -59,29 +67,33 @@ export const ReviewQueuePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [client.admin]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Filter questions client-side for ultra-fast desktop HUD speed
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
-      if (q.review_status !== 'pending') return false;
+      if (q.review_status !== "pending") return false;
 
       // Topic filter
-      if (selectedTopic !== 'all' && q.topic_id !== selectedTopic) {
+      if (selectedTopic !== "all" && q.topic_id !== selectedTopic) {
         return false;
       }
 
       // Source filter
-      if (selectedSource !== 'all' && q.source_type !== selectedSource) {
+      if (selectedSource !== "all" && q.source_type !== selectedSource) {
         return false;
       }
 
       // Difficulty filter
-      if (selectedDifficulty !== 'all' && (q as unknown as { difficulty?: string }).difficulty !== selectedDifficulty) {
+      if (
+        selectedDifficulty !== "all" &&
+        (q as unknown as { difficulty?: string }).difficulty !==
+          selectedDifficulty
+      ) {
         return false;
       }
 
@@ -89,15 +101,25 @@ export const ReviewQueuePage: React.FC = () => {
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matchesText = q.text.toLowerCase().includes(query);
-        const matchesQuiz = q.quiz_title?.toLowerCase().includes(query) ?? false;
-        const matchesTopic = q.topic_name?.toLowerCase().includes(query) ?? false;
-        const matchesOptions = q.options?.some((opt) => opt.toLowerCase().includes(query)) ?? false;
-        if (!matchesText && !matchesQuiz && !matchesTopic && !matchesOptions) return false;
+        const matchesQuiz =
+          q.quiz_title?.toLowerCase().includes(query) ?? false;
+        const matchesTopic =
+          q.topic_name?.toLowerCase().includes(query) ?? false;
+        const matchesOptions =
+          q.options?.some((opt) => opt.toLowerCase().includes(query)) ?? false;
+        if (!matchesText && !matchesQuiz && !matchesTopic && !matchesOptions)
+          return false;
       }
 
       return true;
     });
-  }, [questions, selectedTopic, selectedSource, selectedDifficulty, searchQuery]);
+  }, [
+    questions,
+    selectedTopic,
+    selectedSource,
+    selectedDifficulty,
+    searchQuery,
+  ]);
 
   // Keyboard navigation across queue
   useEffect(() => {
@@ -108,22 +130,24 @@ export const ReviewQueuePage: React.FC = () => {
         e.target instanceof HTMLTextAreaElement ||
         e.target instanceof HTMLSelectElement
       ) {
-        if (e.key === 'Escape') {
+        if (e.key === "Escape") {
           (e.target as HTMLElement).blur();
         }
         return;
       }
 
-      if (e.key === '/') {
+      if (e.key === "/") {
         e.preventDefault();
         searchInputRef.current?.focus();
-      } else if (e.key === 'j' || e.key === 'J' || e.key === 'ArrowDown') {
+      } else if (e.key === "j" || e.key === "J" || e.key === "ArrowDown") {
         e.preventDefault();
-        setFocusedIndex((prev) => Math.min(prev + 1, filteredQuestions.length - 1));
-      } else if (e.key === 'k' || e.key === 'K' || e.key === 'ArrowUp') {
+        setFocusedIndex((prev) =>
+          Math.min(prev + 1, filteredQuestions.length - 1),
+        );
+      } else if (e.key === "k" || e.key === "K" || e.key === "ArrowUp") {
         e.preventDefault();
         setFocusedIndex((prev) => Math.max(prev - 1, 0));
-      } else if (e.key === 'Enter') {
+      } else if (e.key === "Enter") {
         e.preventDefault();
         if (filteredQuestions[focusedIndex]) {
           navigate(`/review/${filteredQuestions[focusedIndex].id}`);
@@ -131,8 +155,8 @@ export const ReviewQueuePage: React.FC = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [filteredQuestions, focusedIndex, navigate]);
 
   // Multi-select helpers
@@ -157,28 +181,33 @@ export const ReviewQueuePage: React.FC = () => {
 
   // Bulk action handlers
   const handleBulkApprove = () => {
-    showToast(`Approved ${selectedIds.size} questions successfully!`, 'success');
+    showToast(
+      `Approved ${selectedIds.size} questions successfully!`,
+      "success",
+    );
     setSelectedIds(new Set());
   };
 
   const handleBulkReject = () => {
-    showToast(`Rejected ${selectedIds.size} questions.`, 'error');
+    showToast(`Rejected ${selectedIds.size} questions.`, "error");
     setSelectedIds(new Set());
   };
 
   // Reset all filters
   const handleResetFilters = () => {
-    setSelectedTopic('all');
-    setSelectedSource('all');
-    setSelectedDifficulty('all');
-    setSearchQuery('');
+    setSelectedTopic("all");
+    setSelectedSource("all");
+    setSelectedDifficulty("all");
+    setSearchQuery("");
   };
 
   // Count by source
   const sourceCounts = useMemo(() => {
-    const ai = questions.filter((q) => q.source_type === 'ai_generated').length;
-    const comm = questions.filter((q) => q.source_type === 'community').length;
-    const staff = questions.filter((q) => q.source_type === 'self_authored').length;
+    const ai = questions.filter((q) => q.source_type === "ai_generated").length;
+    const comm = questions.filter((q) => q.source_type === "community").length;
+    const staff = questions.filter(
+      (q) => q.source_type === "self_authored",
+    ).length;
     return { all: questions.length, ai, comm, staff };
   }, [questions]);
 
@@ -192,25 +221,26 @@ export const ReviewQueuePage: React.FC = () => {
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-indigo-600 shrink-0 fill-indigo-600" />
             <span>
-              <strong>Batch Queue Active:</strong> {filteredQuestions.length} pending technical
-              questions await editorial verification. Press{' '}
+              <strong>Batch Queue Active:</strong> {filteredQuestions.length}{" "}
+              pending technical questions await editorial verification. Press{" "}
               <kbd className="px-1.5 py-0.5 bg-white rounded border border-zinc-200 font-mono text-[10px] text-zinc-700 shadow-2xs">
                 J
-              </kbd>{' '}
-              or{' '}
+              </kbd>{" "}
+              or{" "}
               <kbd className="px-1.5 py-0.5 bg-white rounded border border-zinc-200 font-mono text-[10px] text-zinc-700 shadow-2xs">
                 K
-              </kbd>{' '}
-              to traverse,{' '}
+              </kbd>{" "}
+              to traverse,{" "}
               <kbd className="px-1.5 py-0.5 bg-white rounded border border-zinc-200 font-mono text-[10px] text-zinc-700 shadow-2xs">
                 Enter
-              </kbd>{' '}
+              </kbd>{" "}
               to inspect.
             </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 text-zinc-600 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Pipeline Live
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>{" "}
+              Pipeline Live
             </span>
             <button
               onClick={() => setShowActiveBanner(false)}
@@ -237,7 +267,8 @@ export const ReviewQueuePage: React.FC = () => {
             </span>
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            {filteredQuestions.length} pending questions awaiting human review across DSA and System Design syllabi.
+            {filteredQuestions.length} pending questions awaiting human review
+            across DSA and System Design syllabi.
           </p>
         </div>
 
@@ -259,7 +290,9 @@ export const ReviewQueuePage: React.FC = () => {
           >
             <Play className="w-3.5 h-3.5 fill-white" />
             <span>Start Triage (Next)</span>
-            <kbd className="ml-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">Enter</kbd>
+            <kbd className="ml-1 px-1.5 py-0.5 rounded bg-white/20 font-mono text-[10px]">
+              Enter
+            </kbd>
           </button>
         </div>
       </div>
@@ -277,10 +310,12 @@ export const ReviewQueuePage: React.FC = () => {
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{filteredQuestions.length}</span>
+              <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                {filteredQuestions.length}
+              </span>
               {filteredQuestions.length > 0 ? (
                 <span className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800">
-                  {mockActive ? 'Over SLA (+4)' : 'Pending'}
+                  {mockActive ? "Over SLA (+4)" : "Pending"}
                 </span>
               ) : (
                 <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
@@ -311,7 +346,10 @@ export const ReviewQueuePage: React.FC = () => {
               {mockActive ? (
                 <>
                   <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                    18 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/ 42</span>
+                    18{" "}
+                    <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">
+                      / 42
+                    </span>
                   </span>
                   <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
                     +12% pace
@@ -320,7 +358,10 @@ export const ReviewQueuePage: React.FC = () => {
               ) : (
                 <>
                   <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                    0 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/ 0</span>
+                    0{" "}
+                    <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">
+                      / 0
+                    </span>
                   </span>
                   <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
                     0 today
@@ -331,7 +372,7 @@ export const ReviewQueuePage: React.FC = () => {
             <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div
                 className="bg-indigo-600 h-full rounded-full"
-                style={{ width: mockActive ? '42.8%' : '0%' }}
+                style={{ width: mockActive ? "42.8%" : "0%" }}
               ></div>
             </div>
           </div>
@@ -348,16 +389,16 @@ export const ReviewQueuePage: React.FC = () => {
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                {mockActive ? '48s' : '--'}
+                {mockActive ? "48s" : "--"}
               </span>
               <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
-                {mockActive ? 'Optimal' : 'SLA Target'}
+                {mockActive ? "Optimal" : "SLA Target"}
               </span>
             </div>
             <div className="mt-1 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
               <span>Target &lt; 90s SLA</span>
               <span className="font-mono text-zinc-400 dark:text-zinc-500">
-                {mockActive ? 'P95: 1m 12s' : 'No records'}
+                {mockActive ? "P95: 1m 12s" : "No records"}
               </span>
             </div>
           </div>
@@ -369,19 +410,25 @@ export const ReviewQueuePage: React.FC = () => {
             <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Quality Flags
             </span>
-            <AlertTriangle className={`w-4 h-4 ${mockActive ? 'text-rose-500' : 'text-emerald-500'}`} />
+            <AlertTriangle
+              className={`w-4 h-4 ${mockActive ? "text-rose-500" : "text-emerald-500"}`}
+            />
           </div>
           <div className="mt-3">
             <div className="flex items-baseline gap-2">
-              <span className={`text-2xl font-bold ${mockActive ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
-                {mockActive ? '2' : '0'}
+              <span
+                className={`text-2xl font-bold ${mockActive ? "text-rose-600 dark:text-rose-400" : "text-zinc-900 dark:text-zinc-100"}`}
+              >
+                {mockActive ? "2" : "0"}
               </span>
-              <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded border ${
-                mockActive
-                  ? 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800'
-                  : 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800'
-              }`}>
-                {mockActive ? 'High Risk' : 'Zero Flags'}
+              <span
+                className={`text-[11px] font-medium px-1.5 py-0.5 rounded border ${
+                  mockActive
+                    ? "text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800"
+                    : "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800"
+                }`}
+              >
+                {mockActive ? "High Risk" : "Zero Flags"}
               </span>
             </div>
             <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
@@ -430,7 +477,9 @@ export const ReviewQueuePage: React.FC = () => {
                 onChange={(e) => setSelectedTopic(e.target.value)}
                 className="h-9 pl-3 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
               >
-                <option value="all">All Topics (DSA &amp; System Design)</option>
+                <option value="all">
+                  All Topics (DSA &amp; System Design)
+                </option>
                 {topics.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -444,7 +493,11 @@ export const ReviewQueuePage: React.FC = () => {
               <select
                 aria-label="Source Filter"
                 value={selectedSource}
-                onChange={(e) => setSelectedSource(e.target.value as QuestionSourceType | 'all')}
+                onChange={(e) =>
+                  setSelectedSource(
+                    e.target.value as QuestionSourceType | "all",
+                  )
+                }
                 className="h-9 pl-3 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none cursor-pointer"
               >
                 <option value="all">All Sources</option>
@@ -485,11 +538,11 @@ export const ReviewQueuePage: React.FC = () => {
         <div className="flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 pt-2.5">
           <div className="flex items-center gap-1.5 overflow-x-auto">
             <button
-              onClick={() => setSelectedSource('all')}
+              onClick={() => setSelectedSource("all")}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
-                selectedSource === 'all'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                selectedSource === "all"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <span>All Sources</span>
@@ -499,47 +552,58 @@ export const ReviewQueuePage: React.FC = () => {
             </button>
 
             <button
-              onClick={() => setSelectedSource('ai_generated')}
+              onClick={() => setSelectedSource("ai_generated")}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
-                selectedSource === 'ai_generated'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                selectedSource === "ai_generated"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
               <span>AI-Generated</span>
-              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.ai}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">
+                {sourceCounts.ai}
+              </span>
             </button>
 
             <button
-              onClick={() => setSelectedSource('community')}
+              onClick={() => setSelectedSource("community")}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
-                selectedSource === 'community'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                selectedSource === "community"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
               <span>Community Submitted</span>
-              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.comm}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">
+                {sourceCounts.comm}
+              </span>
             </button>
 
             <button
-              onClick={() => setSelectedSource('self_authored')}
+              onClick={() => setSelectedSource("self_authored")}
               className={`px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition ${
-                selectedSource === 'self_authored'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                selectedSource === "self_authored"
+                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-900 dark:text-indigo-300 font-semibold"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
               <span>Staff Authored</span>
-              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sourceCounts.staff}</span>
+              <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">
+                {sourceCounts.staff}
+              </span>
             </button>
           </div>
 
           <div className="hidden sm:flex items-center gap-2 text-zinc-400 dark:text-zinc-500 text-xs">
-            <span>Sort: <strong className="text-zinc-700 dark:text-zinc-300">Priority (SLA)</strong></span>
+            <span>
+              Sort:{" "}
+              <strong className="text-zinc-700 dark:text-zinc-300">
+                Priority (SLA)
+              </strong>
+            </span>
           </div>
         </div>
       </div>
@@ -572,7 +636,9 @@ export const ReviewQueuePage: React.FC = () => {
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Approve Selected ({selectedIds.size})</span>
-              <kbd className="px-1 py-0.2 rounded bg-black/30 font-mono text-[9px]">⇧A</kbd>
+              <kbd className="px-1 py-0.2 rounded bg-black/30 font-mono text-[9px]">
+                ⇧A
+              </kbd>
             </button>
             <button
               onClick={handleBulkReject}
@@ -580,10 +646,14 @@ export const ReviewQueuePage: React.FC = () => {
             >
               <X className="w-3.5 h-3.5" />
               <span>Reject Selected...</span>
-              <kbd className="px-1 py-0.2 rounded bg-black/30 font-mono text-[9px]">⇧R</kbd>
+              <kbd className="px-1 py-0.2 rounded bg-black/30 font-mono text-[9px]">
+                ⇧R
+              </kbd>
             </button>
             <button
-              onClick={() => showToast('Exported question payloads as JSON', 'info')}
+              onClick={() =>
+                showToast("Exported question payloads as JSON", "info")
+              }
               className="h-7 px-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium flex items-center gap-1 transition"
             >
               <FileDown className="w-3.5 h-3.5" />
@@ -605,7 +675,8 @@ export const ReviewQueuePage: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={
-                      selectedIds.size > 0 && selectedIds.size === filteredQuestions.length
+                      selectedIds.size > 0 &&
+                      selectedIds.size === filteredQuestions.length
                     }
                     onChange={handleToggleSelectAll}
                     className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 accent-indigo-600 cursor-pointer"
@@ -623,16 +694,24 @@ export const ReviewQueuePage: React.FC = () => {
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-zinc-400 dark:text-zinc-500">
+                  <td
+                    colSpan={7}
+                    className="py-12 text-center text-zinc-400 dark:text-zinc-500"
+                  >
                     <RefreshCw className="w-5 h-5 mx-auto animate-spin mb-2 text-indigo-600" />
                     Loading question queue...
                   </td>
                 </tr>
               ) : filteredQuestions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-zinc-500 dark:text-zinc-400">
+                  <td
+                    colSpan={7}
+                    className="py-16 text-center text-zinc-500 dark:text-zinc-400"
+                  >
                     <Inbox className="w-8 h-8 mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
-                    <p className="font-semibold text-zinc-800 dark:text-zinc-200">All caught up!</p>
+                    <p className="font-semibold text-zinc-800 dark:text-zinc-200">
+                      All caught up!
+                    </p>
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                       No questions pending review matching current criteria.
                     </p>
@@ -649,10 +728,10 @@ export const ReviewQueuePage: React.FC = () => {
                       onClick={() => navigate(`/review/${q.id}`)}
                       className={`cursor-pointer transition-colors group ${
                         isSelected
-                          ? 'bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/60 border-l-4 border-l-indigo-600'
+                          ? "bg-indigo-50/50 dark:bg-indigo-950/40 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/60 border-l-4 border-l-indigo-600"
                           : isFocused
-                          ? 'bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-l-4 border-l-zinc-400'
-                          : 'hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40'
+                            ? "bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-l-4 border-l-zinc-400"
+                            : "hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40"
                       }`}
                     >
                       {/* Checkbox */}
@@ -691,7 +770,7 @@ export const ReviewQueuePage: React.FC = () => {
                       <td className="py-3 px-3 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                            {q.topic_name || 'System Design'}
+                            {q.topic_name || "System Design"}
                           </span>
                         </div>
                       </td>
@@ -699,18 +778,18 @@ export const ReviewQueuePage: React.FC = () => {
                       {/* Target Quiz */}
                       <td className="py-3 px-3 whitespace-nowrap">
                         <span className="text-zinc-600 dark:text-zinc-300 font-medium">
-                          {q.quiz_title || 'General Warmup'}
+                          {q.quiz_title || "General Warmup"}
                         </span>
                       </td>
 
                       {/* Source & Quality Pill */}
                       <td className="py-3 px-3 whitespace-nowrap">
-                        {q.source_type === 'ai_generated' ? (
+                        {q.source_type === "ai_generated" ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                             GPT-4o Synthesizer
                           </span>
-                        ) : q.source_type === 'community' ? (
+                        ) : q.source_type === "community" ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                             Community

@@ -4,15 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/admin/**'
-      - 'packages/shared/**'
-      - '.github/workflows/admin.yml'
+      - "apps/admin/**"
+      - "packages/shared/**"
+      - ".github/workflows/admin.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/admin/**'
-      - 'packages/shared/**'
-      - '.github/workflows/admin.yml'
+      - "apps/admin/**"
+      - "packages/shared/**"
+      - ".github/workflows/admin.yml"
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -37,6 +37,9 @@ jobs:
 
       - name: Type Check Admin
         run: npm run typecheck --workspace=@fastquiz/admin
+
+      - name: Run Admin Tests
+        run: npm run test --workspace=@fastquiz/admin
 
       - name: Build Admin Application
         run: npm run build --workspace=@fastquiz/admin

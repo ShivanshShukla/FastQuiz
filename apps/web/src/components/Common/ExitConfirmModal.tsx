@@ -1,5 +1,5 @@
-import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React from "react";
+import { AlertTriangle } from "lucide-react";
 
 interface ExitConfirmModalProps {
   isOpen: boolean;
@@ -31,11 +31,16 @@ export const ExitConfirmModal: React.FC<ExitConfirmModalProps> = ({
         </div>
 
         <div>
-          <h3 id="modal-title" className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3
+            id="modal-title"
+            className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+          >
             Exit Assessment?
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
-            Your progress (Question {currentQuestion} of {totalQuestions}) and answers will be saved. You can resume this session anytime from your dashboard.
+            Your progress (Question {currentQuestion} of {totalQuestions}) and
+            answers will be saved. You can resume this session anytime from your
+            dashboard.
           </p>
         </div>
 

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Lock, CheckCircle2, Shield, CreditCard, Sparkles } from 'lucide-react';
-import { useToast } from '../../context/ToastContext';
-import { webMockStore } from '../../services/webMockStore';
+import React, { useState } from "react";
+import { Lock, CheckCircle2, Shield, CreditCard, Sparkles } from "lucide-react";
+import { useToast } from "../../context/ToastContext";
+import { webMockStore } from "../../services/webMockStore";
 
 interface PaywallCardProps {
   quizId?: string;
@@ -10,27 +10,31 @@ interface PaywallCardProps {
 }
 
 export const PaywallCard: React.FC<PaywallCardProps> = ({
-  quizId = 'quiz-cache-1',
-  topicTitle = 'Distributed Caching',
+  quizId = "quiz-cache-1",
+  topicTitle = "Distributed Caching",
   onUnlocked,
 }) => {
-  const [selectedPlan, setSelectedPlan] = useState<'single' | 'bundle'>('bundle');
+  const [selectedPlan, setSelectedPlan] = useState<"single" | "bundle">(
+    "bundle",
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const { showToast } = useToast();
 
   const handleCheckout = () => {
     setIsProcessing(true);
-    const amount = selectedPlan === 'single' ? '₹99' : '₹399';
-    showToast(`Initializing secure checkout for ${amount}...`, 'info');
+    const amount = selectedPlan === "single" ? "₹99" : "₹399";
+    showToast(`Initializing secure checkout for ${amount}...`, "info");
 
     setTimeout(() => {
-      webMockStore.purchaseItem(selectedPlan === 'single' ? quizId : 'master-bundle');
+      webMockStore.purchaseItem(
+        selectedPlan === "single" ? quizId : "master-bundle",
+      );
       setIsProcessing(false);
       showToast(
-        selectedPlan === 'single'
+        selectedPlan === "single"
           ? `Successfully unlocked explanations for ${topicTitle}!`
-          : 'Successfully unlocked System Architecture Master Bundle (All 8 Quizzes)!',
-        'success'
+          : "Successfully unlocked System Architecture Master Bundle (All 8 Quizzes)!",
+        "success",
       );
       if (onUnlocked) onUnlocked();
     }, 1000);
@@ -57,7 +61,8 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
           Unlock Senior Staff Explanations & Complete Playbooks
         </h2>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-          Comprehensive production postmortems, reference code implementations, and interview rubrics for senior & staff loops.
+          Comprehensive production postmortems, reference code implementations,
+          and interview rubrics for senior & staff loops.
         </p>
       </div>
 
@@ -65,7 +70,9 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
       <div className="space-y-2 text-xs text-zinc-700 dark:text-zinc-300">
         <div className="flex items-start gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-          <span>System failure postmortems & architecture trade-off guides</span>
+          <span>
+            System failure postmortems & architecture trade-off guides
+          </span>
         </div>
         <div className="flex items-start gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -86,9 +93,9 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
         {/* Option 1: Single Quiz */}
         <label
           className={`flex items-center justify-between p-3 rounded-md cursor-pointer border transition-colors ${
-            selectedPlan === 'single'
-              ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20'
-              : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-700'
+            selectedPlan === "single"
+              ? "border-indigo-600 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20"
+              : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -96,8 +103,8 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
               type="radio"
               name="plan_selection"
               value="single"
-              checked={selectedPlan === 'single'}
-              onChange={() => setSelectedPlan('single')}
+              checked={selectedPlan === "single"}
+              onChange={() => setSelectedPlan("single")}
               className="h-3.5 w-3.5 text-indigo-600 focus:ring-indigo-500"
             />
             <div>
@@ -110,17 +117,21 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="text-sm font-semibold font-mono text-zinc-900 dark:text-zinc-100">₹99</span>
-            <span className="block text-[10px] font-mono text-zinc-400 line-through">₹249</span>
+            <span className="text-sm font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+              ₹99
+            </span>
+            <span className="block text-[10px] font-mono text-zinc-400 line-through">
+              ₹249
+            </span>
           </div>
         </label>
 
         {/* Option 2: Full Master Bundle (Default) */}
         <label
           className={`flex items-center justify-between p-3 rounded-md cursor-pointer border transition-colors ${
-            selectedPlan === 'bundle'
-              ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20'
-              : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-700'
+            selectedPlan === "bundle"
+              ? "border-indigo-600 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/20"
+              : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
           <div className="flex items-center gap-3">
@@ -128,8 +139,8 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
               type="radio"
               name="plan_selection"
               value="bundle"
-              checked={selectedPlan === 'bundle'}
-              onChange={() => setSelectedPlan('bundle')}
+              checked={selectedPlan === "bundle"}
+              onChange={() => setSelectedPlan("bundle")}
               className="h-3.5 w-3.5 text-indigo-600 focus:ring-indigo-500"
             />
             <div>
@@ -147,24 +158,28 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="text-sm font-semibold font-mono text-indigo-600 dark:text-indigo-400">₹399</span>
-            <span className="block text-[10px] font-mono text-zinc-400 line-through">₹1,499</span>
+            <span className="text-sm font-semibold font-mono text-indigo-600 dark:text-indigo-400">
+              ₹399
+            </span>
+            <span className="block text-[10px] font-mono text-zinc-400 line-through">
+              ₹1,499
+            </span>
           </div>
         </label>
       </div>
 
-        {/* Primary Action Button */}
+      {/* Primary Action Button */}
       <div className="space-y-3 pt-2">
         <button
           type="button"
           onClick={handleCheckout}
           disabled={isProcessing}
-          aria-label={`Unlock ${selectedPlan === 'single' ? `${topicTitle} single quiz for ₹99` : 'System Architecture Master Bundle for ₹399'}`}
+          aria-label={`Unlock ${selectedPlan === "single" ? `${topicTitle} single quiz for ₹99` : "System Architecture Master Bundle for ₹399"}`}
           className="w-full py-2.5 px-4 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-medium transition-colors shadow-sm cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           {isProcessing
-            ? 'Processing...'
-            : `Unlock Staff Playbook • ${selectedPlan === 'single' ? '₹99' : '₹399'}`}
+            ? "Processing..."
+            : `Unlock Staff Playbook • ${selectedPlan === "single" ? "₹99" : "₹399"}`}
         </button>
 
         {/* Trust Badges */}

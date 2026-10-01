@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface BrandLogoProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   showBadge?: boolean;
   className?: string;
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
-  size = 'md',
+  size = "md",
   showBadge = true,
-  className = '',
+  className = "",
 }) => {
   const [imgError, setImgError] = useState(false);
 
   const emblemSizes = {
-    sm: 'w-6 h-6',
-    md: 'w-7 h-7',
-    lg: 'w-9 h-9',
+    sm: "w-6 h-6",
+    md: "w-7 h-7",
+    lg: "w-9 h-9",
   };
 
   const textSizes = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-xl',
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-xl",
   };
 
   return (

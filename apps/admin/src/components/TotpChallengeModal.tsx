@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   type AdminTotpEnrollmentRequiredResponse,
   type AdminTotpRequiredResponse,
-} from '@fastquiz/shared';
-import { ShieldCheck, Key, Copy, Check, AlertCircle, ArrowRight, X } from 'lucide-react';
+} from "@fastquiz/shared";
+import {
+  ShieldCheck,
+  Key,
+  Copy,
+  Check,
+  AlertCircle,
+  ArrowRight,
+  X,
+} from "lucide-react";
 
 export type TotpChallengeState =
-  | AdminTotpRequiredResponse
-  | AdminTotpEnrollmentRequiredResponse;
+  AdminTotpRequiredResponse | AdminTotpEnrollmentRequiredResponse;
 
 interface TotpChallengeModalProps {
   challenge: TotpChallengeState;
@@ -31,15 +38,15 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
     // Fallback to legacy execCommand
   }
   try {
-    const textArea = document.createElement('textarea');
+    const textArea = document.createElement("textarea");
     textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-9999px';
-    textArea.style.top = '-9999px';
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "-9999px";
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    const ok = document.execCommand('copy');
+    const ok = document.execCommand("copy");
     textArea.remove();
     return ok;
   } catch {
@@ -52,22 +59,22 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
  * and removes hardcoded width/height constraints that cause clipping.
  */
 function normalizeSvg(svg: string): string {
-  if (!svg) return '';
+  if (!svg) return "";
   let res = svg.trim();
   const widthMatch = res.match(/width="(\d+)"/i);
   const heightMatch = res.match(/height="(\d+)"/i);
 
-  if (!res.includes('viewBox') && widthMatch && heightMatch) {
+  if (!res.includes("viewBox") && widthMatch && heightMatch) {
     res = res.replace(
       /<svg/i,
-      `<svg viewBox="0 0 ${widthMatch[1]} ${heightMatch[1]}" preserveAspectRatio="xMidYMid meet"`
+      `<svg viewBox="0 0 ${widthMatch[1]} ${heightMatch[1]}" preserveAspectRatio="xMidYMid meet"`,
     );
-  } else if (!res.includes('preserveAspectRatio')) {
+  } else if (!res.includes("preserveAspectRatio")) {
     res = res.replace(/<svg/i, '<svg preserveAspectRatio="xMidYMid meet"');
   }
 
   // Remove fixed dimensions so CSS parent dimensions control the rendering
-  res = res.replace(/\s+(width|height)="[^"]*"/gi, '');
+  res = res.replace(/\s+(width|height)="[^"]*"/gi, "");
   return res;
 }
 
@@ -79,12 +86,12 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
   isLoading,
   errorMessage,
 }) => {
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
   const [useRecoveryCode, setUseRecoveryCode] = useState(false);
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [copiedCodes, setCopiedCodes] = useState(false);
 
-  const isEnrollment = challenge.status === 'totp_enrollment_required';
+  const isEnrollment = challenge.status === "totp_enrollment_required";
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -99,7 +106,7 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
   };
 
   const handleCopySecret = async () => {
-    if ('secret' in challenge && challenge.secret) {
+    if ("secret" in challenge && challenge.secret) {
       const ok = await copyToClipboard(challenge.secret);
       if (ok) {
         setCopiedSecret(true);
@@ -109,8 +116,8 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
   };
 
   const handleCopyRecoveryCodes = async () => {
-    if ('recovery_codes' in challenge && challenge.recovery_codes) {
-      const ok = await copyToClipboard(challenge.recovery_codes.join('\n'));
+    if ("recovery_codes" in challenge && challenge.recovery_codes) {
+      const ok = await copyToClipboard(challenge.recovery_codes.join("\n"));
       if (ok) {
         setCopiedCodes(true);
         setTimeout(() => setCopiedCodes(false), 2000);
@@ -129,12 +136,14 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-zinc-950">
-                {isEnrollment ? 'Enroll Multi-Factor Authentication (2FA)' : 'Two-Factor Challenge (TOTP)'}
+                {isEnrollment
+                  ? "Enroll Multi-Factor Authentication (2FA)"
+                  : "Two-Factor Challenge (TOTP)"}
               </h3>
               <p className="text-[11px] text-zinc-500">
                 {isEnrollment
-                  ? 'Mandatory hardware/TOTP setup for internal admin identity'
-                  : 'Enter the 6-digit token from your authenticator application'}
+                  ? "Mandatory hardware/TOTP setup for internal admin identity"
+                  : "Enter the 6-digit token from your authenticator application"}
               </p>
             </div>
           </div>
@@ -149,21 +158,26 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
 
         {/* Error Message */}
         {errorMessage && (
-          <div role="alert" className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
+          <div
+            role="alert"
+            className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5"
+          >
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
             <span className="font-medium">{errorMessage}</span>
           </div>
         )}
 
         {/* Enrollment Instructions & QR Code */}
-        {isEnrollment && 'qr_code_svg' in challenge && (
+        {isEnrollment && "qr_code_svg" in challenge && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-xl bg-zinc-50 border border-zinc-200">
               {/* Responsive, unclipped QR Code Box */}
               <div className="w-36 h-36 bg-white p-2 rounded-lg border border-zinc-200 shrink-0 flex items-center justify-center overflow-hidden shadow-2xs">
                 <div
                   className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:block"
-                  dangerouslySetInnerHTML={{ __html: normalizeSvg(challenge.qr_code_svg) }}
+                  dangerouslySetInnerHTML={{
+                    __html: normalizeSvg(challenge.qr_code_svg),
+                  }}
                 />
               </div>
 
@@ -174,7 +188,8 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
                     Scan with Authenticator App
                   </span>
                   <p className="text-[11px] text-zinc-500 leading-relaxed mt-0.5">
-                    Open Google Authenticator, 1Password, or Apple Passwords and scan the QR code.
+                    Open Google Authenticator, 1Password, or Apple Passwords and
+                    scan the QR code.
                   </p>
                 </div>
 
@@ -210,7 +225,7 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
             </div>
 
             {/* One-Time Backup Recovery Codes */}
-            {'recovery_codes' in challenge && (
+            {"recovery_codes" in challenge && (
               <div className="p-3.5 rounded-lg bg-amber-50/70 border border-amber-200/80 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
@@ -237,7 +252,10 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
                 </div>
                 <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px] text-amber-950">
                   {challenge.recovery_codes.map((rc, i) => (
-                    <div key={i} className="bg-white/90 px-2 py-1 rounded border border-amber-200/60 font-semibold tracking-wider text-center">
+                    <div
+                      key={i}
+                      className="bg-white/90 px-2 py-1 rounded border border-amber-200/60 font-semibold tracking-wider text-center"
+                    >
                       {rc}
                     </div>
                   ))}
@@ -251,23 +269,28 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-zinc-800" htmlFor="totp-input">
+              <label
+                className="text-xs font-semibold text-zinc-800"
+                htmlFor="totp-input"
+              >
                 {isEnrollment
-                  ? 'Confirm with 6-Digit Code'
+                  ? "Confirm with 6-Digit Code"
                   : useRecoveryCode
-                  ? 'Enter 10-Character Recovery Code'
-                  : '6-Digit Verification Code'}
+                    ? "Enter 10-Character Recovery Code"
+                    : "6-Digit Verification Code"}
               </label>
               {!isEnrollment && (
                 <button
                   type="button"
                   onClick={() => {
                     setUseRecoveryCode(!useRecoveryCode);
-                    setCode('');
+                    setCode("");
                   }}
                   className="text-[11px] text-indigo-600 hover:underline cursor-pointer"
                 >
-                  {useRecoveryCode ? 'Use 6-digit code' : 'Lost device? Use recovery code'}
+                  {useRecoveryCode
+                    ? "Use 6-digit code"
+                    : "Lost device? Use recovery code"}
                 </button>
               )}
             </div>
@@ -276,14 +299,14 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
               type="text"
               required
               autoFocus
-              inputMode={useRecoveryCode ? 'text' : 'numeric'}
+              inputMode={useRecoveryCode ? "text" : "numeric"}
               autoComplete="one-time-code"
               maxLength={useRecoveryCode ? 15 : 7}
               value={code}
               onChange={(e) => {
                 const val = e.target.value;
                 if (!useRecoveryCode) {
-                  const digits = val.replace(/\D/g, '').slice(0, 6);
+                  const digits = val.replace(/\D/g, "").slice(0, 6);
                   setCode(digits);
                   if (digits.length === 6 && !isLoading) {
                     if (isEnrollment) {
@@ -296,7 +319,7 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
                   setCode(val.toUpperCase());
                 }
               }}
-              placeholder={useRecoveryCode ? '01E6E-64FCC' : '••••••'}
+              placeholder={useRecoveryCode ? "01E6E-64FCC" : "••••••"}
               className="w-full text-center text-2xl font-mono tracking-[0.3em] py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-zinc-950 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
             />
           </div>
@@ -314,7 +337,13 @@ export const TotpChallengeModal: React.FC<TotpChallengeModalProps> = ({
               disabled={isLoading || !code.trim()}
               className="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-2xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
-              <span>{isLoading ? 'Verifying...' : isEnrollment ? 'Confirm & Login' : 'Authenticate'}</span>
+              <span>
+                {isLoading
+                  ? "Verifying..."
+                  : isEnrollment
+                    ? "Confirm & Login"
+                    : "Authenticate"}
+              </span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

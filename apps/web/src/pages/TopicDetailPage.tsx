@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
   FolderOpen,
   CheckCircle,
@@ -11,38 +11,49 @@ import {
   Terminal,
   FileCode,
   ShieldCheck,
-} from 'lucide-react';
-import { webMockStore } from '../services/webMockStore';
-import { useToast } from '../context/ToastContext';
+} from "lucide-react";
+import { webMockStore } from "../services/webMockStore";
+import { useToast } from "../context/ToastContext";
 
 export const TopicDetailPage: React.FC = () => {
-  const { topicId = 'distributed-caching' } = useParams<{ topicId: string }>();
+  const { topicId = "distributed-caching" } = useParams<{ topicId: string }>();
   const topic = webMockStore.getTopic(topicId) || webMockStore.getTopics()[0];
   const { showToast } = useToast();
   const [, setRefreshKey] = useState(0);
 
   const handleBuySingle = (quizId: string, title: string) => {
     webMockStore.purchaseItem(quizId);
-    showToast(`Unlocked ${title} (₹99). Reference explanations are now active.`, 'success');
+    showToast(
+      `Unlocked ${title} (₹99). Reference explanations are now active.`,
+      "success",
+    );
     setRefreshKey((k) => k + 1);
   };
 
   const handleBuyBundle = () => {
-    webMockStore.purchaseItem('master-bundle');
-    showToast('Unlocked full track access for all 8 modules.', 'success');
+    webMockStore.purchaseItem("master-bundle");
+    showToast("Unlocked full track access for all 8 modules.", "success");
     setRefreshKey((k) => k + 1);
   };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left space-y-8">
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-xs font-mono text-zinc-500" aria-label="Breadcrumb">
-        <Link to="/topics" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors flex items-center gap-1">
+      <nav
+        className="flex items-center gap-2 text-xs font-mono text-zinc-500"
+        aria-label="Breadcrumb"
+      >
+        <Link
+          to="/topics"
+          className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors flex items-center gap-1"
+        >
           <FolderOpen className="w-3.5 h-3.5" />
           <span>Topics</span>
         </Link>
         <span>/</span>
-        <span className="text-zinc-600 dark:text-zinc-400">{topic.category}</span>
+        <span className="text-zinc-600 dark:text-zinc-400">
+          {topic.category}
+        </span>
         <span>/</span>
         <span className="text-zinc-900 dark:text-zinc-100 font-medium truncate max-w-xs sm:max-w-none">
           {topic.title}
@@ -123,7 +134,9 @@ export const TopicDetailPage: React.FC = () => {
                 Quiz 1: Cache Strategies & Invalidation Dilemmas
               </h2>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Test your understanding of Cache-Aside vs Write-Through patterns, 2-phase commit hazards, and eventual consistency boundaries across replicated datastores.
+                Test your understanding of Cache-Aside vs Write-Through
+                patterns, 2-phase commit hazards, and eventual consistency
+                boundaries across replicated datastores.
               </p>
             </div>
 
@@ -132,22 +145,34 @@ export const TopicDetailPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-zinc-400 shrink-0" />
                 <div>
-                  <div className="text-[10px] text-zinc-500 uppercase">Questions</div>
-                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">10 MCQs</div>
+                  <div className="text-[10px] text-zinc-500 uppercase">
+                    Questions
+                  </div>
+                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">
+                    10 MCQs
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
                 <div>
-                  <div className="text-[10px] text-zinc-500 uppercase">Duration</div>
-                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">15 Minutes</div>
+                  <div className="text-[10px] text-zinc-500 uppercase">
+                    Duration
+                  </div>
+                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">
+                    15 Minutes
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Award className="w-4 h-4 text-emerald-500 shrink-0" />
                 <div>
-                  <div className="text-[10px] text-zinc-500 uppercase">Target</div>
-                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">80% Accuracy</div>
+                  <div className="text-[10px] text-zinc-500 uppercase">
+                    Target
+                  </div>
+                  <div className="font-mono font-medium text-zinc-900 dark:text-zinc-200">
+                    80% Accuracy
+                  </div>
                 </div>
               </div>
             </div>
@@ -196,12 +221,12 @@ export const TopicDetailPage: React.FC = () => {
                         <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate">
                           {quiz.title}
                         </span>
-                        {quiz.status === 'completed' && (
+                        {quiz.status === "completed" && (
                           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
                             {quiz.lastScore}%
                           </span>
                         )}
-                        {quiz.status === 'locked' && (
+                        {quiz.status === "locked" && (
                           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700">
                             PRO
                           </span>
@@ -211,13 +236,14 @@ export const TopicDetailPage: React.FC = () => {
                         {quiz.description}
                       </p>
                       <div className="text-[11px] font-mono text-zinc-400 pt-0.5">
-                        {quiz.questionsCount} Questions • {quiz.durationMinutes} mins
+                        {quiz.questionsCount} Questions • {quiz.durationMinutes}{" "}
+                        mins
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    {quiz.status === 'locked' ? (
+                    {quiz.status === "locked" ? (
                       <button
                         type="button"
                         onClick={() => handleBuySingle(quiz.id, quiz.title)}
@@ -226,7 +252,7 @@ export const TopicDetailPage: React.FC = () => {
                         <Lock className="w-3 h-3 text-zinc-400" />
                         <span>Unlock ₹99</span>
                       </button>
-                    ) : quiz.status === 'purchased' ? (
+                    ) : quiz.status === "purchased" ? (
                       <Link
                         to={`/quiz/${quiz.id}/take`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-colors"
@@ -234,7 +260,7 @@ export const TopicDetailPage: React.FC = () => {
                         <span>Start</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
-                    ) : quiz.status === 'completed' ? (
+                    ) : quiz.status === "completed" ? (
                       <Link
                         to={`/quiz/${quiz.id}/take`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-medium transition-colors"
@@ -268,7 +294,8 @@ export const TopicDetailPage: React.FC = () => {
                 Distributed Systems Bundle
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                Full access to all 8 practice modules, comprehensive failure postmortems, and technical reference explanations.
+                Full access to all 8 practice modules, comprehensive failure
+                postmortems, and technical reference explanations.
               </p>
             </div>
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   CheckCircle,
   ArrowRight,
@@ -10,17 +10,18 @@ import {
   LogOut,
   Sliders,
   Keyboard,
-} from 'lucide-react';
-import { webMockStore, QuestionData } from '../services/webMockStore';
-import { ExitConfirmModal } from '../components/Common/ExitConfirmModal';
-import { useToast } from '../context/ToastContext';
+} from "lucide-react";
+import { webMockStore, QuestionData } from "../services/webMockStore";
+import { ExitConfirmModal } from "../components/Common/ExitConfirmModal";
+import { useToast } from "../context/ToastContext";
 
 export const QuizRunnerPage: React.FC = () => {
-  const { quizId = 'quiz-cache-1' } = useParams<{ quizId: string }>();
+  const { quizId = "quiz-cache-1" } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const quiz = webMockStore.getQuiz(quizId) || webMockStore.getTopics()[0]?.quizzes?.[0];
+  const quiz =
+    webMockStore.getQuiz(quizId) || webMockStore.getTopics()[0]?.quizzes?.[0];
   const questions: QuestionData[] = quiz?.questions || [];
 
   // Active question index (0-based)
@@ -51,9 +52,20 @@ export const QuizRunnerPage: React.FC = () => {
       flaggedQuestions: Array.from(flagged),
       timeSpentSeconds: 8 * 60 + 39 - remainingSeconds || 378,
     });
-    showToast('Assessment submitted. Generating diagnostic matrix...', 'success');
+    showToast(
+      "Assessment submitted. Generating diagnostic matrix...",
+      "success",
+    );
     navigate(`/attempts/${submissionId}/results`);
-  }, [quiz?.id, quizId, answers, flagged, remainingSeconds, navigate, showToast]);
+  }, [
+    quiz?.id,
+    quizId,
+    answers,
+    flagged,
+    remainingSeconds,
+    navigate,
+    showToast,
+  ]);
 
   // Countdown tick
   useEffect(() => {
@@ -74,25 +86,28 @@ export const QuizRunnerPage: React.FC = () => {
   const formatTimer = (totalSecs: number) => {
     const mins = Math.floor(totalSecs / 60);
     const secs = totalSecs % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  const handleSelectOption = (optionIndex: number) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentIndex]: optionIndex,
-    }));
-  };
+  const handleSelectOption = useCallback(
+    (optionIndex: number) => {
+      setAnswers((prev) => ({
+        ...prev,
+        [currentIndex]: optionIndex,
+      }));
+    },
+    [currentIndex],
+  );
 
   const toggleFlag = () => {
     setFlagged((prev) => {
       const next = new Set(prev);
       if (next.has(currentIndex)) {
         next.delete(currentIndex);
-        showToast(`Removed flag from Question ${currentIndex + 1}`, 'info');
+        showToast(`Removed flag from Question ${currentIndex + 1}`, "info");
       } else {
         next.add(currentIndex);
-        showToast(`Flagged Question ${currentIndex + 1} for review`, 'info');
+        showToast(`Flagged Question ${currentIndex + 1} for review`, "info");
       }
       return next;
     });
@@ -115,28 +130,32 @@ export const QuizRunnerPage: React.FC = () => {
   // Keyboard listener (1-4, A-D, Enter, Arrow keys)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName))
+        return;
 
       const key = e.key.toUpperCase();
-      if (key === '1' || key === 'A') handleSelectOption(0);
-      else if (key === '2' || key === 'B') handleSelectOption(1);
-      else if (key === '3' || key === 'C') handleSelectOption(2);
-      else if (key === '4' || key === 'D') handleSelectOption(3);
-      else if (key === 'ENTER') handleNext();
-      else if (key === 'ARROWLEFT') handlePrev();
-      else if (key === 'ARROWRIGHT') handleNext();
+      if (key === "1" || key === "A") handleSelectOption(0);
+      else if (key === "2" || key === "B") handleSelectOption(1);
+      else if (key === "3" || key === "C") handleSelectOption(2);
+      else if (key === "4" || key === "D") handleSelectOption(3);
+      else if (key === "ENTER") handleNext();
+      else if (key === "ARROWLEFT") handlePrev();
+      else if (key === "ARROWRIGHT") handleNext();
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, answers, handleNext, handlePrev]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSelectOption, handleNext, handlePrev]);
 
   if (!quiz || questions.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Assessment Not Available</h2>
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          Assessment Not Available
+        </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
-          The requested assessment is unavailable or mock mode is currently inactive.
+          The requested assessment is unavailable or mock mode is currently
+          inactive.
         </p>
         <Link
           to="/curriculum"
@@ -176,10 +195,10 @@ export const QuizRunnerPage: React.FC = () => {
                   onClick={() => setCurrentIndex(idx)}
                   className={`h-1.5 flex-1 rounded-full transition-all cursor-pointer ${
                     isCurrent
-                      ? 'bg-indigo-600 dark:bg-indigo-400'
+                      ? "bg-indigo-600 dark:bg-indigo-400"
                       : isAnswered
-                      ? 'bg-emerald-500/80'
-                      : 'bg-zinc-200 dark:bg-zinc-800'
+                        ? "bg-emerald-500/80"
+                        : "bg-zinc-200 dark:bg-zinc-800"
                   }`}
                   aria-label={`Jump to question ${idx + 1}`}
                 />
@@ -197,6 +216,7 @@ export const QuizRunnerPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsExitModalOpen(true)}
+              aria-label="Exit assessment"
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -216,7 +236,7 @@ export const QuizRunnerPage: React.FC = () => {
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-mono font-medium text-zinc-900 dark:text-zinc-100">
-                    Question {String(currentIndex + 1).padStart(2, '0')}
+                    Question {String(currentIndex + 1).padStart(2, "0")}
                   </span>
                   <span className="text-zinc-400 font-mono text-xs">/</span>
                   <span className="text-[10px] font-mono uppercase text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800">
@@ -241,7 +261,11 @@ export const QuizRunnerPage: React.FC = () => {
               )}
 
               {/* Multiple Choice Options */}
-              <div className="space-y-3" role="radiogroup" aria-label="Question options">
+              <div
+                className="space-y-3"
+                role="radiogroup"
+                aria-label="Question options"
+              >
                 {currentQ.options.map((opt, optIdx) => {
                   const isSelected = answers[currentIndex] === optIdx;
                   return (
@@ -253,15 +277,15 @@ export const QuizRunnerPage: React.FC = () => {
                       onClick={() => handleSelectOption(optIdx)}
                       className={`w-full p-4 rounded-md text-left transition-colors flex items-start gap-3.5 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                         isSelected
-                          ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20'
-                          : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 hover:border-zinc-300 dark:hover:border-zinc-700'
+                          ? "border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20"
+                          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 hover:border-zinc-300 dark:hover:border-zinc-700"
                       }`}
                     >
                       <div
                         className={`w-6 h-6 rounded flex items-center justify-center text-xs font-mono shrink-0 transition-colors ${
                           isSelected
-                            ? 'bg-indigo-600 text-white dark:bg-indigo-500'
-                            : 'bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'
+                            ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                            : "bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
                         }`}
                       >
                         {opt.label}
@@ -271,8 +295,8 @@ export const QuizRunnerPage: React.FC = () => {
                         <p
                           className={`text-xs sm:text-sm leading-relaxed ${
                             isSelected
-                              ? 'text-zinc-900 dark:text-zinc-100 font-medium'
-                              : 'text-zinc-700 dark:text-zinc-300'
+                              ? "text-zinc-900 dark:text-zinc-100 font-medium"
+                              : "text-zinc-700 dark:text-zinc-300"
                           }`}
                         >
                           {opt.text}
@@ -308,8 +332,8 @@ export const QuizRunnerPage: React.FC = () => {
                 onClick={toggleFlag}
                 className={`px-3 py-2 rounded-md border text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                   flagged.has(currentIndex)
-                    ? 'border-amber-400 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
-                    : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                    ? "border-amber-400 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
+                    : "border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 {flagged.has(currentIndex) ? (
@@ -317,7 +341,11 @@ export const QuizRunnerPage: React.FC = () => {
                 ) : (
                   <Bookmark className="w-3.5 h-3.5" />
                 )}
-                <span>{flagged.has(currentIndex) ? 'Flagged for Review' : 'Flag for Review'}</span>
+                <span>
+                  {flagged.has(currentIndex)
+                    ? "Flagged for Review"
+                    : "Flag for Review"}
+                </span>
               </button>
 
               <button
@@ -325,7 +353,11 @@ export const QuizRunnerPage: React.FC = () => {
                 onClick={handleNext}
                 className="px-4 py-2 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
               >
-                <span>{currentIndex === totalQuestions - 1 ? 'Submit Quiz' : 'Next Question'}</span>
+                <span>
+                  {currentIndex === totalQuestions - 1
+                    ? "Submit Quiz"
+                    : "Next Question"}
+                </span>
                 <span className="hidden sm:inline px-1 py-0.2 rounded bg-white/20 dark:bg-zinc-900/20 text-[10px] font-mono">
                   ↵
                 </span>
@@ -348,13 +380,20 @@ export const QuizRunnerPage: React.FC = () => {
               {/* Progress Summary */}
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800">
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase">Answered</span>
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                    Answered
+                  </span>
                   <div className="text-lg font-semibold font-mono text-zinc-900 dark:text-zinc-100 mt-0.5">
-                    {answeredCount} <span className="text-xs text-zinc-400">/ {totalQuestions}</span>
+                    {answeredCount}{" "}
+                    <span className="text-xs text-zinc-400">
+                      / {totalQuestions}
+                    </span>
                   </div>
                 </div>
                 <div className="p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800">
-                  <span className="text-[10px] font-mono text-zinc-500 uppercase">Flagged</span>
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                    Flagged
+                  </span>
                   <div className="text-lg font-semibold font-mono text-amber-600 dark:text-amber-400 mt-0.5">
                     {flagged.size}
                   </div>
@@ -369,10 +408,12 @@ export const QuizRunnerPage: React.FC = () => {
                   </span>
                   <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
                     <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Done
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{" "}
+                      Done
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Active
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />{" "}
+                      Active
                     </span>
                   </div>
                 </div>
@@ -390,12 +431,12 @@ export const QuizRunnerPage: React.FC = () => {
                         onClick={() => setCurrentIndex(idx)}
                         className={`h-8 rounded text-xs font-mono font-medium transition-colors cursor-pointer border ${
                           isCurrent
-                            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100'
+                            ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-zinc-900 dark:border-zinc-100"
                             : isFlagged
-                            ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800'
-                            : isAnswered
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800'
-                            : 'bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                              ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800"
+                              : isAnswered
+                                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800"
+                                : "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                         }`}
                       >
                         {idx + 1}
@@ -441,7 +482,7 @@ export const QuizRunnerPage: React.FC = () => {
       <ExitConfirmModal
         isOpen={isExitModalOpen}
         onClose={() => setIsExitModalOpen(false)}
-        onConfirmExit={() => navigate('/')}
+        onConfirmExit={() => navigate("/")}
         currentQuestion={currentIndex + 1}
         totalQuestions={totalQuestions}
       />

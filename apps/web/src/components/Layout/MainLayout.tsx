@@ -1,8 +1,8 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { Navbar } from './Navbar';
-import { Footer } from './Footer';
-import { CookieConsentBanner } from '../Common/CookieConsentBanner';
+import React from "react";
+import { Outlet } from "react-router-dom";
+import { Navbar } from "./Navbar";
+import { Footer } from "./Footer";
+import { CookieConsentBanner } from "../Common/CookieConsentBanner";
 
 export const MainLayout: React.FC = () => {
   return (
@@ -15,7 +15,11 @@ export const MainLayout: React.FC = () => {
         Skip to main content
       </a>
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-14 focus:outline-none">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 pt-14 focus:outline-none"
+      >
         <Outlet />
       </main>
       <Footer />

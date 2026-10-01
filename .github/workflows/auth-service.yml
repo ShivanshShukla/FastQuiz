@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'services/auth-service/**'
-      - '.github/workflows/auth-service.yml'
+      - "services/auth-service/**"
+      - ".github/workflows/auth-service.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'services/auth-service/**'
-      - '.github/workflows/auth-service.yml'
+      - "services/auth-service/**"
+      - ".github/workflows/auth-service.yml"
 
 jobs:
   test:
@@ -27,8 +27,8 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |

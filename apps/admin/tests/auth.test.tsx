@@ -1,16 +1,20 @@
-import React from 'react';
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider, DEMO_ADMIN_USER, DEMO_REGULAR_USER } from '../src/context/AuthContext';
-import { ProtectedRoute } from '../src/components/ProtectedRoute';
-import { LoginPage } from '../src/pages/LoginPage';
-import { ToastProvider } from '../src/context/ToastContext';
+import React from "react";
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import {
+  AuthProvider,
+  DEMO_ADMIN_USER,
+  DEMO_REGULAR_USER,
+} from "../src/context/AuthContext";
+import { ProtectedRoute } from "../src/components/ProtectedRoute";
+import { LoginPage } from "../src/pages/LoginPage";
+import { ToastProvider } from "../src/context/ToastContext";
 
-describe('Auth & ProtectedRoute', () => {
-  it('redirects unauthenticated users to /login after initialization', async () => {
+describe("Auth & ProtectedRoute", () => {
+  it("redirects unauthenticated users to /login after initialization", async () => {
     render(
-      <MemoryRouter initialEntries={['/review']}>
+      <MemoryRouter initialEntries={["/review"]}>
         <AuthProvider initialUser={null} initialToken={null}>
           <Routes>
             <Route path="/login" element={<div>Login Page Content</div>} />
@@ -24,17 +28,20 @@ describe('Auth & ProtectedRoute', () => {
             />
           </Routes>
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Login Page Content')).toBeInTheDocument();
-    expect(screen.queryByText('Secret Review Queue')).not.toBeInTheDocument();
+    expect(await screen.findByText("Login Page Content")).toBeInTheDocument();
+    expect(screen.queryByText("Secret Review Queue")).not.toBeInTheDocument();
   });
 
-  it('blocks non-admin authenticated users with Access Denied screen', () => {
+  it("blocks non-admin authenticated users with Access Denied screen", () => {
     render(
-      <MemoryRouter initialEntries={['/review']}>
-        <AuthProvider initialUser={DEMO_REGULAR_USER} initialToken="mock-user-token">
+      <MemoryRouter initialEntries={["/review"]}>
+        <AuthProvider
+          initialUser={DEMO_REGULAR_USER}
+          initialToken="mock-user-token"
+        >
           <Routes>
             <Route path="/login" element={<div>Login Page</div>} />
             <Route
@@ -47,18 +54,23 @@ describe('Auth & ProtectedRoute', () => {
             />
           </Routes>
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText('Access Denied')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Return to Login/i })).toBeInTheDocument();
-    expect(screen.queryByText('Secret Review Queue')).not.toBeInTheDocument();
+    expect(screen.getByText("Access Denied")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Return to Login/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Secret Review Queue")).not.toBeInTheDocument();
   });
 
-  it('allows verified admin users to access protected routes', () => {
+  it("allows verified admin users to access protected routes", () => {
     render(
-      <MemoryRouter initialEntries={['/review']}>
-        <AuthProvider initialUser={DEMO_ADMIN_USER} initialToken="mock-admin-token">
+      <MemoryRouter initialEntries={["/review"]}>
+        <AuthProvider
+          initialUser={DEMO_ADMIN_USER}
+          initialToken="mock-admin-token"
+        >
           <Routes>
             <Route path="/login" element={<div>Login Page</div>} />
             <Route
@@ -71,14 +83,14 @@ describe('Auth & ProtectedRoute', () => {
             />
           </Routes>
         </AuthProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText('Secret Review Queue Content')).toBeInTheDocument();
-    expect(screen.queryByText('Access Denied')).not.toBeInTheDocument();
+    expect(screen.getByText("Secret Review Queue Content")).toBeInTheDocument();
+    expect(screen.queryByText("Access Denied")).not.toBeInTheDocument();
   });
 
-  it('renders login page with 12-character requirement and no Google SSO button', () => {
+  it("renders login page with 12-character requirement and no Google SSO button", () => {
     render(
       <MemoryRouter>
         <ToastProvider>
@@ -86,27 +98,31 @@ describe('Auth & ProtectedRoute', () => {
             <LoginPage />
           </AuthProvider>
         </ToastProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Verify FastQuiz Admin brand
-    expect(screen.getByText('FastQuiz Admin')).toBeInTheDocument();
+    expect(screen.getByText("FastQuiz Admin")).toBeInTheDocument();
 
     // Verify Google SSO button is completely absent
     expect(screen.queryByText(/Sign in with Google/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Google/i)).not.toBeInTheDocument();
 
     // Verify hardware/password min 12 chars hint
-    expect(screen.getByText('Min 12 chars')).toBeInTheDocument();
+    expect(screen.getByText("Min 12 chars")).toBeInTheDocument();
 
     // Verify identity isolation notice
-    expect(screen.getByText(/Separate admin identity domain/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Separate admin identity domain/i),
+    ).toBeInTheDocument();
   });
 
-  it('renders MOCK MODE indicator and dev quick keys when mock is enabled', () => {
+  it("renders MOCK MODE indicator and dev quick keys when mock is enabled", () => {
     // Mock location with no ?mock=false
     delete (window as unknown as { location?: unknown }).location;
-    window.location = new URL('http://localhost:3001/?mock=true') as unknown as Location;
+    window.location = new URL(
+      "http://localhost:3001/?mock=true",
+    ) as unknown as Location;
 
     render(
       <MemoryRouter>
@@ -115,17 +131,21 @@ describe('Auth & ProtectedRoute', () => {
             <LoginPage />
           </AuthProvider>
         </ToastProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText('MOCK MODE')).toBeInTheDocument();
-    expect(screen.getByText('Dev Environment Quick Keys')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Log in as Admin/i })).toBeInTheDocument();
+    expect(screen.getByText("MOCK MODE")).toBeInTheDocument();
+    expect(screen.getByText("Dev Environment Quick Keys")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Log in as Admin/i }),
+    ).toBeInTheDocument();
   });
 
-  it('renders PRODUCTION indicator and hides dev quick keys when mock is disabled (?mock=false)', () => {
+  it("renders PRODUCTION indicator and hides dev quick keys when mock is disabled (?mock=false)", () => {
     delete (window as unknown as { location?: unknown }).location;
-    window.location = new URL('http://localhost:3001/?mock=false') as unknown as Location;
+    window.location = new URL(
+      "http://localhost:3001/?mock=false",
+    ) as unknown as Location;
 
     render(
       <MemoryRouter>
@@ -134,12 +154,15 @@ describe('Auth & ProtectedRoute', () => {
             <LoginPage />
           </AuthProvider>
         </ToastProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-    expect(screen.getByText('PRODUCTION')).toBeInTheDocument();
-    expect(screen.queryByText('Dev Environment Quick Keys')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Log in as Admin/i })).not.toBeInTheDocument();
+    expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Dev Environment Quick Keys"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Log in as Admin/i }),
+    ).not.toBeInTheDocument();
   });
 });
-

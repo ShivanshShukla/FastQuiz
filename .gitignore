@@ -11,6 +11,9 @@ build/
 out/
 .expo/
 *.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
 
 # Python
 __pycache__/

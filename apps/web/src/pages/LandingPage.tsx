@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -10,40 +10,40 @@ import {
   Code2,
   RotateCcw,
   Shield,
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { webMockStore } from '../services/webMockStore';
-import { isMockEnabled } from '../config/env';
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { webMockStore } from "../services/webMockStore";
+import { isMockEnabled } from "../config/env";
 
 // Interactive Sample Question Data for the Live Demo
 const SAMPLE_QUESTION = {
-  title: 'Distributed Caching Under High Concurrency',
-  tag: 'Staff-Level Dilemma',
+  title: "Distributed Caching Under High Concurrency",
+  tag: "Staff-Level Dilemma",
   stem: 'In a distributed cache-aside architecture under heavy concurrent read traffic (85,000 req/sec), what is the most optimal strategy to prevent a "Cache Stampede" (Thundering Herd) when an expensive key expires?',
   options: [
     {
-      id: 'A',
-      text: 'Purge all downstream replica caches and immediately return HTTP 429 Too Many Requests until recomputed.',
+      id: "A",
+      text: "Purge all downstream replica caches and immediately return HTTP 429 Too Many Requests until recomputed.",
       isCorrect: false,
     },
     {
-      id: 'B',
-      text: 'Use probabilistic early expiration (XFetch algorithm) or a distributed mutex so only one worker recalculates while others serve stale data.',
+      id: "B",
+      text: "Use probabilistic early expiration (XFetch algorithm) or a distributed mutex so only one worker recalculates while others serve stale data.",
       isCorrect: true,
     },
     {
-      id: 'C',
-      text: 'Increase Redis TTL indefinitely and rely purely on OS LRU memory eviction when memory hits 95%.',
+      id: "C",
+      text: "Increase Redis TTL indefinitely and rely purely on OS LRU memory eviction when memory hits 95%.",
       isCorrect: false,
     },
     {
-      id: 'D',
-      text: 'Execute synchronous write-through operations on every read miss directly against the SQL primary pool.',
+      id: "D",
+      text: "Execute synchronous write-through operations on every read miss directly against the SQL primary pool.",
       isCorrect: false,
     },
   ],
   explanation:
-    'The XFetch algorithm approximates optimal early recomputation: delta * beta * ln(rand()). By probabilistically triggering background cache regeneration before hard TTL expiry, lock contention drops by 94% across distributed clusters without thundering herd spikes.',
+    "The XFetch algorithm approximates optimal early recomputation: delta * beta * ln(rand()). By probabilistically triggering background cache regeneration before hard TTL expiry, lock contention drops by 94% across distributed clusters without thundering herd spikes.",
   codeSnippet: `// Production XFetch early refresh heuristic
 func ShouldRefresh(key string, ttl time.Duration, computeTime float64) bool {
     // Probabilistic early expiration avoids thundering herd
@@ -53,29 +53,29 @@ func ShouldRefresh(key string, ttl time.Duration, computeTime float64) bool {
 
 const FAQ_ITEMS = [
   {
-    question: 'Is the entrypoint diagnostic really 100% free?',
+    question: "Is the entrypoint diagnostic really 100% free?",
     answer:
-      'Yes. Every single curriculum track (Distributed Systems, DSA, Concurrency) includes one full 10-question proctored diagnostic assessment with score benchmarking and explanation summaries at zero cost. No credit card or trial enrollment required.',
+      "Yes. Every single curriculum track (Distributed Systems, DSA, Concurrency) includes one full 10-question proctored diagnostic assessment with score benchmarking and explanation summaries at zero cost. No credit card or trial enrollment required.",
   },
   {
-    question: 'How does the pay-per-track model work?',
+    question: "How does the pay-per-track model work?",
     answer:
-      'Unlike platforms charging $250–$350 upfront per year, FastQuiz lets you unlock individual modules for ₹99 or entire specialized topic passes for ₹499. You own access to purchased tracks indefinitely, with zero recurring charges or subscription traps.',
+      "Unlike platforms charging $250–$350 upfront per year, FastQuiz lets you unlock individual modules for ₹99 or entire specialized topic passes for ₹499. You own access to purchased tracks indefinitely, with zero recurring charges or subscription traps.",
   },
   {
-    question: 'Who writes and calibrates the questions?',
+    question: "Who writes and calibrates the questions?",
     answer:
-      'Questions are authored and verified by Staff and Principal engineers who have conducted 200+ interview loops at tier-1 tech companies. Questions focus on production trade-offs, RFC standards, concurrency bugs, and system architecture rather than trivia.',
+      "Questions are authored and verified by Staff and Principal engineers who have conducted 200+ interview loops at tier-1 tech companies. Questions focus on production trade-offs, RFC standards, concurrency bugs, and system architecture rather than trivia.",
   },
   {
-    question: 'Do questions include diagrams and production code?',
+    question: "Do questions include diagrams and production code?",
     answer:
-      'Yes. Deep-dive explanations include architectural flowcharts, sequence diagrams, benchmark heuristics, and reference code implementations in Go, Python, and C++.',
+      "Yes. Deep-dive explanations include architectural flowcharts, sequence diagrams, benchmark heuristics, and reference code implementations in Go, Python, and C++.",
   },
   {
-    question: 'Can I track my score percentiles and diagnostic progress?',
+    question: "Can I track my score percentiles and diagnostic progress?",
     answer:
-      'Every assessment submission yields live telemetry: completion latency, target latency deltas, accuracy percentages, sub-skill mastery breakdowns, and candidate percentile bands (e.g., Top 8% Candidate / Staff Benchmark).',
+      "Every assessment submission yields live telemetry: completion latency, target latency deltas, accuracy percentages, sub-skill mastery breakdowns, and candidate percentile bands (e.g., Top 8% Candidate / Staff Benchmark).",
   },
 ];
 
@@ -83,7 +83,7 @@ export const LandingPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const mockActive = isMockEnabled();
   const topics = webMockStore.getTopics();
-  const firstName = user?.name ? user.name.split(' ')[0] : 'Engineer';
+  const firstName = user?.name ? user.name.split(" ")[0] : "Engineer";
 
   // Interactive sample state
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -122,12 +122,14 @@ export const LandingPage: React.FC = () => {
           {/* Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-medium tracking-wide">SPRING 2026 BENCHMARKS • PAY-AS-YOU-NEED PREP</span>
+            <span className="font-medium tracking-wide">
+              SPRING 2026 BENCHMARKS • PAY-AS-YOU-NEED PREP
+            </span>
           </div>
 
           {/* Main Title */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.12]">
-            Master Technical Interviews{' '}
+            Master Technical Interviews{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-700 dark:from-indigo-400 dark:via-indigo-300 dark:to-indigo-200">
               Without Bloated Subscriptions.
             </span>
@@ -135,8 +137,9 @@ export const LandingPage: React.FC = () => {
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Calibrated diagnostic assessments across Distributed Systems, High-Concurrency Architectures, and DSA.
-            Take a complete diagnostic free on every track—no credit card or annual lock-in required.
+            Calibrated diagnostic assessments across Distributed Systems,
+            High-Concurrency Architectures, and DSA. Take a complete diagnostic
+            free on every track—no credit card or annual lock-in required.
           </p>
 
           {/* Hero Action Buttons */}
@@ -151,7 +154,7 @@ export const LandingPage: React.FC = () => {
               </Link>
             ) : (
               <Link
-                to={mockActive ? '/quiz/quiz-cache-1/take' : '/curriculum'}
+                to={mockActive ? "/quiz/quiz-cache-1/take" : "/curriculum"}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition-all shadow-sm hover:shadow-indigo-500/20"
               >
                 <span>Start Free Diagnostic (No Card Needed)</span>
@@ -171,20 +174,36 @@ export const LandingPage: React.FC = () => {
           {mockActive && (
             <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800/80 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-center">
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">3 Tracks</div>
-                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Targeted Curriculum</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                  3 Tracks
+                </div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                  Targeted Curriculum
+                </div>
               </div>
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">₹0 Free</div>
-                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Full Diagnostic Per Track</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                  ₹0 Free
+                </div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                  Full Diagnostic Per Track
+                </div>
               </div>
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">100% Original</div>
-                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Calibrated Diagnostics</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">
+                  100% Original
+                </div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                  Calibrated Diagnostics
+                </div>
               </div>
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">Staff L6</div>
-                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Calibrated Difficulty</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">
+                  Staff L6
+                </div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                  Calibrated Difficulty
+                </div>
               </div>
             </div>
           )}
@@ -220,15 +239,19 @@ export const LandingPage: React.FC = () => {
               <div className="space-y-2.5">
                 {SAMPLE_QUESTION.options.map((option, idx) => {
                   const isSelected = selectedOption === idx;
-                  let optionStyle = 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/50';
+                  let optionStyle =
+                    "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/50";
 
                   if (isSelected && !isAnswerSubmitted) {
-                    optionStyle = 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-900 dark:text-indigo-200';
+                    optionStyle =
+                      "border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-900 dark:text-indigo-200";
                   } else if (isAnswerSubmitted) {
                     if (option.isCorrect) {
-                      optionStyle = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200';
+                      optionStyle =
+                        "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200";
                     } else if (isSelected && !option.isCorrect) {
-                      optionStyle = 'border-rose-500 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200';
+                      optionStyle =
+                        "border-rose-500 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200";
                     }
                   }
 
@@ -244,15 +267,20 @@ export const LandingPage: React.FC = () => {
                       <span
                         className={`w-5 h-5 rounded flex items-center justify-center font-mono font-medium text-xs shrink-0 mt-0.5 ${
                           isSelected
-                            ? 'bg-indigo-600 text-white dark:bg-indigo-500'
-                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+                            ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                            : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
                         }`}
                       >
                         {option.id}
                       </span>
-                      <span className="flex-1 leading-normal">{option.text}</span>
+                      <span className="flex-1 leading-normal">
+                        {option.text}
+                      </span>
                       {isAnswerSubmitted && option.isCorrect && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
+                        <CheckCircle2
+                          className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"
+                          aria-hidden="true"
+                        />
                       )}
                     </button>
                   );
@@ -282,7 +310,9 @@ export const LandingPage: React.FC = () => {
                     </button>
                   )}
                   {selectedOption === null && !isAnswerSubmitted && (
-                    <span className="text-xs text-zinc-400">Select an option above to verify</span>
+                    <span className="text-xs text-zinc-400">
+                      Select an option above to verify
+                    </span>
                   )}
                 </div>
 
@@ -305,11 +335,15 @@ export const LandingPage: React.FC = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setShowExplanationCode(!showExplanationCode)}
+                      onClick={() =>
+                        setShowExplanationCode(!showExplanationCode)
+                      }
                       className="text-[11px] font-mono text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 flex items-center gap-1 cursor-pointer"
                     >
                       <Code2 className="w-3 h-3" />
-                      <span>{showExplanationCode ? 'Hide Code' : 'Show Code'}</span>
+                      <span>
+                        {showExplanationCode ? "Hide Code" : "Show Code"}
+                      </span>
                     </button>
                   </div>
 
@@ -339,7 +373,8 @@ export const LandingPage: React.FC = () => {
             Why FastQuiz vs. Traditional Annual Subscriptions
           </h2>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-            Traditional interview platforms force upfront annual fees for content you will never touch. FastQuiz gives you control.
+            Traditional interview platforms force upfront annual fees for
+            content you will never touch. FastQuiz gives you control.
           </p>
         </div>
 
@@ -347,25 +382,41 @@ export const LandingPage: React.FC = () => {
           {/* Legacy Platform Box */}
           <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/20 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <span className="text-sm font-semibold text-zinc-500">Traditional Prep Platforms</span>
-              <span className="text-xs font-mono text-rose-500 font-medium">$299–$399 / year</span>
+              <span className="text-sm font-semibold text-zinc-500">
+                Traditional Prep Platforms
+              </span>
+              <span className="text-xs font-mono text-rose-500 font-medium">
+                $299–$399 / year
+              </span>
             </div>
             <ul className="space-y-3 text-xs text-zinc-600 dark:text-zinc-400">
               <li className="flex items-start gap-2">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>Forced 12-month subscriptions when you only need 3 weeks of targeted prep</span>
+                <span>
+                  Forced 12-month subscriptions when you only need 3 weeks of
+                  targeted prep
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>No free full-length diagnostics to baseline skills before purchase</span>
+                <span>
+                  No free full-length diagnostics to baseline skills before
+                  purchase
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>Shallow multiple-choice trivia without production architecture diagrams</span>
+                <span>
+                  Shallow multiple-choice trivia without production architecture
+                  diagrams
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-500 font-bold">✕</span>
-                <span>Expired access after subscription ends; re-billed automatically</span>
+                <span>
+                  Expired access after subscription ends; re-billed
+                  automatically
+                </span>
               </li>
             </ul>
           </div>
@@ -376,25 +427,41 @@ export const LandingPage: React.FC = () => {
               The Modern Standard
             </div>
             <div className="flex items-center justify-between pb-3 border-b border-indigo-200 dark:border-indigo-900/60">
-              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">FastQuiz Approach</span>
-              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">₹0 Free + ₹99 / module</span>
+              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                FastQuiz Approach
+              </span>
+              <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                ₹0 Free + ₹99 / module
+              </span>
             </div>
             <ul className="space-y-3 text-xs text-zinc-700 dark:text-zinc-300">
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>1 Complete Free Diagnostic</strong> on every curriculum track forever</span>
+                <span>
+                  <strong>1 Complete Free Diagnostic</strong> on every
+                  curriculum track forever
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Pay only for what you need</strong>: unlock single modules (₹99) or topics (₹499)</span>
+                <span>
+                  <strong>Pay only for what you need</strong>: unlock single
+                  modules (₹99) or topics (₹499)
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Staff-grade architecture diagrams</strong>, RFC citations, and production Go/Python code</span>
+                <span>
+                  <strong>Staff-grade architecture diagrams</strong>, RFC
+                  citations, and production Go/Python code
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                <span><strong>Lifetime retention</strong> of all unlocked diagnostic questions and review records</span>
+                <span>
+                  <strong>Lifetime retention</strong> of all unlocked diagnostic
+                  questions and review records
+                </span>
               </li>
             </ul>
           </div>
@@ -413,7 +480,8 @@ export const LandingPage: React.FC = () => {
                 Calibrated Engineering Question Banks
               </h2>
               <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-                Designed to pinpoint gaps in technical intuition under realistic interview time limits.
+                Designed to pinpoint gaps in technical intuition under realistic
+                interview time limits.
               </p>
             </div>
             <Link
@@ -474,7 +542,11 @@ export const LandingPage: React.FC = () => {
                 No curriculum tracks published yet.
               </p>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                Connect your live question catalog or toggle mock mode (via <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 font-mono text-[11px] text-indigo-600 dark:text-indigo-400">?mock=true</code>) to preview sample tracks.
+                Connect your live question catalog or toggle mock mode (via{" "}
+                <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 font-mono text-[11px] text-indigo-600 dark:text-indigo-400">
+                  ?mock=true
+                </code>
+                ) to preview sample tracks.
               </p>
             </div>
           )}
@@ -491,7 +563,8 @@ export const LandingPage: React.FC = () => {
             Three Steps to Interview Confidence
           </h2>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-            A surgical workflow designed to maximize preparation ROI without wasting hours on solved domains.
+            A surgical workflow designed to maximize preparation ROI without
+            wasting hours on solved domains.
           </p>
         </div>
 
@@ -505,7 +578,8 @@ export const LandingPage: React.FC = () => {
               1. Take Baseline Diagnostic Free
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Launch a timed 10-question evaluation on any track. Measure your baseline speed and accuracy with zero upfront commitment.
+              Launch a timed 10-question evaluation on any track. Measure your
+              baseline speed and accuracy with zero upfront commitment.
             </p>
           </div>
 
@@ -518,7 +592,8 @@ export const LandingPage: React.FC = () => {
               2. Inspect Granular Telemetry
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Examine sub-skill breakdowns, percentile comparisons against candidate pools, and Staff-level architectural blueprints.
+              Examine sub-skill breakdowns, percentile comparisons against
+              candidate pools, and Staff-level architectural blueprints.
             </p>
           </div>
 
@@ -531,7 +606,8 @@ export const LandingPage: React.FC = () => {
               3. Target Weak Spots Surgically
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Purchase only the specific drill modules you need for ₹99. No recurring charges, cancelation hassle, or unused content.
+              Purchase only the specific drill modules you need for ₹99. No
+              recurring charges, cancelation hassle, or unused content.
             </p>
           </div>
         </div>
@@ -549,7 +625,8 @@ export const LandingPage: React.FC = () => {
                 Real-Time Diagnostic Scorecards
               </h2>
               <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-                Every completed assessment generates rich analytics mirroring real interview rubrics.
+                Every completed assessment generates rich analytics mirroring
+                real interview rubrics.
               </p>
             </div>
 
@@ -578,41 +655,69 @@ export const LandingPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">Cache Invalidation</span>
-                    <span className="font-mono text-emerald-500 font-semibold">100%</span>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                      Cache Invalidation
+                    </span>
+                    <span className="font-mono text-emerald-500 font-semibold">
+                      100%
+                    </span>
                   </div>
                   <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
+                    <div
+                      className="bg-emerald-500 h-full rounded-full"
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
 
                 <div className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">Eviction Policies</span>
-                    <span className="font-mono text-emerald-500 font-semibold">100%</span>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                      Eviction Policies
+                    </span>
+                    <span className="font-mono text-emerald-500 font-semibold">
+                      100%
+                    </span>
                   </div>
                   <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
+                    <div
+                      className="bg-emerald-500 h-full rounded-full"
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
 
                 <div className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">Distributed Hashing</span>
-                    <span className="font-mono text-emerald-500 font-semibold">100%</span>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                      Distributed Hashing
+                    </span>
+                    <span className="font-mono text-emerald-500 font-semibold">
+                      100%
+                    </span>
                   </div>
                   <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
+                    <div
+                      className="bg-emerald-500 h-full rounded-full"
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
 
                 <div className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">Consistency & Writes</span>
-                    <span className="font-mono text-amber-500 font-semibold">Needs Review</span>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                      Consistency & Writes
+                    </span>
+                    <span className="font-mono text-amber-500 font-semibold">
+                      Needs Review
+                    </span>
                   </div>
                   <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full" style={{ width: '35%' }} />
+                    <div
+                      className="bg-amber-500 h-full rounded-full"
+                      style={{ width: "35%" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -632,7 +737,8 @@ export const LandingPage: React.FC = () => {
               Calibrated Against Real Distributed Systems
             </h2>
             <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
-              Our assessment rubrics mirror production engineering trade-offs, RFC standards, and systems literature.
+              Our assessment rubrics mirror production engineering trade-offs,
+              RFC standards, and systems literature.
             </p>
           </div>
 
@@ -647,7 +753,9 @@ export const LandingPage: React.FC = () => {
                   Cache Stampede & Failover Dilemmas
                 </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Questions are modeled on documented production edge cases: Redis Sentinel split-brain quorums, XFetch probabilistic early expirations, and Linux kernel TCP socket buffers.
+                  Questions are modeled on documented production edge cases:
+                  Redis Sentinel split-brain quorums, XFetch probabilistic early
+                  expirations, and Linux kernel TCP socket buffers.
                 </p>
               </div>
               <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
@@ -665,7 +773,9 @@ export const LandingPage: React.FC = () => {
                   No Annual Subscription Traps
                 </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Practice one full diagnostic assessment per track completely free. Pay only ₹99 for targeted single modules or ₹399 for complete topic passes when you need them.
+                  Practice one full diagnostic assessment per track completely
+                  free. Pay only ₹99 for targeted single modules or ₹399 for
+                  complete topic passes when you need them.
                 </p>
               </div>
               <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
@@ -683,7 +793,9 @@ export const LandingPage: React.FC = () => {
                   Indian DPDPA 2023 Compliant
                 </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Strictly zero third-party advertising cookies or background data mining. Your quiz response telemetry is stored only to generate your personal skill breakdown.
+                  Strictly zero third-party advertising cookies or background
+                  data mining. Your quiz response telemetry is stored only to
+                  generate your personal skill breakdown.
                 </p>
               </div>
               <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
@@ -705,7 +817,8 @@ export const LandingPage: React.FC = () => {
               Pay As You Practice. Zero Commitments.
             </h2>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-              Practice entrypoint diagnostics for free, and unlock comprehensive solution matrices only when needed.
+              Practice entrypoint diagnostics for free, and unlock comprehensive
+              solution matrices only when needed.
             </p>
           </div>
 
@@ -713,13 +826,20 @@ export const LandingPage: React.FC = () => {
             {/* Free */}
             <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between space-y-4">
               <div className="space-y-3">
-                <span className="text-xs font-mono font-medium text-zinc-500 uppercase">Free Diagnostic</span>
+                <span className="text-xs font-mono font-medium text-zinc-500 uppercase">
+                  Free Diagnostic
+                </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">₹0</span>
-                  <span className="text-xs text-zinc-400 font-mono">/ forever</span>
+                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+                    ₹0
+                  </span>
+                  <span className="text-xs text-zinc-400 font-mono">
+                    / forever
+                  </span>
                 </div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  1 full diagnostic assessment on every curriculum track with complete scoring.
+                  1 full diagnostic assessment on every curriculum track with
+                  complete scoring.
                 </p>
               </div>
               <Link
@@ -733,13 +853,20 @@ export const LandingPage: React.FC = () => {
             {/* Single Module */}
             <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border-2 border-indigo-600 dark:border-indigo-500 flex flex-col justify-between space-y-4 relative shadow-sm">
               <div className="space-y-3">
-                <span className="text-xs font-mono font-medium text-indigo-600 dark:text-indigo-400 uppercase">Single Module</span>
+                <span className="text-xs font-mono font-medium text-indigo-600 dark:text-indigo-400 uppercase">
+                  Single Module
+                </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">₹99</span>
-                  <span className="text-xs text-zinc-400 font-mono">/ module</span>
+                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+                    ₹99
+                  </span>
+                  <span className="text-xs text-zinc-400 font-mono">
+                    / module
+                  </span>
                 </div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  Unlock any targeted advanced assessment with full diagrams and code.
+                  Unlock any targeted advanced assessment with full diagrams and
+                  code.
                 </p>
               </div>
               <Link
@@ -753,13 +880,20 @@ export const LandingPage: React.FC = () => {
             {/* Topic Pass */}
             <div className="p-6 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between space-y-4">
               <div className="space-y-3">
-                <span className="text-xs font-mono font-medium text-zinc-500 uppercase">Topic Master Pass</span>
+                <span className="text-xs font-mono font-medium text-zinc-500 uppercase">
+                  Topic Master Pass
+                </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">₹499</span>
-                  <span className="text-xs text-zinc-400 font-mono">/ track</span>
+                  <span className="text-3xl font-semibold font-mono text-zinc-900 dark:text-zinc-100">
+                    ₹499
+                  </span>
+                  <span className="text-xs text-zinc-400 font-mono">
+                    / track
+                  </span>
                 </div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  All modules in a specialized track (e.g., all 8 Distributed Caching quizzes).
+                  All modules in a specialized track (e.g., all 8 Distributed
+                  Caching quizzes).
                 </p>
               </div>
               <Link
@@ -829,11 +963,13 @@ export const LandingPage: React.FC = () => {
               Ready to test your systems and algorithmic depth?
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Sharpen your distributed systems and algorithmic instincts with calibrated diagnostics. Take your first diagnostic in under 15 minutes.
+              Sharpen your distributed systems and algorithmic instincts with
+              calibrated diagnostics. Take your first diagnostic in under 15
+              minutes.
             </p>
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                to={mockActive ? '/quiz/quiz-cache-1/take' : '/curriculum'}
+                to={mockActive ? "/quiz/quiz-cache-1/take" : "/curriculum"}
                 className="w-full sm:w-auto px-6 py-3 rounded-lg bg-white text-zinc-900 hover:bg-zinc-100 font-semibold text-xs sm:text-sm transition-colors shadow-sm"
               >
                 Take Free Diagnostic Now

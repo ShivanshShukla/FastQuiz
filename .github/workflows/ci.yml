@@ -1,0 +1,210 @@
+name: FastQuiz Monorepo CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint & Formatting (Prettier, ESLint, Ruff)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Prettier Check
+        run: npx prettier --check .
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff on Auth Service
+        run: |
+          cd services/auth-service
+          ruff check app/ tests/
+          ruff format --check app/ tests/
+
+      - name: Run Ruff on Quiz Service
+        run: |
+          cd services/quiz-service
+          ruff check app/ tests/
+          ruff format --check app/ tests/
+
+      - name: Run Ruff on Payments Service
+        run: |
+          cd services/payments-service
+          ruff check app/ tests/
+          ruff format --check app/ tests/
+
+  typecheck:
+    name: Type Check (TypeScript & Mypy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Shared Package
+        run: npm run build --workspace=@fastquiz/shared
+
+      - name: Run TypeScript Type Check
+        run: npm run typecheck
+
+      - name: Install Python Mypy Dependencies
+        run: |
+          pip install mypy
+          pip install -e services/auth-service[dev]
+          pip install -e services/quiz-service[dev]
+          pip install -e services/payments-service[dev]
+
+      - name: Run Mypy on Auth Service
+        run: cd services/auth-service && mypy app/
+
+      - name: Run Mypy on Quiz Service
+        run: cd services/quiz-service && mypy app/
+
+      - name: Run Mypy on Payments Service
+        run: cd services/payments-service && mypy app/
+
+  test-js:
+    name: Frontend Tests & Coverage Ratchet (Vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build Shared Package
+        run: npm run build --workspace=@fastquiz/shared
+
+      - name: Run Web Tests with Coverage
+        run: npm run test --workspace=@fastquiz/web -- --coverage
+
+      - name: Run Admin Tests with Coverage
+        run: npm run test --workspace=@fastquiz/admin
+
+  test-py:
+    name: Backend Pytest (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - auth-service
+          - quiz-service
+          - payments-service
+
+    defaults:
+      run:
+        working-directory: services/${{ matrix.service }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Service Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Run Pytest with Coverage
+        run: pytest --cov=app --cov-report=term-missing
+
+  build:
+    name: Production Build Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Turbo Monorepo Build
+        run: npm run build
+
+  ci-passed:
+    name: ci-passed
+    needs: [lint, typecheck, test-js, test-py, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Verify All Required CI Checks Succeeded
+        run: |
+          statuses='${{ toJson(needs.*.result) }}'
+          echo "Aggregate CI results: $statuses"
+          if echo "$statuses" | grep -E "failure|cancelled"; then
+            echo "❌ Critical: One or more required CI jobs failed or were cancelled. Merging is blocked."
+            exit 1
+          fi
+          echo "✅ All CI checks passed successfully! Safe to merge."

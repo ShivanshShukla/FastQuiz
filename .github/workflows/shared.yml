@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/shared/**'
-      - '.github/workflows/shared.yml'
+      - "packages/shared/**"
+      - ".github/workflows/shared.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'packages/shared/**'
-      - '.github/workflows/shared.yml'
+      - "packages/shared/**"
+      - ".github/workflows/shared.yml"
 
 jobs:
   test:
@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci

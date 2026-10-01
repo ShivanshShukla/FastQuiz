@@ -1,5 +1,5 @@
-import React from 'react';
-import { Award } from 'lucide-react';
+import React from "react";
+import { Award } from "lucide-react";
 
 interface AccuracyGaugeProps {
   percentage: number;
@@ -13,8 +13,8 @@ export const AccuracyGauge: React.FC<AccuracyGaugeProps> = ({
   percentage,
   correctCount,
   totalCount,
-  candidateTier = 'Top 8% Candidate',
-  topicTitle = 'System Design: Distributed Caching',
+  candidateTier = "Top 8% Candidate",
+  topicTitle = "System Design: Distributed Caching",
 }) => {
   // SVG Circumference: radius 60 -> 2 * PI * 60 = 376.99
   const circumference = 377;

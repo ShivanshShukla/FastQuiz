@@ -1,35 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface UserAvatarProps {
   src?: string | null;
   name?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({
   src,
-  name = 'Learner',
-  size = 'md',
-  className = '',
+  name = "Learner",
+  size = "md",
+  className = "",
 }) => {
   const [hasError, setHasError] = useState(false);
 
   const sizeClasses = {
-    sm: 'w-6 h-6 text-[10px]',
-    md: 'w-7 h-7 text-xs',
-    lg: 'w-9 h-9 text-xs',
+    sm: "w-6 h-6 text-[10px]",
+    md: "w-7 h-7 text-xs",
+    lg: "w-9 h-9 text-xs",
   };
 
-  const initials = name
-    .split(' ')
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join('')
-    .substring(0, 2)
-    .toUpperCase() || 'U';
+  const initials =
+    name
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase() || "U";
 
-  const avatarSrc = src && !src.includes('lh3.googleusercontent.com') ? src : '/assets/avatar.png';
+  const avatarSrc =
+    src && !src.includes("lh3.googleusercontent.com")
+      ? src
+      : "/assets/avatar.png";
 
   if (hasError) {
     return (
@@ -46,7 +50,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <img
       src={avatarSrc}
-      alt={name ? `${name}'s profile avatar` : 'Candidate profile avatar'}
+      alt={name ? `${name}'s profile avatar` : "Candidate profile avatar"}
       onError={() => setHasError(true)}
       className={`${sizeClasses[size]} rounded-full object-cover border border-zinc-200 dark:border-zinc-800 shrink-0 ${className}`}
     />

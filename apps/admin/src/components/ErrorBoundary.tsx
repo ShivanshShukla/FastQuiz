@@ -1,5 +1,5 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -21,7 +21,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error caught by Admin ErrorBoundary:', error, errorInfo);
+    console.error(
+      "Uncaught error caught by Admin ErrorBoundary:",
+      error,
+      errorInfo,
+    );
   }
 
   private handleReload = () => {

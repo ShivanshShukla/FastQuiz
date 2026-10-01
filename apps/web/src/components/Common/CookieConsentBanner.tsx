@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Cookie, X, Sliders } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { Cookie, X, Sliders } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export interface CookiePreferences {
   essential: boolean; // Always true
@@ -8,7 +8,7 @@ export interface CookiePreferences {
   diagnostics: boolean; // Assessment latency telemetry
 }
 
-const STORAGE_KEY = 'fastquiz_cookie_consent';
+const STORAGE_KEY = "fastquiz_cookie_consent";
 
 export const CookieConsentBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -44,19 +44,20 @@ export const CookieConsentBanner: React.FC = () => {
       setIsVisible(false);
     };
 
-    window.addEventListener('open-cookie-preferences', handleOpenEvent);
-    return () => window.removeEventListener('open-cookie-preferences', handleOpenEvent);
+    window.addEventListener("open-cookie-preferences", handleOpenEvent);
+    return () =>
+      window.removeEventListener("open-cookie-preferences", handleOpenEvent);
   }, []);
 
   // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showPreferencesModal) {
+      if (e.key === "Escape" && showPreferencesModal) {
         setShowPreferencesModal(false);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showPreferencesModal]);
 
   const savePreferences = (prefs: CookiePreferences) => {
@@ -113,20 +114,23 @@ export const CookieConsentBanner: React.FC = () => {
                   Your Privacy & Storage Choices (DPDPA 2023 Compliant)
                 </h2>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  We use essential local storage to securely sign you in and remember your assessment session. We do <strong>not</strong> use advertising trackers or sell your personal data. Read our{' '}
+                  We use essential local storage to securely sign you in and
+                  remember your assessment session. We do <strong>not</strong>{" "}
+                  use advertising trackers or sell your personal data. Read our{" "}
                   <Link
                     to="/cookies"
                     className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-700 dark:hover:text-indigo-300 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm"
                   >
                     Cookie Policy
-                  </Link>{' '}
-                  and{' '}
+                  </Link>{" "}
+                  and{" "}
                   <Link
                     to="/privacy"
                     className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-700 dark:hover:text-indigo-300 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm"
                   >
                     Privacy Policy
-                  </Link>.
+                  </Link>
+                  .
                 </p>
               </div>
             </div>
@@ -174,8 +178,14 @@ export const CookieConsentBanner: React.FC = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <div className="flex items-center gap-2.5">
-                <Sliders className="w-5 h-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
-                <h2 id="cookie-modal-title" className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                <Sliders
+                  className="w-5 h-5 text-indigo-600 dark:text-indigo-400"
+                  aria-hidden="true"
+                />
+                <h2
+                  id="cookie-modal-title"
+                  className="text-base font-semibold text-zinc-900 dark:text-zinc-100"
+                >
                   Cookie & Storage Preferences
                 </h2>
               </div>
@@ -202,7 +212,9 @@ export const CookieConsentBanner: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Required to authenticate sessions via JWT (<code>fastquiz_access_token</code>), prevent CSRF attacks, and preserve assessment attempt status. Cannot be switched off.
+                  Required to authenticate sessions via JWT (
+                  <code>fastquiz_access_token</code>), prevent CSRF attacks, and
+                  preserve assessment attempt status. Cannot be switched off.
                 </p>
               </div>
 
@@ -217,7 +229,10 @@ export const CookieConsentBanner: React.FC = () => {
                       type="checkbox"
                       checked={preferences.functional}
                       onChange={(e) =>
-                        setPreferences({ ...preferences, functional: e.target.checked })
+                        setPreferences({
+                          ...preferences,
+                          functional: e.target.checked,
+                        })
                       }
                       className="sr-only peer"
                       aria-label="Toggle Functional and UI preferences storage"
@@ -226,7 +241,9 @@ export const CookieConsentBanner: React.FC = () => {
                   </label>
                 </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Remembers your display theme (Dark vs. Light mode in <code>fastquiz_theme</code>) and UI layout sizing to avoid screen flickering upon page loads.
+                  Remembers your display theme (Dark vs. Light mode in{" "}
+                  <code>fastquiz_theme</code>) and UI layout sizing to avoid
+                  screen flickering upon page loads.
                 </p>
               </div>
 
@@ -241,7 +258,10 @@ export const CookieConsentBanner: React.FC = () => {
                       type="checkbox"
                       checked={preferences.diagnostics}
                       onChange={(e) =>
-                        setPreferences({ ...preferences, diagnostics: e.target.checked })
+                        setPreferences({
+                          ...preferences,
+                          diagnostics: e.target.checked,
+                        })
                       }
                       className="sr-only peer"
                       aria-label="Toggle Anonymous Diagnostic Telemetry"
@@ -250,7 +270,9 @@ export const CookieConsentBanner: React.FC = () => {
                   </label>
                 </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Measures test question latency and response pacing to calibrate question difficulty. No personal identifiers or external tracking beacons are involved.
+                  Measures test question latency and response pacing to
+                  calibrate question difficulty. No personal identifiers or
+                  external tracking beacons are involved.
                 </p>
               </div>
             </div>

@@ -39,17 +39,21 @@ fastquiz/
 ## Quick Start
 
 ### 1. Install JS Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Build Shared Library & JS Apps
+
 ```bash
 npm run build
 ```
 
 ### 3. Start Local Infrastructure, Microservices & Live Logs
+
 Start the entire local ecosystem in one command:
+
 ```bash
 docker compose up --build -d
 # or via npm script:
@@ -57,7 +61,8 @@ npm run docker:up
 ```
 
 Services and monitoring will be immediately available at:
-- **Dozzle Live Logs**: [http://localhost:8888](http://localhost:8888) — *Real-time log stream for all containers*
+
+- **Dozzle Live Logs**: [http://localhost:8888](http://localhost:8888) — _Real-time log stream for all containers_
 - **Auth Service**: [http://localhost:8001/health](http://localhost:8001/health)
 - **Quiz Service**: [http://localhost:8002/health](http://localhost:8002/health)
 - **Payments Service**: [http://localhost:8003/health](http://localhost:8003/health)
@@ -67,6 +72,7 @@ Services and monitoring will be immediately available at:
 - **RabbitMQ Management**: [http://localhost:15672](http://localhost:15672) (guest / guest)
 
 To stop all services in one place:
+
 ```bash
 docker compose down
 # or via npm script:
@@ -74,6 +80,7 @@ npm run docker:down
 ```
 
 ### 4. Run Frontend Apps Locally
+
 ```bash
 # Run Web app (Vite on :3000)
 npm run dev --workspace=apps/web
@@ -106,6 +113,7 @@ npm run dev --workspace=apps/mobile
 ## Documentation
 
 All design specs and decisions live under `docs/`:
+
 - [`PRD`](docs/prd.md)
 - [`System Architecture`](docs/system_architecture.md)
 - [`Tech Stack`](docs/tech_stack.md)

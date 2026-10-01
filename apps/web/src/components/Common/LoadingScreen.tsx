@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   RotateCcw,
   AlertTriangle,
@@ -7,8 +7,8 @@ import {
   Wifi,
   Shield,
   Terminal,
-} from 'lucide-react';
-import { BrandLogo } from './BrandLogo';
+} from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 
 export interface LoadingScreenProps {
   /** Optional custom primary message */
@@ -30,22 +30,22 @@ export interface LoadingScreenProps {
 }
 
 const DEFAULT_CALIBRATION_STEPS = [
-  'Calibrating proctored diagnostic runtime...',
-  'Verifying question bank cryptographic checksums...',
-  'Connecting to low-latency telemetry channel...',
-  'Synthesizing Staff-level benchmark criteria...',
-  'Finalizing assessment session sandbox...',
+  "Calibrating proctored diagnostic runtime...",
+  "Verifying question bank cryptographic checksums...",
+  "Connecting to low-latency telemetry channel...",
+  "Synthesizing Staff-level benchmark criteria...",
+  "Finalizing assessment session sandbox...",
 ];
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message,
-  subtext = 'Connecting to low-latency assessment cluster',
+  subtext = "Connecting to low-latency assessment cluster",
   fullscreen = true,
   timeoutSeconds = 5,
   onRetry,
   onCancel,
   showProgress = true,
-  className = '',
+  className = "",
 }) => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
@@ -109,8 +109,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   const currentMessage = message || DEFAULT_CALIBRATION_STEPS[stepIndex];
 
   const containerClasses = fullscreen
-    ? 'fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-md px-4 py-8 select-none'
-    : 'w-full py-16 flex flex-col items-center justify-center px-4 select-none';
+    ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-md px-4 py-8 select-none"
+    : "w-full py-16 flex flex-col items-center justify-center px-4 select-none";
 
   return (
     <div
@@ -183,7 +183,9 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
                   This is taking longer than usual ({elapsedSeconds}s)
                 </h3>
                 <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80 leading-relaxed">
-                  The assessment server handshake is delayed. Your local connection might be throttled, or the cloud runtime is provisioning your isolated sandbox.
+                  The assessment server handshake is delayed. Your local
+                  connection might be throttled, or the cloud runtime is
+                  provisioning your isolated sandbox.
                 </p>
               </div>
             </div>
