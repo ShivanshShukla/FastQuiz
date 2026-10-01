@@ -1,6 +1,7 @@
 import jwt
 import pytest
 import respx
+from urllib.parse import urlparse
 from httpx import Response
 
 from app.core.oauth import (
@@ -305,7 +306,8 @@ async def test_login_redirect_and_state(client):
     )
     assert resp.status_code == 302
     location = resp.headers["location"]
-    assert "accounts.google.com" in location
+    parsed_location = urlparse(location)
+    assert parsed_location.hostname == "accounts.google.com"
     assert "state=" in location
     assert "code_challenge=" in location
     assert "nonce=" in location
