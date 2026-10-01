@@ -89,7 +89,10 @@ async def consume_oauth_state(state: str) -> dict[str, Any] | None:
     # Atomic or immediate deletion prevents replay attacks
     await redis.delete(key)
     try:
-        return json.loads(data)
+        parsed = json.loads(data)
+        if isinstance(parsed, dict):
+            return parsed
+        return None
     except Exception as e:
         logger.warning("Failed to deserialize OAuth state: %s", e)
         return None

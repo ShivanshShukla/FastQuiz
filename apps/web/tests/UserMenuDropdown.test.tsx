@@ -1,6 +1,6 @@
 import React from "react";
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ThemeProvider } from "../src/context/ThemeContext";
 import { AuthProvider } from "../src/context/AuthContext";
 import { ToastProvider } from "../src/context/ToastContext";
@@ -38,6 +38,7 @@ describe("UserMenuDropdown Component", () => {
       }),
     );
     window.localStorage.setItem("fastquiz_access_token", "jwt-alex-token");
+    vi.restoreAllMocks();
   });
 
   it("renders trigger button with user name and avatar", () => {
@@ -70,7 +71,15 @@ describe("UserMenuDropdown Component", () => {
     expect(screen.getByRole("button", { name: /log out/i })).toBeDefined();
   });
 
-  it("opens troubleshooting diagnostics modal on click", () => {
+  it("opens troubleshooting diagnostics modal and handles actions", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+      },
+      configurable: true,
+      writable: true,
+    });
+
     renderDropdown();
     const trigger = screen.getByLabelText(/user account menu/i);
     fireEvent.click(trigger);
@@ -82,6 +91,24 @@ describe("UserMenuDropdown Component", () => {
     expect(screen.getByText(/Diagnostics & Troubleshooting/i)).toBeDefined();
     expect(screen.getByText(/Microservices Connectivity/i)).toBeDefined();
     expect(screen.getByText(/Auth Service/i)).toBeDefined();
+
+    // Copy diagnostics
+    const copyBtn = screen.getByRole("button", {
+      name: /copy diagnostics json/i,
+    });
+    fireEvent.click(copyBtn);
+    expect(navigator.clipboard.writeText).toHaveBeenCalled();
+
+    // Clear session cache
+    const clearBtn = screen.getByRole("button", { name: /reset local cache/i });
+    fireEvent.click(clearBtn);
+
+    // Close modal via Done button
+    const doneBtn = screen.getByRole("button", { name: /done/i });
+    fireEvent.click(doneBtn);
+    await waitFor(() => {
+      expect(screen.queryByText(/Diagnostics & Troubleshooting/i)).toBeNull();
+    });
   });
 
   it("toggles theme when clicking theme toggle in dropdown", () => {
@@ -96,5 +123,18 @@ describe("UserMenuDropdown Component", () => {
 
     const updatedChecked = themeSwitch.getAttribute("aria-checked");
     expect(updatedChecked).not.toBe(initialChecked);
+  });
+
+  it("triggers logout when clicking logout button", async () => {
+    renderDropdown();
+    const trigger = screen.getByLabelText(/user account menu/i);
+    fireEvent.click(trigger);
+
+    const logoutBtn = screen.getByRole("button", { name: /log out/i });
+    fireEvent.click(logoutBtn);
+
+    await waitFor(() => {
+      expect(window.localStorage.getItem("fastquiz_user")).toBeNull();
+    });
   });
 });

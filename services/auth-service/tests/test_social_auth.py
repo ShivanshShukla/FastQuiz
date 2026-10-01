@@ -1,7 +1,8 @@
+from urllib.parse import urlparse
+
 import jwt
 import pytest
 import respx
-from urllib.parse import urlparse
 from httpx import Response
 
 from app.core.oauth import (

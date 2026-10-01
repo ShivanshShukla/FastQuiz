@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ThemeProvider, useTheme } from "../src/context/ThemeContext";
 import { AuthProvider } from "../src/context/AuthContext";
 import { ToastProvider } from "../src/context/ToastContext";
@@ -134,5 +134,48 @@ describe("Theme and Navigation Integration", () => {
     fireEvent.click(subscribeBtn);
 
     expect(screen.getByText(/Subscribed! Check your inbox/i)).toBeDefined();
+  });
+
+  it("handles search input submission in Navbar", () => {
+    renderNavbar();
+    const searchInputs = screen.getAllByPlaceholderText(/search topics/i);
+    fireEvent.change(searchInputs[0], { target: { value: "distributed" } });
+    fireEvent.submit(searchInputs[0].closest("form")!);
+  });
+
+  it("toggles mobile menu in Navbar", () => {
+    renderNavbar();
+    const menuBtn = screen.getByLabelText(/open menu/i);
+    fireEvent.click(menuBtn);
+
+    const closeBtn = screen.getByLabelText(/close menu/i);
+    expect(closeBtn).toBeDefined();
+
+    fireEvent.click(closeBtn);
+    expect(screen.getByLabelText(/open menu/i)).toBeDefined();
+  });
+
+  it("allows logging out from mobile menu when authenticated", async () => {
+    window.localStorage.setItem(
+      "fastquiz_user",
+      JSON.stringify({
+        id: "usr-rohan-1",
+        name: "Rohan V.",
+        email: "rohan.v@techscholar.dev",
+        role: "user",
+      }),
+    );
+    window.localStorage.setItem("fastquiz_access_token", "demo-token");
+
+    renderNavbar();
+    const menuBtn = screen.getByLabelText(/open menu/i);
+    fireEvent.click(menuBtn);
+
+    const logoutBtn = screen.getByRole("button", { name: /log out/i });
+    fireEvent.click(logoutBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Rohan V./i)).toBeNull();
+    });
   });
 });
