@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routers.admin_payments import router as admin_payments_router
 from app.routers.health import router as health_router
+from app.routers.webhooks import router as webhooks_router
 
 app = FastAPI(
     title="FastQuiz Payments Service",
@@ -23,6 +24,7 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(admin_payments_router)
+app.include_router(webhooks_router)
 
 
 @app.get("/")

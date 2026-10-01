@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Search, Menu, X, LogOut, Activity } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
-import { BrandLogo } from '../Common/BrandLogo';
-import { UserAvatar } from '../Common/UserAvatar';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Sun, Moon, Search, Menu, X, LogOut, Activity } from "lucide-react";
+import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
+import { BrandLogo } from "../Common/BrandLogo";
+import { UserAvatar } from "../Common/UserAvatar";
 
 const navLinks = [
-  { label: 'Curriculum', path: '/' },
-  { label: 'Topics', path: '/topics' },
-  { label: 'Mock Tests', path: '/topics?filter=mock' },
-  { label: 'Pricing', path: '/pricing' },
+  { label: "Curriculum", path: "/curriculum" },
+  { label: "Topics", path: "/topics" },
+  { label: "Mock Tests", path: "/topics?filter=mock" },
+  { label: "Pricing", path: "/pricing" },
 ];
 
 export const Navbar: React.FC = () => {
@@ -18,28 +18,31 @@ export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/' || location.pathname === '/curriculum';
+    if (path === "/curriculum") {
+      return (
+        location.pathname === "/curriculum" ||
+        location.pathname === "/dashboard"
+      );
     }
-    const basePath = path.split('?')[0];
+    const basePath = path.split("?")[0];
     return location.pathname === basePath;
   };
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    navigate(q ? `/topics?q=${encodeURIComponent(q)}` : '/topics');
+    navigate(q ? `/topics?q=${encodeURIComponent(q)}` : "/topics");
     setMobileOpen(false);
   };
 
   const handleLogout = () => {
     logout();
     setMobileOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -55,15 +58,18 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
+        <nav
+          className="hidden md:flex items-center gap-1"
+          aria-label="Primary navigation"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 isActive(link.path)
-                  ? 'text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80 font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/40'
+                  ? "text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80 font-semibold"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
               }`}
             >
               {link.label}
@@ -76,10 +82,17 @@ export const Navbar: React.FC = () => {
           {/* Minimal Search Input */}
           <form
             onSubmit={submitSearch}
-            className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 focus-within:border-zinc-400 dark:focus-within:border-zinc-700 transition-colors"
+            className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 focus-within:border-indigo-500 dark:focus-within:border-indigo-400 transition-colors"
           >
-            <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <label htmlFor="nav-search-desktop" className="sr-only">
+              Search topics
+            </label>
+            <Search
+              className="w-3.5 h-3.5 text-zinc-400 shrink-0"
+              aria-hidden="true"
+            />
             <input
+              id="nav-search-desktop"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -87,7 +100,10 @@ export const Navbar: React.FC = () => {
               aria-label="Search topics"
               className="bg-transparent border-none text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none w-24 lg:w-32 placeholder:text-zinc-400"
             />
-            <kbd className="hidden lg:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-200/60 dark:bg-zinc-800 px-1 py-0.5 rounded">
+            <kbd
+              className="hidden lg:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-200/60 dark:bg-zinc-800 px-1 py-0.5 rounded"
+              aria-hidden="true"
+            >
               ⌘K
             </kbd>
           </form>
@@ -108,10 +124,18 @@ export const Navbar: React.FC = () => {
             type="button"
             onClick={toggleTheme}
             className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
+            title={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-zinc-400 hover:text-zinc-100" /> : <Moon className="w-4 h-4 text-zinc-600" />}
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4 text-zinc-400 hover:text-zinc-100" />
+            ) : (
+              <Moon className="w-4 h-4 text-zinc-600" />
+            )}
           </button>
 
           {/* User Account / Auth */}
@@ -137,23 +161,35 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center px-3 py-1.5 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white transition-colors"
-            >
-              Sign in
-            </Link>
+            <div className="flex items-center gap-1.5">
+              <Link
+                to="/login"
+                className="px-2.5 py-1.5 rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 text-xs font-medium transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/quiz/quiz-cache-1/take"
+                className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition-colors shadow-sm"
+              >
+                Start Free
+              </Link>
+            </div>
           )}
 
           {/* Mobile menu trigger */}
           <button
             type="button"
             className="md:hidden p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
           >
-            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {mobileOpen ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <Menu className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
@@ -169,8 +205,8 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileOpen(false)}
                 className={`px-3 py-2 rounded-md text-xs font-medium ${
                   isActive(link.path)
-                    ? 'text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80'
-                    : 'text-zinc-600 dark:text-zinc-400'
+                    ? "text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/80"
+                    : "text-zinc-600 dark:text-zinc-400"
                 }`}
               >
                 {link.label}
@@ -178,9 +214,16 @@ export const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          <form onSubmit={submitSearch} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <Search className="w-3.5 h-3.5 text-zinc-400" />
+          <form
+            onSubmit={submitSearch}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
+          >
+            <label htmlFor="nav-search-mobile" className="sr-only">
+              Search topics
+            </label>
+            <Search className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
             <input
+              id="nav-search-mobile"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -194,7 +237,9 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2 min-w-0">
                 <UserAvatar src={user.avatarUrl} name={user.name} size="sm" />
-                <span className="text-xs font-medium truncate text-zinc-900 dark:text-zinc-100">{user.name}</span>
+                <span className="text-xs font-medium truncate text-zinc-900 dark:text-zinc-100">
+                  {user.name}
+                </span>
               </div>
               <button
                 type="button"
@@ -205,13 +250,22 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              onClick={() => setMobileOpen(false)}
-              className="block text-center px-3 py-2 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium"
-            >
-              Sign in
-            </Link>
+            <div className="flex items-center gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-3 py-2 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/quiz/quiz-cache-1/take"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center px-3 py-2 rounded-md bg-indigo-600 text-white text-xs font-medium"
+              >
+                Start Free
+              </Link>
+            </div>
           )}
         </div>
       )}

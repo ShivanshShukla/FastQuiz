@@ -2,17 +2,21 @@
   "name": "fastquiz",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "FastQuiz - Full-Stack Monorepo for Interview & Exam Preparation",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
+    "ci": "npm run lint && npm run typecheck && npm run test && npm run build",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "prepare": "husky",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:restart": "docker compose restart",
@@ -20,10 +24,27 @@
     "logs": "open http://localhost:8888 || xdg-open http://localhost:8888",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
   },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.3.3",
     "turbo": "^2.4.4",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.71.0"
   },
   "packageManager": "npm@11.12.1",
   "engines": {

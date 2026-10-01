@@ -16,7 +16,7 @@ import type {
   Topic,
   User,
   UUID,
-} from './models';
+} from "./models";
 
 // --- Global API Types ---
 
@@ -46,7 +46,7 @@ export interface RefreshTokenRequest {
 export interface AuthTokens {
   access_token: string;
   refresh_token: string;
-  token_type: 'bearer';
+  token_type: "bearer";
   expires_in: number;
 }
 
@@ -59,7 +59,7 @@ export interface UserProfileResponse {
   id: UUID;
   email: string;
   name: string;
-  role?: 'admin' | 'user';
+  role?: "admin" | "user";
   created_at: ISODateString;
 }
 
@@ -71,21 +71,21 @@ export interface AdminLoginRequest {
 }
 
 export interface AdminAuthResponse {
-  status: 'authenticated';
+  status: "authenticated";
   access_token: string;
-  token_type: 'bearer';
+  token_type: "bearer";
   expires_in: number;
   admin: AdminUser;
 }
 
 export interface AdminTotpRequiredResponse {
-  status: 'totp_required';
+  status: "totp_required";
   pre_auth_token: string;
   expires_in: number;
 }
 
 export interface AdminTotpEnrollmentRequiredResponse {
-  status: 'totp_enrollment_required';
+  status: "totp_enrollment_required";
   pre_auth_token: string;
   qr_code_svg: string;
   secret: string;
@@ -111,7 +111,7 @@ export interface AdminTotpConfirmEnrollmentRequest {
 export interface AdminInviteRequest {
   email: string;
   name: string;
-  role?: 'admin' | 'super_admin';
+  role?: "admin" | "super_admin";
 }
 
 export interface AdminInviteResponse {
@@ -139,9 +139,12 @@ export interface QuizSummary {
   is_purchased: boolean;
 }
 
-export type RedactedQuestion = Omit<Question, 'correct_option_index' | 'explanation' | 'source_type' | 'review_status'>;
+export type RedactedQuestion = Omit<
+  Question,
+  "correct_option_index" | "explanation" | "source_type" | "review_status"
+>;
 
-export interface QuizDetail extends Omit<Quiz, 'question_ids'> {
+export interface QuizDetail extends Omit<Quiz, "question_ids"> {
   questions: RedactedQuestion[];
 }
 
@@ -173,7 +176,7 @@ export interface AttemptResultResponse {
   results: QuestionResult[];
 }
 
-export interface AttemptSummary extends Omit<Attempt, 'answers'> {
+export interface AttemptSummary extends Omit<Attempt, "answers"> {
   quiz_title: string;
 }
 
@@ -185,9 +188,9 @@ export interface ReviewQuestionRequest {
 // --- Admin Service Schemas ---
 
 export interface AdminQuestionsFilter {
-  status?: ReviewStatus | 'all';
+  status?: ReviewStatus | "all";
   topic_id?: UUID;
-  source_type?: QuestionSourceType | 'all';
+  source_type?: QuestionSourceType | "all";
   search?: string;
 }
 
@@ -203,15 +206,15 @@ export interface AdminReviewActionResponse {
 }
 
 export interface PurchasesFilter {
-  status?: PurchaseStatus | 'all';
+  status?: PurchaseStatus | "all";
   user_id?: UUID;
 }
 
 // --- WebSocket Timer Protocol ---
 
 export type TimerWebSocketMessage =
-  | { type: 'tick'; remaining_seconds: number }
-  | { type: 'expired'; message: string };
+  | { type: "tick"; remaining_seconds: number }
+  | { type: "expired"; message: string };
 
 // --- Payments Service Schemas ---
 
@@ -226,14 +229,14 @@ export interface PaymentWebhookPayload {
   event: string;
   purchase_id: UUID;
   provider_ref: string;
-  status: 'completed' | 'failed';
+  status: "completed" | "failed";
 }
 
 export type PurchaseHistoryResponse = Purchase[];
 
 // --- Admin Dashboard Schemas ---
 
-export type AdminDashboardDateRange = 'today' | '7d' | '30d' | 'custom';
+export type AdminDashboardDateRange = "today" | "7d" | "30d" | "custom";
 
 export interface AdminDashboardSummary {
   registered_users: number;
@@ -292,8 +295,8 @@ export interface AdminTopQuizItem {
 
 export interface AdminAttentionItem {
   id: string;
-  type: 'pending_review' | 'failed_purchase' | 'user_report' | 'stuck_attempt';
-  severity: 'high' | 'medium' | 'low';
+  type: "pending_review" | "failed_purchase" | "user_report" | "stuck_attempt";
+  severity: "high" | "medium" | "low";
   title: string;
   description: string;
   link: string;
@@ -308,7 +311,7 @@ export interface AdminRecentSignup {
   id: UUID;
   name: string;
   email: string;
-  source: 'email' | 'google';
+  source: "email" | "google";
   created_at: ISODateString;
 }
 
@@ -339,8 +342,8 @@ export interface AdminUserListItem {
   id: UUID;
   name: string;
   email: string;
-  status: 'active' | 'suspended';
-  source: 'email' | 'google';
+  status: "active" | "suspended";
+  source: "email" | "google";
   created_at: ISODateString;
   last_seen_at: ISODateString | null;
   quizzes_purchased: number;
@@ -365,15 +368,15 @@ export interface AdminUsersListResponse {
 
 export interface AdminUsersListParams {
   search?: string;
-  status?: 'all' | 'active' | 'suspended';
-  has_purchased?: 'all' | 'yes' | 'no';
-  source?: 'all' | 'email' | 'google';
+  status?: "all" | "active" | "suspended";
+  has_purchased?: "all" | "yes" | "no";
+  source?: "all" | "email" | "google";
   signup_from?: string;
   signup_to?: string;
   last_active_from?: string;
   last_active_to?: string;
-  sort_by?: 'created_at' | 'last_seen_at' | 'total_spent' | 'quizzes_purchased';
-  sort_order?: 'asc' | 'desc';
+  sort_by?: "created_at" | "last_seen_at" | "total_spent" | "quizzes_purchased";
+  sort_order?: "asc" | "desc";
   page?: number;
   page_size?: number;
 }
@@ -414,13 +417,19 @@ export interface AdminUserPurchaseItem {
 export interface AdminUserFreeGrantItem {
   topic_id: UUID;
   topic_name: string;
-  status: 'available' | 'used';
+  status: "available" | "used";
   used_at: ISODateString | null;
 }
 
 export interface AdminUserActivityItem {
   id: string;
-  event_type: 'login' | 'quiz_start' | 'quiz_submit' | 'purchase' | 'free_grant_used' | 'admin_action';
+  event_type:
+    | "login"
+    | "quiz_start"
+    | "quiz_submit"
+    | "purchase"
+    | "free_grant_used"
+    | "admin_action";
   title: string;
   description: string;
   timestamp: ISODateString;
@@ -440,8 +449,8 @@ export interface AdminUserDetail {
   id: UUID;
   name: string;
   email: string;
-  status: 'active' | 'suspended';
-  source: 'email' | 'google';
+  status: "active" | "suspended";
+  source: "email" | "google";
   created_at: ISODateString;
   last_seen_at: ISODateString | null;
   quizzes_purchased: number;
@@ -482,4 +491,3 @@ export interface AuditEmailRevealRequest {
   user_id: UUID;
   reason?: string;
 }
-

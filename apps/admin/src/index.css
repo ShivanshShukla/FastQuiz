@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color-scheme: light;
 }
 
@@ -18,4 +22,3 @@ body {
 .font-tabular {
   font-variant-numeric: tabular-nums;
 }
-

@@ -21,7 +21,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/ --ext .ts"
+    "lint": "eslint src/",
+    "test": "echo 'No tests in @fastquiz/shared'"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

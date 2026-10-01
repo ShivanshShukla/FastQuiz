@@ -1,12 +1,18 @@
-import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   FastQuizClient,
   type AdminUser,
   type AdminAuthResponse,
   type User,
-} from '@fastquiz/shared';
-import { type TotpChallengeState } from '../components/TotpChallengeModal';
-import { isMockEnabled } from '../config/env';
+} from "@fastquiz/shared";
+import { type TotpChallengeState } from "../components/TotpChallengeModal";
+import { isMockEnabled } from "../config/env";
 
 export type AnyAuthUser = AdminUser | User;
 
@@ -19,7 +25,10 @@ export interface AuthContextValue {
   isInitializing: boolean;
   client: FastQuizClient;
   totpChallenge: TotpChallengeState | null;
-  login: (email: string, password: string) => Promise<{ requiresTotp: boolean }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ requiresTotp: boolean }>;
   confirmTotp: (code: string) => Promise<void>;
   verifyTotp: (code: string) => Promise<void>;
   clearTotpChallenge: () => void;
@@ -28,30 +37,32 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined,
+);
 
 export const DEMO_ADMIN_USER: AdminUser = {
-  id: 'usr-admin-1',
-  name: 'Alex Reviewer (Super Admin)',
-  email: 'admin@fastquiz.dev',
-  role: 'super_admin',
+  id: "usr-admin-1",
+  name: "Alex Reviewer (Super Admin)",
+  email: "admin@fastquiz.dev",
+  role: "super_admin",
   totp_enabled: true,
-  created_at: '2026-01-01T00:00:00Z',
+  created_at: "2026-01-01T00:00:00Z",
 };
 
 export const DEMO_REGULAR_USER: User = {
-  id: 'usr-reg-2',
-  name: 'Candidate User',
-  email: 'candidate@example.com',
-  role: 'user',
-  created_at: '2026-01-15T00:00:00Z',
+  id: "usr-reg-2",
+  name: "Candidate User",
+  email: "candidate@example.com",
+  role: "user",
+  created_at: "2026-01-15T00:00:00Z",
 };
 
 // Module-level in-flight de-duplication to prevent race conditions during StrictMode double-mounts
 let inFlightRefreshPromise: Promise<AdminAuthResponse | null> | null = null;
 
 const executeSingleRefresh = async (
-  client: FastQuizClient
+  client: FastQuizClient,
 ): Promise<AdminAuthResponse | null> => {
   if (inFlightRefreshPromise) {
     return inFlightRefreshPromise;
@@ -68,9 +79,12 @@ const executeSingleRefresh = async (
   return inFlightRefreshPromise;
 };
 
-const DEMO_STORAGE_KEY = 'fastquiz_admin_demo_session';
+const DEMO_STORAGE_KEY = "fastquiz_admin_demo_session";
 
-const getStoredDemoSession = (): { user: AnyAuthUser; token: string } | null => {
+const getStoredDemoSession = (): {
+  user: AnyAuthUser;
+  token: string;
+} | null => {
   try {
     const raw = sessionStorage.getItem(DEMO_STORAGE_KEY);
     if (!raw) return null;
@@ -80,7 +94,10 @@ const getStoredDemoSession = (): { user: AnyAuthUser; token: string } | null => 
   }
 };
 
-const setStoredDemoSession = (user: AnyAuthUser | null, token: string | null) => {
+const setStoredDemoSession = (
+  user: AnyAuthUser | null,
+  token: string | null,
+) => {
   try {
     if (user && token) {
       sessionStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({ user, token }));
@@ -118,31 +135,33 @@ export const AuthProvider: React.FC<{
     if (initialUser || initialToken) return false;
     return true;
   });
-  const [totpChallenge, setTotpChallenge] = useState<TotpChallengeState | null>(null);
+  const [totpChallenge, setTotpChallenge] = useState<TotpChallengeState | null>(
+    null,
+  );
 
   // Initialize shared FastQuizClient with in-memory token resolver and same-origin reverse proxy URLs
   const client = useMemo(() => {
-    const isBrowser = typeof window !== 'undefined';
+    const isBrowser = typeof window !== "undefined";
     const authUrl =
       import.meta.env?.VITE_AUTH_API_URL !== undefined
         ? import.meta.env.VITE_AUTH_API_URL
         : isBrowser
-        ? ''
-        : 'http://localhost:8001';
+          ? ""
+          : "http://localhost:8001";
 
     const quizUrl =
       import.meta.env?.VITE_QUIZ_API_URL !== undefined
         ? import.meta.env.VITE_QUIZ_API_URL
         : isBrowser
-        ? '/api/quiz'
-        : 'http://localhost:8002';
+          ? "/api/quiz"
+          : "http://localhost:8002";
 
     const paymentsUrl =
       import.meta.env?.VITE_PAYMENTS_API_URL !== undefined
         ? import.meta.env.VITE_PAYMENTS_API_URL
         : isBrowser
-        ? '/api/payments'
-        : 'http://localhost:8003';
+          ? "/api/payments"
+          : "http://localhost:8003";
 
     return new FastQuizClient({
       authBaseUrl: authUrl,
@@ -187,12 +206,12 @@ export const AuthProvider: React.FC<{
 
   const login = async (
     email: string,
-    password: string
+    password: string,
   ): Promise<{ requiresTotp: boolean }> => {
     try {
       const response = await client.adminAuth.login({ email, password });
 
-      if (response.status === 'authenticated') {
+      if (response.status === "authenticated") {
         setUser(response.admin);
         setAccessToken(response.access_token);
         client.setAccessToken(response.access_token);
@@ -206,7 +225,7 @@ export const AuthProvider: React.FC<{
       return { requiresTotp: true };
     } catch (err: unknown) {
       // In offline/demo fallback mode, check if credentials match admin convention
-      if (isMockEnabled() && email.toLowerCase().includes('admin')) {
+      if (isMockEnabled() && email.toLowerCase().includes("admin")) {
         loginDemoAdmin();
         return { requiresTotp: false };
       }
@@ -215,8 +234,8 @@ export const AuthProvider: React.FC<{
   };
 
   const confirmTotp = async (code: string): Promise<void> => {
-    if (!totpChallenge || !('pre_auth_token' in totpChallenge)) {
-      throw new Error('No active TOTP challenge in progress');
+    if (!totpChallenge || !("pre_auth_token" in totpChallenge)) {
+      throw new Error("No active TOTP challenge in progress");
     }
     const response = await client.adminAuth.confirmTotpEnrollment({
       pre_auth_token: totpChallenge.pre_auth_token,
@@ -230,8 +249,8 @@ export const AuthProvider: React.FC<{
   };
 
   const verifyTotp = async (code: string): Promise<void> => {
-    if (!totpChallenge || !('pre_auth_token' in totpChallenge)) {
-      throw new Error('No active TOTP challenge in progress');
+    if (!totpChallenge || !("pre_auth_token" in totpChallenge)) {
+      throw new Error("No active TOTP challenge in progress");
     }
     const response = await client.adminAuth.verifyTotp({
       pre_auth_token: totpChallenge.pre_auth_token,
@@ -249,7 +268,7 @@ export const AuthProvider: React.FC<{
   };
 
   const loginDemoAdmin = (): void => {
-    const token = 'jwt-memory-admin-token-123';
+    const token = "jwt-memory-admin-token-123";
     setUser(DEMO_ADMIN_USER);
     setAccessToken(token);
     client.setAccessToken(token);
@@ -258,7 +277,7 @@ export const AuthProvider: React.FC<{
   };
 
   const loginDemoUser = (): void => {
-    const token = 'jwt-memory-regular-user-token-456';
+    const token = "jwt-memory-regular-user-token-456";
     setUser(DEMO_REGULAR_USER);
     setAccessToken(token);
     client.setAccessToken(token);
@@ -281,7 +300,7 @@ export const AuthProvider: React.FC<{
 
   const role = user?.role ?? null;
   const isAuthenticated = Boolean(user && accessToken);
-  const isAdmin = role === 'admin' || role === 'super_admin';
+  const isAdmin = role === "admin" || role === "super_admin";
 
   return (
     <AuthContext.Provider
@@ -311,7 +330,7 @@ export const AuthProvider: React.FC<{
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

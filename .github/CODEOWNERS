@@ -1,0 +1,8 @@
+# Global Monorepo Owners
+* @ShivanshShukla
+
+# Critical Financial Ledger & Payment Gateways
+services/payments-service/** @ShivanshShukla
+
+# CI/CD Workflows & Security Guardrails
+.github/** @ShivanshShukla

@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import {
-  type AdminQuestionItem,
-} from '@fastquiz/shared';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { type AdminQuestionItem } from "@fastquiz/shared";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -22,7 +20,7 @@ import {
   PlusCircle,
   Bot,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const ReviewDetailPage: React.FC = () => {
   const { questionId } = useParams<{ questionId: string }>();
@@ -33,7 +31,7 @@ export const ReviewDetailPage: React.FC = () => {
   const [question, setQuestion] = useState<AdminQuestionItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [viewMode, setViewMode] = useState<'candidate' | 'raw'>('candidate');
+  const [viewMode, setViewMode] = useState<"candidate" | "raw">("candidate");
 
   // Checklist states
   const [checklist, setChecklist] = useState({
@@ -45,8 +43,8 @@ export const ReviewDetailPage: React.FC = () => {
 
   // Reject modal state
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  const [rejectPreset, setRejectPreset] = useState('');
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectPreset, setRejectPreset] = useState("");
   const [rejectError, setRejectError] = useState<string | null>(null);
 
   // Load question detail
@@ -61,8 +59,8 @@ export const ReviewDetailPage: React.FC = () => {
         if (isMounted) setQuestion(data);
       } catch (err: unknown) {
         if (isMounted) {
-          toastError(err instanceof Error ? err.message : 'Question not found');
-          navigate('/review');
+          toastError(err instanceof Error ? err.message : "Question not found");
+          navigate("/review");
         }
       } finally {
         if (isMounted) setIsLoading(false);
@@ -82,10 +80,12 @@ export const ReviewDetailPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       await client.admin.approveQuestion(question.id);
-      success('Question approved successfully and published to live pool!');
-      navigate('/review');
+      success("Question approved successfully and published to live pool!");
+      navigate("/review");
     } catch (err: unknown) {
-      toastError(err instanceof Error ? err.message : 'Failed to approve question');
+      toastError(
+        err instanceof Error ? err.message : "Failed to approve question",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -95,10 +95,12 @@ export const ReviewDetailPage: React.FC = () => {
   const handleRejectConfirm = async () => {
     if (!question || isSubmitting) return;
 
-    const fullReason = [rejectPreset, rejectReason.trim()].filter(Boolean).join(': ');
+    const fullReason = [rejectPreset, rejectReason.trim()]
+      .filter(Boolean)
+      .join(": ");
 
     if (!fullReason) {
-      setRejectError('A rejection reason is required before submitting.');
+      setRejectError("A rejection reason is required before submitting.");
       return;
     }
 
@@ -107,9 +109,11 @@ export const ReviewDetailPage: React.FC = () => {
       await client.admin.rejectQuestion(question.id, fullReason);
       success(`Question rejected: "${fullReason}"`);
       setShowRejectModal(false);
-      navigate('/review');
+      navigate("/review");
     } catch (err: unknown) {
-      toastError(err instanceof Error ? err.message : 'Failed to reject question');
+      toastError(
+        err instanceof Error ? err.message : "Failed to reject question",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -118,47 +122,47 @@ export const ReviewDetailPage: React.FC = () => {
   // Keyboard shortcut listener: 'A' -> approve, 'R' -> reject, 'Escape' -> close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
-      if (activeTag === 'input' || activeTag === 'textarea') {
-        if (e.key === 'Escape') {
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea") {
+        if (e.key === "Escape") {
           setShowRejectModal(false);
         }
         return;
       }
 
-      if (e.key === 'a' || e.key === 'A') {
+      if (e.key === "a" || e.key === "A") {
         e.preventDefault();
         handleApprove();
-      } else if (e.key === 'r' || e.key === 'R') {
+      } else if (e.key === "r" || e.key === "R") {
         e.preventDefault();
         setShowRejectModal(true);
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         setShowRejectModal(false);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleApprove]);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-zinc-500">
         <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
-        <p className="text-sm font-medium">Loading question details & telemetry...</p>
+        <p className="text-sm font-medium">
+          Loading question details & telemetry...
+        </p>
       </div>
     );
   }
 
   if (!question) return null;
 
-  const options = question.options || [
-    'O(N^2)',
-    'O(N)',
-    'O(N log N)',
-    'O(1)',
-  ];
-  const correctIndex = (question as unknown as { correct_index?: number }).correct_index ?? question.correct_option_index ?? 1;
+  const options = question.options || ["O(N^2)", "O(N)", "O(N log N)", "O(1)"];
+  const correctIndex =
+    (question as unknown as { correct_index?: number }).correct_index ??
+    question.correct_option_index ??
+    1;
 
   return (
     <div className="flex flex-col w-full relative pb-28">
@@ -168,7 +172,7 @@ export const ReviewDetailPage: React.FC = () => {
       <section className="w-full bg-white px-6 py-2.5 flex items-center justify-between border-b border-zinc-200 shadow-2xs">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate('/review')}
+            onClick={() => navigate("/review")}
             className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-950 transition"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -176,28 +180,36 @@ export const ReviewDetailPage: React.FC = () => {
           </button>
           <span className="w-px h-3.5 bg-zinc-200"></span>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-zinc-900">Queue Workbench</span>
+            <span className="text-xs font-bold text-zinc-900">
+              Queue Workbench
+            </span>
             <span className="text-zinc-300">•</span>
-            <span className="text-xs text-zinc-500 font-medium">Question 4 of 24 Pending</span>
+            <span className="text-xs text-zinc-500 font-medium">
+              Question 4 of 24 Pending
+            </span>
           </div>
           <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-lg">
             <button
-              onClick={() => navigate('/review')}
+              onClick={() => navigate("/review")}
               className="flex items-center gap-1 px-1.5 py-0.5 rounded text-zinc-600 hover:bg-zinc-200 transition text-[11px]"
               title="Previous Question (J)"
               type="button"
             >
               <span>‹</span>
-              <kbd className="font-mono bg-white px-1 rounded text-zinc-600 text-[9px] shadow-2xs">J</kbd>
+              <kbd className="font-mono bg-white px-1 rounded text-zinc-600 text-[9px] shadow-2xs">
+                J
+              </kbd>
             </button>
             <span className="w-px h-3 bg-zinc-300"></span>
             <button
-              onClick={() => navigate('/review')}
+              onClick={() => navigate("/review")}
               className="flex items-center gap-1 px-1.5 py-0.5 rounded text-zinc-900 hover:bg-zinc-200 transition font-medium text-[11px]"
               title="Next Question (K)"
               type="button"
             >
-              <kbd className="font-mono bg-white px-1 rounded text-zinc-600 text-[9px] shadow-2xs">K</kbd>
+              <kbd className="font-mono bg-white px-1 rounded text-zinc-600 text-[9px] shadow-2xs">
+                K
+              </kbd>
               <span>›</span>
             </button>
           </div>
@@ -207,25 +219,27 @@ export const ReviewDetailPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></div>
-            <span className="font-mono text-[11px] text-zinc-500">STAGE: L3_EDITORIAL</span>
+            <span className="font-mono text-[11px] text-zinc-500">
+              STAGE: L3_EDITORIAL
+            </span>
           </div>
           <div className="flex items-center bg-zinc-100 p-0.5 rounded-lg text-xs">
             <button
-              onClick={() => setViewMode('candidate')}
+              onClick={() => setViewMode("candidate")}
               className={`px-2.5 py-1 text-xs font-medium rounded-md transition ${
-                viewMode === 'candidate'
-                  ? 'bg-white text-zinc-900 shadow-2xs font-semibold'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                viewMode === "candidate"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-600 hover:text-zinc-900"
               }`}
             >
               Candidate View
             </button>
             <button
-              onClick={() => setViewMode('raw')}
+              onClick={() => setViewMode("raw")}
               className={`px-2.5 py-1 text-xs font-medium rounded-md transition ${
-                viewMode === 'raw'
-                  ? 'bg-white text-zinc-900 shadow-2xs font-semibold'
-                  : 'text-zinc-600 hover:text-zinc-900'
+                viewMode === "raw"
+                  ? "bg-white text-zinc-900 shadow-2xs font-semibold"
+                  : "text-zinc-600 hover:text-zinc-900"
               }`}
             >
               Raw JSON / AST
@@ -243,7 +257,7 @@ export const ReviewDetailPage: React.FC = () => {
           {/* LEFT COLUMN (60% / col-span-7): Question Learner View               */}
           {/* =================================================================== */}
           <section className="col-span-12 lg:col-span-7 flex flex-col gap-5 min-w-0">
-            {viewMode === 'raw' ? (
+            {viewMode === "raw" ? (
               <div className="bg-zinc-900 text-zinc-100 rounded-xl p-5 font-mono text-xs overflow-x-auto shadow-sm">
                 <pre>{JSON.stringify(question, null, 2)}</pre>
               </div>
@@ -263,7 +277,7 @@ export const ReviewDetailPage: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-indigo-50 text-indigo-700 font-semibold text-[11px] px-2 py-0.5 rounded border border-indigo-200">
-                        {question.topic_name || 'DSA'}
+                        {question.topic_name || "DSA"}
                       </span>
                       <span className="bg-zinc-100 text-zinc-600 font-mono text-[10px] px-2 py-0.5 rounded">
                         4 Multiple Choice
@@ -289,11 +303,17 @@ export const ReviewDetailPage: React.FC = () => {
                     </div>
                     <pre className="overflow-x-auto text-[12px] leading-5 text-zinc-200">
                       <code>
-                        <span className="text-purple-400">def</span>{' '}
-                        <span className="text-blue-400">solve_problem</span>(arr: List[int]) -&gt; int:
-                        {'\n'}    left, right = 0, len(arr) - 1{'\n'}    <span className="text-zinc-500"># Two pointer traversal in linear time</span>
-                        {'\n'}    <span className="text-purple-400">while</span> left &lt; right:
-                        {'\n'}        <span className="text-purple-400">return</span> max(left, right)
+                        <span className="text-purple-400">def</span>{" "}
+                        <span className="text-blue-400">solve_problem</span>
+                        (arr: List[int]) -&gt; int:
+                        {"\n"} left, right = 0, len(arr) - 1{"\n"}{" "}
+                        <span className="text-zinc-500">
+                          # Two pointer traversal in linear time
+                        </span>
+                        {"\n"} <span className="text-purple-400">while</span>{" "}
+                        left &lt; right:
+                        {"\n"} <span className="text-purple-400">return</span>{" "}
+                        max(left, right)
                       </code>
                     </pre>
                   </div>
@@ -304,7 +324,9 @@ export const ReviewDetailPage: React.FC = () => {
                       <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                         Candidate Options
                       </span>
-                      <span className="text-[11px] text-zinc-500">Selectable Single-Choice</span>
+                      <span className="text-[11px] text-zinc-500">
+                        Selectable Single-Choice
+                      </span>
                     </div>
 
                     {options.map((optionText, idx) => {
@@ -316,25 +338,31 @@ export const ReviewDetailPage: React.FC = () => {
                           key={idx}
                           className={`relative flex items-start gap-3 p-3.5 rounded-lg border transition ${
                             isCorrect
-                              ? 'bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-2xs'
-                              : 'bg-zinc-50/80 border-zinc-200/80 hover:bg-zinc-100/60'
+                              ? "bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-500/20 shadow-2xs"
+                              : "bg-zinc-50/80 border-zinc-200/80 hover:bg-zinc-100/60"
                           }`}
                         >
                           <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0 ${
                               isCorrect
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-white border border-zinc-300 text-zinc-700'
+                                ? "bg-emerald-600 text-white"
+                                : "bg-white border border-zinc-300 text-zinc-700"
                             }`}
                           >
-                            {isCorrect ? <Check className="w-3.5 h-3.5" /> : letter}
+                            {isCorrect ? (
+                              <Check className="w-3.5 h-3.5" />
+                            ) : (
+                              letter
+                            )}
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <span
                                 className={`font-mono text-xs font-bold ${
-                                  isCorrect ? 'text-emerald-800' : 'text-zinc-600'
+                                  isCorrect
+                                    ? "text-emerald-800"
+                                    : "text-zinc-600"
                                 }`}
                               >
                                 Option {letter}
@@ -348,7 +376,9 @@ export const ReviewDetailPage: React.FC = () => {
                             </div>
                             <p
                               className={`text-sm leading-relaxed ${
-                                isCorrect ? 'text-emerald-950 font-medium' : 'text-zinc-800'
+                                isCorrect
+                                  ? "text-emerald-950 font-medium"
+                                  : "text-zinc-800"
                               }`}
                             >
                               {optionText}
@@ -389,7 +419,7 @@ export const ReviewDetailPage: React.FC = () => {
                       </h3>
                       <p className="text-xs text-indigo-950/80 leading-normal">
                         {question.explanation ||
-                          'Using two pointers starting at opposite ends avoids redundant traversals, reducing algorithmic time complexity from quadratic to linear time O(N).'}
+                          "Using two pointers starting at opposite ends avoids redundant traversals, reducing algorithmic time complexity from quadratic to linear time O(N)."}
                       </p>
                     </div>
 
@@ -399,18 +429,25 @@ export const ReviewDetailPage: React.FC = () => {
                       </h4>
                       <ul className="space-y-1 text-xs text-zinc-600 pl-4 list-disc">
                         <li>
-                          <strong className="text-zinc-900">Time Complexity:</strong> Scales strictly at{' '}
+                          <strong className="text-zinc-900">
+                            Time Complexity:
+                          </strong>{" "}
+                          Scales strictly at{" "}
                           <code className="font-mono text-[11px] bg-zinc-100 px-1 py-0.5 rounded text-zinc-800">
                             linear O(N)
-                          </code>{' '}
+                          </code>{" "}
                           where each element is inspected at most once.
                         </li>
                         <li>
-                          <strong className="text-zinc-900">Auxiliary Space:</strong> Auxiliary memory requires{' '}
+                          <strong className="text-zinc-900">
+                            Auxiliary Space:
+                          </strong>{" "}
+                          Auxiliary memory requires{" "}
                           <code className="font-mono text-[11px] bg-zinc-100 px-1 py-0.5 rounded text-zinc-800">
                             constant O(1)
-                          </code>{' '}
-                          in-place pointer allocations without extra heap arrays.
+                          </code>{" "}
+                          in-place pointer allocations without extra heap
+                          arrays.
                         </li>
                       </ul>
                     </div>
@@ -422,16 +459,25 @@ export const ReviewDetailPage: React.FC = () => {
                       </h4>
                       <div className="space-y-1.5 text-xs text-zinc-700">
                         <div className="p-2 rounded bg-white border border-zinc-200">
-                          <span className="font-bold text-rose-600">Option A (False):</span> O(N^2)
-                          is the brute-force nested loop complexity, which is suboptimal.
+                          <span className="font-bold text-rose-600">
+                            Option A (False):
+                          </span>{" "}
+                          O(N^2) is the brute-force nested loop complexity,
+                          which is suboptimal.
                         </div>
                         <div className="p-2 rounded bg-white border border-zinc-200">
-                          <span className="font-bold text-rose-600">Option C (False):</span> O(N log N)
-                          applies to sorting-first approaches, which incurs unnecessary overhead.
+                          <span className="font-bold text-rose-600">
+                            Option C (False):
+                          </span>{" "}
+                          O(N log N) applies to sorting-first approaches, which
+                          incurs unnecessary overhead.
                         </div>
                         <div className="p-2 rounded bg-white border border-zinc-200">
-                          <span className="font-bold text-rose-600">Option D (False):</span> O(1)
-                          cannot be achieved without precomputing or caching the entire array elements.
+                          <span className="font-bold text-rose-600">
+                            Option D (False):
+                          </span>{" "}
+                          O(1) cannot be achieved without precomputing or
+                          caching the entire array elements.
                         </div>
                       </div>
                     </div>
@@ -464,30 +510,38 @@ export const ReviewDetailPage: React.FC = () => {
           {/* =================================================================== */}
           <aside className="col-span-12 lg:col-span-5 flex flex-col gap-5 min-w-0">
             {/* AI Synthesis Flag Banner */}
-            {question.source_type === 'ai_generated' ? (
+            {question.source_type === "ai_generated" ? (
               <section className="bg-amber-50/90 rounded-xl p-4 border border-amber-200 shadow-2xs flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-amber-900">
                   <Bot className="w-5 h-5 text-amber-700" />
-                  <h3 className="font-bold text-xs">AI Synthesis Flag (GPT-4o Staging)</h3>
+                  <h3 className="font-bold text-xs">
+                    AI Synthesis Flag (GPT-4o Staging)
+                  </h3>
                 </div>
                 <p className="text-xs text-amber-900/90 leading-normal">
-                  Verify code correctness, edge cases, and ensure explanations do not hallucinate
-                  performance guarantees.
+                  Verify code correctness, edge cases, and ensure explanations
+                  do not hallucinate performance guarantees.
                 </p>
                 <div className="mt-1 pt-2 border-t border-amber-200 flex items-center justify-between text-amber-800 text-[11px] font-medium">
-                  <span>Confidence: <strong>94.2%</strong></span>
-                  <span>Plagiarism: <strong>&lt; 1.8%</strong></span>
+                  <span>
+                    Confidence: <strong>94.2%</strong>
+                  </span>
+                  <span>
+                    Plagiarism: <strong>&lt; 1.8%</strong>
+                  </span>
                 </div>
               </section>
-            ) : question.source_type === 'community' ? (
+            ) : question.source_type === "community" ? (
               <section className="bg-emerald-50/90 rounded-xl p-4 border border-emerald-200 shadow-2xs flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-emerald-900">
                   <Users className="w-5 h-5 text-emerald-700" />
-                  <h3 className="font-bold text-xs">Community Contributor Submission</h3>
+                  <h3 className="font-bold text-xs">
+                    Community Contributor Submission
+                  </h3>
                 </div>
                 <p className="text-xs text-emerald-950/80 leading-normal">
-                  Submitted by verified peer educator. Check for plagiarism, formatting, and correct
-                  spec alignment.
+                  Submitted by verified peer educator. Check for plagiarism,
+                  formatting, and correct spec alignment.
                 </p>
               </section>
             ) : null}
@@ -495,7 +549,9 @@ export const ReviewDetailPage: React.FC = () => {
             {/* Technical Metadata Card */}
             <section className="bg-white rounded-xl p-5 border border-zinc-200 shadow-2xs flex flex-col gap-4">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
-                <h3 className="font-bold text-xs text-zinc-900">Question Metadata</h3>
+                <h3 className="font-bold text-xs text-zinc-900">
+                  Question Metadata
+                </h3>
                 <span className="px-1.5 py-0.5 rounded bg-zinc-100 font-mono text-[10px] text-zinc-600">
                   v1.4.0
                 </span>
@@ -507,7 +563,7 @@ export const ReviewDetailPage: React.FC = () => {
                     Topic Domain
                   </span>
                   <span className="text-xs font-semibold text-zinc-900 block truncate">
-                    {question.topic_name || 'System Design'}
+                    {question.topic_name || "System Design"}
                   </span>
                 </div>
                 <div>
@@ -515,7 +571,8 @@ export const ReviewDetailPage: React.FC = () => {
                     Cognitive Difficulty
                   </span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
-                    {(question as unknown as { difficulty?: string }).difficulty || 'Medium'}
+                    {(question as unknown as { difficulty?: string })
+                      .difficulty || "Medium"}
                   </span>
                 </div>
               </div>
@@ -524,7 +581,7 @@ export const ReviewDetailPage: React.FC = () => {
                 <div className="flex items-center justify-between py-0.5">
                   <span className="text-zinc-500">Target Quiz:</span>
                   <span className="font-medium text-zinc-900 truncate max-w-[200px]">
-                    {question.quiz_title || 'General Warmup'}
+                    {question.quiz_title || "General Warmup"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-0.5">
@@ -536,12 +593,17 @@ export const ReviewDetailPage: React.FC = () => {
                 <div className="flex items-center justify-between py-0.5">
                   <span className="text-zinc-500">Submitted By:</span>
                   <span className="font-medium text-zinc-800">
-                    {(question as unknown as { submitted_by_name?: string }).submitted_by_name || question.submitter_email || 'Staff Reviewer'}
+                    {(question as unknown as { submitted_by_name?: string })
+                      .submitted_by_name ||
+                      question.submitter_email ||
+                      "Staff Reviewer"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-0.5">
                   <span className="text-zinc-500">Est. Solve Cadence:</span>
-                  <span className="font-mono text-zinc-900 font-semibold">90 seconds</span>
+                  <span className="font-mono text-zinc-900 font-semibold">
+                    90 seconds
+                  </span>
                 </div>
               </div>
             </section>
@@ -551,9 +613,13 @@ export const ReviewDetailPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-indigo-600" />
-                  <h3 className="font-bold text-xs text-zinc-900">Reviewer Quality Gate</h3>
+                  <h3 className="font-bold text-xs text-zinc-900">
+                    Reviewer Quality Gate
+                  </h3>
                 </div>
-                <span className="font-mono text-[10px] text-zinc-400">4/4 Complete</span>
+                <span className="font-mono text-[10px] text-zinc-400">
+                  4/4 Complete
+                </span>
               </div>
 
               <div className="space-y-2 text-xs text-zinc-800">
@@ -562,7 +628,10 @@ export const ReviewDetailPage: React.FC = () => {
                     type="checkbox"
                     checked={checklist.stemClear}
                     onChange={(e) =>
-                      setChecklist((prev) => ({ ...prev, stemClear: e.target.checked }))
+                      setChecklist((prev) => ({
+                        ...prev,
+                        stemClear: e.target.checked,
+                      }))
                     }
                     className="w-4 h-4 rounded text-indigo-600 accent-indigo-600 cursor-pointer"
                   />
@@ -573,7 +642,10 @@ export const ReviewDetailPage: React.FC = () => {
                     type="checkbox"
                     checked={checklist.singleAnswer}
                     onChange={(e) =>
-                      setChecklist((prev) => ({ ...prev, singleAnswer: e.target.checked }))
+                      setChecklist((prev) => ({
+                        ...prev,
+                        singleAnswer: e.target.checked,
+                      }))
                     }
                     className="w-4 h-4 rounded text-indigo-600 accent-indigo-600 cursor-pointer"
                   />
@@ -624,15 +696,23 @@ export const ReviewDetailPage: React.FC = () => {
                 <div className="flex items-start gap-2.5 p-1 text-zinc-700">
                   <GitCommit className="w-3.5 h-3.5 text-zinc-400 mt-0.5 shrink-0" />
                   <div>
-                    <span className="font-semibold text-zinc-900 block">v1.1: Math notation sanitized</span>
-                    <span className="text-zinc-400 text-[10px]">By System Synthesizer • 1 hr ago</span>
+                    <span className="font-semibold text-zinc-900 block">
+                      v1.1: Math notation sanitized
+                    </span>
+                    <span className="text-zinc-400 text-[10px]">
+                      By System Synthesizer • 1 hr ago
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5 p-1 text-zinc-700">
                   <PlusCircle className="w-3.5 h-3.5 text-zinc-400 mt-0.5 shrink-0" />
                   <div>
-                    <span className="font-semibold text-zinc-900 block">v1.0: Synthetic generation commit</span>
-                    <span className="text-zinc-400 text-[10px]">By ContentBot pipeline • 4 hrs ago</span>
+                    <span className="font-semibold text-zinc-900 block">
+                      v1.0: Synthetic generation commit
+                    </span>
+                    <span className="text-zinc-400 text-[10px]">
+                      By ContentBot pipeline • 4 hrs ago
+                    </span>
                   </div>
                 </div>
               </div>
@@ -647,19 +727,28 @@ export const ReviewDetailPage: React.FC = () => {
       <footer className="fixed bottom-0 left-60 right-0 z-40 bg-white/95 backdrop-blur-md px-6 py-3 shadow-lg flex items-center justify-between border-t border-zinc-200">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-zinc-900">#{question.id}</span>
+            <span className="font-mono text-xs font-bold text-zinc-900">
+              #{question.id}
+            </span>
             <span className="text-zinc-300">•</span>
-            <span className="text-xs text-zinc-500">23 items remaining in primary review queue</span>
+            <span className="text-xs text-zinc-500">
+              23 items remaining in primary review queue
+            </span>
           </div>
           <div className="hidden xl:flex items-center gap-1.5 text-zinc-400 text-xs">
-            <span>Reviewer: <strong className="text-zinc-900 font-medium">{user?.name || 'Sarah Chen'}</strong></span>
+            <span>
+              Reviewer:{" "}
+              <strong className="text-zinc-900 font-medium">
+                {user?.name || "Sarah Chen"}
+              </strong>
+            </span>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => navigate('/review')}
+            onClick={() => navigate("/review")}
             className="h-9 px-3.5 rounded-lg text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition"
             type="button"
           >
@@ -697,7 +786,7 @@ export const ReviewDetailPage: React.FC = () => {
           <span className="w-px h-5 bg-zinc-200 mx-1"></span>
 
           <button
-            onClick={() => navigate('/review')}
+            onClick={() => navigate("/review")}
             className="h-9 w-9 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition"
             title="Advance directly (K)"
             type="button"
@@ -732,8 +821,9 @@ export const ReviewDetailPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-600 leading-normal">
-              Specify the factual violation or guideline failure. Feedback is routed into the GPT-4o
-              RLHF pipeline and tagged on the author's record.
+              Specify the factual violation or guideline failure. Feedback is
+              routed into the GPT-4o RLHF pipeline and tagged on the author's
+              record.
             </p>
 
             {rejectError && (
@@ -745,10 +835,10 @@ export const ReviewDetailPage: React.FC = () => {
             {/* Presets Radio Options */}
             <div className="space-y-1.5 text-xs text-zinc-800">
               {[
-                'Factually incorrect or outdated architectural claim',
-                'Ambiguous wording / Multiple defensible answers',
-                'Low cognitive difficulty / Trivial definition test',
-                'Duplicate or close clone of existing item',
+                "Factually incorrect or outdated architectural claim",
+                "Ambiguous wording / Multiple defensible answers",
+                "Low cognitive difficulty / Trivial definition test",
+                "Duplicate or close clone of existing item",
               ].map((reasonText) => (
                 <label
                   key={reasonText}
@@ -769,11 +859,11 @@ export const ReviewDetailPage: React.FC = () => {
             {/* Quick Tags (Required for automated tests) */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {[
-                '+ Incorrect Answer Key',
-                '+ Poor Explanation',
-                '+ Duplicate',
-                '+ Formatting Issue',
-                '+ Low Quality',
+                "+ Incorrect Answer Key",
+                "+ Poor Explanation",
+                "+ Duplicate",
+                "+ Formatting Issue",
+                "+ Low Quality",
               ].map((tag) => (
                 <button
                   key={tag}
@@ -825,7 +915,9 @@ export const ReviewDetailPage: React.FC = () => {
                 className="px-4 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition shadow-xs flex items-center gap-1.5 disabled:opacity-50"
               >
                 <span>Confirm Rejection</span>
-                <kbd className="font-mono text-[10px] bg-white/20 px-1 py-0.2 rounded">↵</kbd>
+                <kbd className="font-mono text-[10px] bg-white/20 px-1 py-0.2 rounded">
+                  ↵
+                </kbd>
               </button>
             </div>
           </div>

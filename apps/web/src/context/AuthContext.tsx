@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   tierTitle: string;
   streakDays: number;
   xp: number;
@@ -13,14 +13,14 @@ export interface UserProfile {
 }
 
 const DEFAULT_USER: UserProfile = {
-  id: 'usr-rohan-1',
-  name: 'Rohan V.',
-  email: 'rohan.v@techscholar.dev',
-  role: 'user',
-  tierTitle: 'Pro Scholar',
+  id: "usr-rohan-1",
+  name: "Rohan V.",
+  email: "rohan.v@techscholar.dev",
+  role: "user",
+  tierTitle: "Pro Scholar",
   streakDays: 4,
   xp: 240,
-  avatarUrl: '/assets/avatar.png',
+  avatarUrl: "/assets/avatar.png",
   isPro: true,
 };
 
@@ -30,21 +30,29 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, name?: string) => void;
   loginGuest: () => void;
+  loginOAuth: (provider: "google" | "github") => void;
+  signup: (name: string, email: string) => void;
   logout: () => void;
   addXp: (amount: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const saved = window.localStorage.getItem('fastquiz_user');
+      if (typeof window !== "undefined" && window.localStorage) {
+        const saved = window.localStorage.getItem("fastquiz_user");
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed && (!parsed.avatarUrl || parsed.avatarUrl.includes('googleusercontent.com'))) {
-            parsed.avatarUrl = '/assets/avatar.png';
+          if (
+            parsed &&
+            (!parsed.avatarUrl ||
+              parsed.avatarUrl.includes("googleusercontent.com"))
+          ) {
+            parsed.avatarUrl = "/assets/avatar.png";
           }
           return parsed;
         }
@@ -57,8 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [token, setToken] = useState<string | null>(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        return window.localStorage.getItem('fastquiz_access_token');
+      if (typeof window !== "undefined" && window.localStorage) {
+        return window.localStorage.getItem("fastquiz_access_token");
       }
     } catch {
       // fallback
@@ -68,11 +76,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
+      if (typeof window !== "undefined" && window.localStorage) {
         if (user) {
-          window.localStorage.setItem('fastquiz_user', JSON.stringify(user));
+          window.localStorage.setItem("fastquiz_user", JSON.stringify(user));
         } else {
-          window.localStorage.removeItem('fastquiz_user');
+          window.localStorage.removeItem("fastquiz_user");
         }
       }
     } catch {
@@ -80,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  const login = (email: string, name: string = 'Learner') => {
+  const login = (email: string, name: string = "Learner") => {
     const newUser: UserProfile = {
       ...DEFAULT_USER,
       email,
@@ -90,8 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const mockToken = `jwt-${Date.now()}`;
     setToken(mockToken);
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem('fastquiz_access_token', mockToken);
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem("fastquiz_access_token", mockToken);
       }
     } catch {
       // fallback
@@ -100,10 +108,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginGuest = () => {
     setUser(DEFAULT_USER);
-    setToken('demo-jwt-token-rohan');
+    setToken("demo-jwt-token-rohan");
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem('fastquiz_access_token', 'demo-jwt-token-rohan');
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(
+          "fastquiz_access_token",
+          "demo-jwt-token-rohan",
+        );
+      }
+    } catch {
+      // fallback
+    }
+  };
+
+  const loginOAuth = (provider: "google" | "github") => {
+    const isGoogle = provider === "google";
+    const oAuthUser: UserProfile = {
+      id: isGoogle ? "usr-google-alex" : "usr-github-alex",
+      name: isGoogle ? "Alex Chen" : "Alex Chen",
+      email: isGoogle ? "alex.chen@gmail.com" : "alex-chen@github.com",
+      role: "user",
+      tierTitle: isGoogle ? "Google Engineer" : "Open Source Architect",
+      streakDays: isGoogle ? 6 : 5,
+      xp: isGoogle ? 350 : 310,
+      avatarUrl: "/assets/avatar.png",
+      isPro: true,
+    };
+    setUser(oAuthUser);
+    const mockToken = `oauth-${provider}-${Date.now()}`;
+    setToken(mockToken);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem("fastquiz_access_token", mockToken);
+        window.localStorage.setItem("fastquiz_user", JSON.stringify(oAuthUser));
+      }
+    } catch {
+      // fallback
+    }
+  };
+
+  const signup = (name: string, email: string) => {
+    const newUser: UserProfile = {
+      id: `usr-new-${Date.now()}`,
+      name: name.trim() || "New Engineer",
+      email: email.trim(),
+      role: "user",
+      tierTitle: "Emerging Scholar",
+      streakDays: 1,
+      xp: 50,
+      avatarUrl: "/assets/avatar.png",
+      isPro: false,
+    };
+    setUser(newUser);
+    const mockToken = `jwt-signup-${Date.now()}`;
+    setToken(mockToken);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem("fastquiz_access_token", mockToken);
+        window.localStorage.setItem("fastquiz_user", JSON.stringify(newUser));
       }
     } catch {
       // fallback
@@ -114,9 +176,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setToken(null);
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.removeItem('fastquiz_access_token');
-        window.localStorage.removeItem('fastquiz_user');
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.removeItem("fastquiz_access_token");
+        window.localStorage.removeItem("fastquiz_user");
       }
     } catch {
       // fallback
@@ -138,6 +200,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         login,
         loginGuest,
+        loginOAuth,
+        signup,
         logout,
         addXp,
       }}
@@ -150,7 +214,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Search, ArrowRight } from 'lucide-react';
-import { webMockStore } from '../services/webMockStore';
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Search, ArrowRight } from "lucide-react";
+import { webMockStore } from "../services/webMockStore";
 
 export const TopicsCatalogPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const queryFromUrl = searchParams.get('q') ?? '';
+  const queryFromUrl = searchParams.get("q") ?? "";
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     setSearchTerm(queryFromUrl);
@@ -20,7 +20,7 @@ export const TopicsCatalogPage: React.FC = () => {
       t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === 'all' ||
+      selectedCategory === "all" ||
       t.category.toLowerCase().includes(selectedCategory.toLowerCase());
     return matchesSearch && matchesCategory;
   });
@@ -33,7 +33,8 @@ export const TopicsCatalogPage: React.FC = () => {
           Technical Curriculum Catalog
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
-          Calibrated question banks and system design assessments across Distributed Systems, Data Structures, and Concurrency.
+          Calibrated question banks and system design assessments across
+          Distributed Systems, Data Structures, and Concurrency.
         </p>
       </div>
 
@@ -51,18 +52,18 @@ export const TopicsCatalogPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
-          {['all', 'System Design', 'Algorithms', 'Systems'].map((cat) => (
+          {["all", "System Design", "Algorithms", "Systems"].map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
-              {cat === 'all' ? 'All Categories' : cat}
+              {cat === "all" ? "All Categories" : cat}
             </button>
           ))}
         </div>

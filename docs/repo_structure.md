@@ -1,11 +1,13 @@
 # FastQuiz — Repo & Folder Structure
 
-*Living doc. Point every coding-agent session at this so files land in consistent places.*
+_Living doc. Point every coding-agent session at this so files land in consistent places._
 
 ## Monorepo Tooling
+
 **Turborepo** for the JS side — simpler setup than Nx for a solo project, good build caching, works cleanly with npm/pnpm workspaces. Python services are managed independently (each with its own `pyproject.toml`), orchestrated locally via `docker-compose`.
 
 ## Top-Level Layout
+
 ```
 fastquiz/
 ├── apps/
@@ -31,6 +33,7 @@ fastquiz/
 ```
 
 ## Inside Each Python Service (e.g. `services/quiz-service/`)
+
 ```
 quiz-service/
 ├── app/
@@ -47,6 +50,7 @@ quiz-service/
 ```
 
 ## Inside Each JS App (e.g. `apps/web/`)
+
 ```
 web/
 ├── src/
@@ -60,14 +64,17 @@ web/
 ```
 
 ## `packages/shared/` Contents
+
 - API client (typed fetch wrappers matching the REST API Contract doc)
 - TypeScript types mirroring the Data Model doc's entities
 - Shared constants (e.g. free-attempt rules, quiz states)
 
 ## Conventions
+
 - Every service/app owns its own Dockerfile and `.env.example`
 - Docs in `docs/` are the source of truth — code should match them, not the other way around; update the doc first when a decision changes
 - GitHub Actions: one workflow per service/app, triggered by path filters (only rebuild what changed)
 
 ## Open Questions
+
 - npm or pnpm for JS workspaces? (pnpm is generally faster/more disk-efficient for monorepos — recommend pnpm unless you have a reason not to)

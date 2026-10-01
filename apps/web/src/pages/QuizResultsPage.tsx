@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import {
   Share2,
   CheckCircle2,
@@ -11,71 +11,101 @@ import {
   Clock,
   BarChart3,
   Award,
-} from 'lucide-react';
-import { webMockStore, DiagnosticResult } from '../services/webMockStore';
-import { AccuracyGauge } from '../components/Quiz/AccuracyGauge';
-import { PaywallCard } from '../components/Checkout/PaywallCard';
-import { useToast } from '../context/ToastContext';
+} from "lucide-react";
+import { webMockStore, DiagnosticResult } from "../services/webMockStore";
+import { AccuracyGauge } from "../components/Quiz/AccuracyGauge";
+import { PaywallCard } from "../components/Checkout/PaywallCard";
+import { useToast } from "../context/ToastContext";
+import { isMockEnabled } from "../config/env";
 
 export const QuizResultsPage: React.FC = () => {
-  const { attemptId = 'att-seed-1' } = useParams<{ attemptId: string }>();
+  const { attemptId = "att-seed-1" } = useParams<{ attemptId: string }>();
   const { showToast } = useToast();
   const [copying, setCopying] = useState(false);
 
-  const result: DiagnosticResult = webMockStore.getAttemptResult(attemptId) || {
-    attemptId,
-    quizTitle: 'Quiz 1: Cache Strategies & Invalidation Dilemmas',
-    topicTitle: 'Distributed Caching: Redis, Memcached & Cache Invalidation',
-    scorePercent: 90,
-    correctCount: 9,
-    totalCount: 10,
-    benchmarkPassed: true,
-    candidateTier: 'Top 8% Candidate',
-    latencyFormatted: '6m 18s',
-    targetLatencyFormatted: '8m 00s (-21%)',
-    percentile: '92nd %ile',
-    levelBand: 'L6 / Staff',
-    streakDays: 4,
-    xpEarned: 50,
-    subSkills: [
-      {
-        name: 'Cache Invalidation',
-        description: 'TTL heuristics, active stampede mitigation, & XFetch.',
-        scorePercent: 100,
-        questionCountText: '2/2 Questions',
-        status: 'Mastered',
-      },
-      {
-        name: 'Eviction Policies',
-        description: 'LRU, LFU, 2Q buffers, and memory ceiling eviction.',
-        scorePercent: 100,
-        questionCountText: '3/3 Questions',
-        status: 'Mastered',
-      },
-      {
-        name: 'Consistency & Writes',
-        description: 'Write-Through vs Write-Back risk in financial ledgers.',
-        scorePercent: 0,
-        questionCountText: '0/1 Question',
-        status: 'Needs Review',
-      },
-      {
-        name: 'Distributed Hashing',
-        description: 'Consistent hash rings, virtual vnodes, & partition healing.',
-        scorePercent: 100,
-        questionCountText: '4/4 Questions',
-        status: 'Mastered',
-      },
-    ],
-    questionsReview: [],
-  };
+  const mockFallback: DiagnosticResult | undefined = isMockEnabled()
+    ? {
+        attemptId,
+        quizTitle: "Quiz 1: Cache Strategies & Invalidation Dilemmas",
+        topicTitle:
+          "Distributed Caching: Redis, Memcached & Cache Invalidation",
+        scorePercent: 90,
+        correctCount: 9,
+        totalCount: 10,
+        benchmarkPassed: true,
+        candidateTier: "Top 8% Candidate",
+        latencyFormatted: "6m 18s",
+        targetLatencyFormatted: "8m 00s (-21%)",
+        percentile: "92nd %ile",
+        levelBand: "L6 / Staff",
+        streakDays: 4,
+        xpEarned: 50,
+        subSkills: [
+          {
+            name: "Cache Invalidation",
+            description:
+              "TTL heuristics, active stampede mitigation, & XFetch.",
+            scorePercent: 100,
+            questionCountText: "2/2 Questions",
+            status: "Mastered",
+          },
+          {
+            name: "Eviction Policies",
+            description: "LRU, LFU, 2Q buffers, and memory ceiling eviction.",
+            scorePercent: 100,
+            questionCountText: "3/3 Questions",
+            status: "Mastered",
+          },
+          {
+            name: "Consistency & Writes",
+            description:
+              "Write-Through vs Write-Back risk in financial ledgers.",
+            scorePercent: 0,
+            questionCountText: "0/1 Question",
+            status: "Needs Review",
+          },
+          {
+            name: "Distributed Hashing",
+            description:
+              "Consistent hash rings, virtual vnodes, & partition healing.",
+            scorePercent: 100,
+            questionCountText: "4/4 Questions",
+            status: "Mastered",
+          },
+        ],
+        questionsReview: [],
+      }
+    : undefined;
+
+  const result: DiagnosticResult | undefined =
+    webMockStore.getAttemptResult(attemptId) || mockFallback;
+
+  if (!result) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          Attempt Record Not Found
+        </h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
+          No diagnostic results found for this attempt ID. Start a new
+          diagnostic assessment to generate your performance score.
+        </p>
+        <Link
+          to="/curriculum"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-colors"
+        >
+          Browse Curriculum Tracks
+        </Link>
+      </div>
+    );
+  }
 
   const handleShare = () => {
     setCopying(true);
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(window.location.href);
     }
-    showToast('Diagnostic evaluation link copied to clipboard.', 'success');
+    showToast("Diagnostic evaluation link copied to clipboard.", "success");
     setTimeout(() => setCopying(false), 2000);
   };
 
@@ -85,7 +115,9 @@ export const QuizResultsPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center gap-2 text-xs font-mono text-zinc-500">
           <span>DIAGNOSTIC RUN //</span>
-          <span className="text-zinc-900 dark:text-zinc-100 font-semibold">{attemptId}</span>
+          <span className="text-zinc-900 dark:text-zinc-100 font-semibold">
+            {attemptId}
+          </span>
           <span>•</span>
           <span>{result.quizTitle}</span>
         </div>
@@ -100,7 +132,7 @@ export const QuizResultsPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <Share2 className="w-3 h-3 text-zinc-400" />
-            <span>{copying ? 'Copied' : 'Share Report'}</span>
+            <span>{copying ? "Copied" : "Share Report"}</span>
           </button>
         </div>
       </div>
@@ -129,7 +161,9 @@ export const QuizResultsPage: React.FC = () => {
                 Interview Ready! Staff Assessment Passed
               </h1>
               <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                Demonstrated staff-level mastery across stampede mitigation, eviction latency, and partition healing. 1 gap flagged in write-back transactional consistency.
+                Demonstrated staff-level mastery across stampede mitigation,
+                eviction latency, and partition healing. 1 gap flagged in
+                write-back transactional consistency.
               </p>
             </div>
 
@@ -179,9 +213,12 @@ export const QuizResultsPage: React.FC = () => {
           {/* Action Deck Right */}
           <div className="lg:col-span-3 flex flex-col justify-between gap-3 p-4 rounded-md bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 h-full">
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 uppercase">Next Steps</span>
+              <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                Next Steps
+              </span>
               <p className="text-xs text-zinc-500 mt-0.5">
-                Continue to the next module in this track or retake to reach 100%.
+                Continue to the next module in this track or retake to reach
+                100%.
               </p>
             </div>
 
@@ -213,11 +250,19 @@ export const QuizResultsPage: React.FC = () => {
               Diagnostic Skill Competency Matrix
             </h2>
             <p className="text-xs text-zinc-500">
-              Topic-level subskill breakdown calibrating your accuracy vs senior staff baselines.
+              Topic-level subskill breakdown calibrating your accuracy vs senior
+              staff baselines.
             </p>
           </div>
           <div className="text-xs font-mono text-zinc-500">
-            Pass Bar: <span className="font-semibold text-zinc-900 dark:text-zinc-100">75%</span> • Your Score: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{result.scorePercent}%</span>
+            Pass Bar:{" "}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              75%
+            </span>{" "}
+            • Your Score:{" "}
+            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+              {result.scorePercent}%
+            </span>
           </div>
         </div>
 
@@ -226,36 +271,48 @@ export const QuizResultsPage: React.FC = () => {
             <div
               key={skill.name}
               className={`p-3.5 rounded-md border text-xs flex flex-col justify-between gap-3 ${
-                skill.status === 'Needs Review'
-                  ? 'border-amber-300 dark:border-amber-900/60 bg-amber-50/40 dark:bg-amber-950/20'
-                  : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40'
+                skill.status === "Needs Review"
+                  ? "border-amber-300 dark:border-amber-900/60 bg-amber-50/40 dark:bg-amber-950/20"
+                  : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40"
               }`}
             >
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
-                    {skill.status === 'Needs Review' && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                    {skill.status === "Needs Review" && (
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    )}
                     {skill.name}
                   </span>
                   <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
                     {skill.scorePercent}%
                   </span>
                 </div>
-                <p className="text-[11px] text-zinc-500 leading-snug">{skill.description}</p>
+                <p className="text-[11px] text-zinc-500 leading-snug">
+                  {skill.description}
+                </p>
               </div>
 
               <div className="space-y-1 pt-1">
                 <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      skill.status === 'Needs Review' ? 'bg-amber-500' : 'bg-emerald-500'
+                      skill.status === "Needs Review"
+                        ? "bg-amber-500"
+                        : "bg-emerald-500"
                     }`}
                     style={{ width: `${Math.max(skill.scorePercent, 8)}%` }}
                   />
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
                   <span>{skill.questionCountText}</span>
-                  <span className={skill.status === 'Needs Review' ? 'text-amber-600 dark:text-amber-400 font-semibold' : 'text-emerald-600 dark:text-emerald-400 font-semibold'}>
+                  <span
+                    className={
+                      skill.status === "Needs Review"
+                        ? "text-amber-600 dark:text-amber-400 font-semibold"
+                        : "text-emerald-600 dark:text-emerald-400 font-semibold"
+                    }
+                  >
                     {skill.status}
                   </span>
                 </div>
@@ -274,9 +331,13 @@ export const QuizResultsPage: React.FC = () => {
               Question Audit & Technical Explanations
             </h2>
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-emerald-600 dark:text-emerald-400">{result.correctCount} Correct</span>
+              <span className="text-emerald-600 dark:text-emerald-400">
+                {result.correctCount} Correct
+              </span>
               <span>•</span>
-              <span className="text-amber-600 dark:text-amber-400">{result.totalCount - result.correctCount} Flagged</span>
+              <span className="text-amber-600 dark:text-amber-400">
+                {result.totalCount - result.correctCount} Flagged
+              </span>
             </div>
           </div>
 
@@ -292,7 +353,8 @@ export const QuizResultsPage: React.FC = () => {
                     Question 01 • High Concurrency • 38s
                   </div>
                   <h3 className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
-                    Which eviction policy is optimal for mitigating Cache Stampede during heavy thundering-herd key expiration?
+                    Which eviction policy is optimal for mitigating Cache
+                    Stampede during heavy thundering-herd key expiration?
                   </h3>
                 </div>
               </div>
@@ -301,10 +363,14 @@ export const QuizResultsPage: React.FC = () => {
             <div className="p-3 rounded-md bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 text-xs text-emerald-900 dark:text-emerald-300">
               <div className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Your Answer: Probabilistic Early Expiration (XFetch algorithm)</span>
+                <span>
+                  Your Answer: Probabilistic Early Expiration (XFetch algorithm)
+                </span>
               </div>
               <p className="mt-1 text-[11px] text-emerald-800/80 dark:text-emerald-300/80 leading-relaxed font-sans">
-                By probabilistically recomputing keys in the background before hard TTL expiration using delta * beta * ln(rand()), stampedes are prevented without blocking read threads.
+                By probabilistically recomputing keys in the background before
+                hard TTL expiration using delta * beta * ln(rand()), stampedes
+                are prevented without blocking read threads.
               </p>
             </div>
           </div>
@@ -321,7 +387,8 @@ export const QuizResultsPage: React.FC = () => {
                     Question 03 • Data Consistency • 1m 04s • Gap Identified
                   </div>
                   <h3 className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
-                    Which caching write pattern ensures strong consistency for high-frequency banking ledgers without async lag?
+                    Which caching write pattern ensures strong consistency for
+                    high-frequency banking ledgers without async lag?
                   </h3>
                 </div>
               </div>
@@ -336,7 +403,8 @@ export const QuizResultsPage: React.FC = () => {
                   Write-Back (Write-Behind) Caching
                 </div>
                 <p className="text-[11px] text-zinc-500">
-                  Dirty in-memory pages risk data loss on sudden node crash before asynchronous batch flush to disk.
+                  Dirty in-memory pages risk data loss on sudden node crash
+                  before asynchronous batch flush to disk.
                 </p>
               </div>
 
@@ -348,7 +416,8 @@ export const QuizResultsPage: React.FC = () => {
                   Write-Through with 2PC Synchronous Commit
                 </div>
                 <p className="text-[11px] text-zinc-500">
-                  Guarantees synchronous persistence and strict serializability before acknowledging client transactions.
+                  Guarantees synchronous persistence and strict serializability
+                  before acknowledging client transactions.
                 </p>
               </div>
             </div>

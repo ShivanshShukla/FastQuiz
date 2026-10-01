@@ -1,6 +1,6 @@
 # FastQuiz — API Contract & Specifications
 
-*Living doc. Defines the REST API endpoints, schemas, authentication, and WebSocket communication across FastQuiz services.*
+_Living doc. Defines the REST API endpoints, schemas, authentication, and WebSocket communication across FastQuiz services._
 
 ---
 
@@ -26,6 +26,7 @@
 ## 2. Auth Service (`/auth`)
 
 ### 2.1 Register
+
 - **Endpoint**: `POST /auth/register`
 - **Request Body**:
   ```json
@@ -54,6 +55,7 @@
   ```
 
 ### 2.2 Login
+
 - **Endpoint**: `POST /auth/login`
 - **Request Body**:
   ```json
@@ -65,6 +67,7 @@
 - **Response**: `200 OK` (Same payload as Register)
 
 ### 2.3 Refresh Token
+
 - **Endpoint**: `POST /auth/refresh`
 - **Request Body**:
   ```json
@@ -75,6 +78,7 @@
 - **Response**: `200 OK` (New access token and refresh token)
 
 ### 2.4 Get Current User Profile
+
 - **Endpoint**: `GET /auth/me`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Response**: `200 OK`
@@ -92,6 +96,7 @@
 ## 3. Quiz Service (`/quiz`)
 
 ### 3.1 List Topics
+
 - **Endpoint**: `GET /topics`
 - **Response**: `200 OK`
   ```json
@@ -107,6 +112,7 @@
   ```
 
 ### 3.2 List Quizzes for Topic
+
 - **Endpoint**: `GET /quizzes?topic_id=<uuid>`
 - **Response**: `200 OK`
   ```json
@@ -124,6 +130,7 @@
   ```
 
 ### 3.3 Get Quiz Details & Questions (Taking Quiz)
+
 - **Endpoint**: `GET /quizzes/:id`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Response**: `200 OK`
@@ -143,9 +150,10 @@
     ]
   }
   ```
-  *(Note: `correct_option_index` and `explanation` are redacted during quiz taking)*
+  _(Note: `correct_option_index` and `explanation` are redacted during quiz taking)_
 
 ### 3.4 Start Quiz Attempt
+
 - **Endpoint**: `POST /quizzes/:id/start`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Response**: `201 Created`
@@ -160,6 +168,7 @@
   ```
 
 ### 3.5 Submit Quiz Attempt
+
 - **Endpoint**: `POST /attempts/:id/submit`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Request Body**:
@@ -190,12 +199,14 @@
   ```
 
 ### 3.6 WebSocket Timer Connection
+
 - **Endpoint**: `ws://localhost:8002/ws/attempts/:id/timer?token=<access_token>`
 - **Server Pushes**:
   - `{"type": "tick", "remaining_seconds": 845}`
   - `{"type": "expired", "message": "Time is up. Attempt auto-submitted."}`
 
 ### 3.7 Admin Questions Review Queue
+
 - **Endpoint**: `GET /admin/questions?status=pending`
 - **Headers**: `Authorization: Bearer <admin_token>`
 - **Response**: `200 OK` list of questions pending moderation.
@@ -213,6 +224,7 @@
 ## 4. Payments Service (`/payments`)
 
 ### 4.1 Create Quiz Checkout Session
+
 - **Endpoint**: `POST /purchases/quiz/:quiz_id`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Response**: `201 Created`
@@ -226,11 +238,13 @@
   ```
 
 ### 4.2 Create Bundle Checkout Session
+
 - **Endpoint**: `POST /purchases/bundle/:bundle_id`
 - **Headers**: `Authorization: Bearer <access_token>`
 - **Response**: `201 Created` (Returns checkout session for bundle)
 
 ### 4.3 Webhook Handling
+
 - **Endpoint**: `POST /webhooks/payment`
 - **Headers**: `X-Webhook-Signature: <signature>`
 - **Response**: `200 OK` `{"received": true}`
@@ -240,12 +254,12 @@
 
 ## 5. Error Code Reference
 
-| Error Code | HTTP Status | Description |
-|---|---|---|
-| `UNAUTHORIZED` | 401 | Missing or invalid authentication token |
-| `FORBIDDEN` | 403 | User does not have access or has not purchased quiz |
-| `NOT_FOUND` | 404 | Topic, Quiz, Question, or Attempt not found |
-| `FREE_ATTEMPT_EXHAUSTED` | 400 | Free attempt for this topic has already been used |
-| `ATTEMPT_EXPIRED` | 400 | Quiz time limit has expired |
-| `PAYMENT_FAILED` | 400 | Payment could not be processed |
-| `INTERNAL_SERVER_ERROR` | 500 | Unhandled server error |
+| Error Code               | HTTP Status | Description                                         |
+| ------------------------ | ----------- | --------------------------------------------------- |
+| `UNAUTHORIZED`           | 401         | Missing or invalid authentication token             |
+| `FORBIDDEN`              | 403         | User does not have access or has not purchased quiz |
+| `NOT_FOUND`              | 404         | Topic, Quiz, Question, or Attempt not found         |
+| `FREE_ATTEMPT_EXHAUSTED` | 400         | Free attempt for this topic has already been used   |
+| `ATTEMPT_EXPIRED`        | 400         | Quiz time limit has expired                         |
+| `PAYMENT_FAILED`         | 400         | Payment could not be processed                      |
+| `INTERNAL_SERVER_ERROR`  | 500         | Unhandled server error                              |

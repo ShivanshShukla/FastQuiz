@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { isMockEnabled } from '../config/env';
+import React, { useState } from "react";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { isMockEnabled } from "../config/env";
 import {
   LayoutDashboard,
   Users,
@@ -18,7 +18,7 @@ import {
   Receipt,
   Sun,
   Moon,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -29,24 +29,32 @@ export const AdminLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   // Role permissions
-  const role = user?.role || 'reviewer';
-  const canViewUsers = role !== 'reviewer';
-  const canViewPurchases = role === 'super_admin' || role === 'admin' || role === 'finance';
+  const role = user?.role || "reviewer";
+  const canViewUsers = role !== "reviewer";
+  const canViewPurchases =
+    role === "super_admin" || role === "admin" || role === "finance";
 
   // Dynamic breadcrumb label
   const getBreadcrumb = () => {
-    if (location.pathname === '/') {
-      return <span className="font-medium text-zinc-900 dark:text-zinc-100">Executive & Ops Dashboard</span>;
+    if (location.pathname === "/") {
+      return (
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          Executive & Ops Dashboard
+        </span>
+      );
     }
-    if (location.pathname.startsWith('/users/')) {
-      const qid = location.pathname.split('/')[2];
+    if (location.pathname.startsWith("/users/")) {
+      const qid = location.pathname.split("/")[2];
       return (
         <>
-          <NavLink to="/users" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <NavLink
+            to="/users"
+            className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
             Learner Directory
           </NavLink>
           <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
@@ -56,14 +64,21 @@ export const AdminLayout: React.FC = () => {
         </>
       );
     }
-    if (location.pathname === '/users') {
-      return <span className="font-medium text-zinc-900 dark:text-zinc-100">Learner Directory</span>;
+    if (location.pathname === "/users") {
+      return (
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          Learner Directory
+        </span>
+      );
     }
-    if (location.pathname.startsWith('/review/')) {
-      const qid = location.pathname.split('/')[2];
+    if (location.pathname.startsWith("/review/")) {
+      const qid = location.pathname.split("/")[2];
       return (
         <>
-          <NavLink to="/review" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <NavLink
+            to="/review"
+            className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          >
             Review Queue
           </NavLink>
           <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
@@ -73,28 +88,40 @@ export const AdminLayout: React.FC = () => {
         </>
       );
     }
-    if (location.pathname === '/content') {
-      return <span className="font-medium text-zinc-900 dark:text-zinc-100">Curated Content</span>;
+    if (location.pathname === "/content") {
+      return (
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          Curated Content
+        </span>
+      );
     }
-    if (location.pathname === '/purchases') {
-      return <span className="font-medium text-zinc-900 dark:text-zinc-100">Purchases & Revenue</span>;
+    if (location.pathname === "/purchases") {
+      return (
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          Purchases & Revenue
+        </span>
+      );
     }
-    return <span className="font-medium text-zinc-900 dark:text-zinc-100">Admin Console</span>;
+    return (
+      <span className="font-medium text-zinc-900 dark:text-zinc-100">
+        Admin Console
+      </span>
+    );
   };
 
   const getRoleDisplayName = (r: string) => {
     switch (r) {
-      case 'super_admin':
-        return 'Super Admin';
-      case 'finance':
-        return 'Finance Admin';
-      case 'support':
-        return 'Support Specialist';
-      case 'admin':
-        return 'Senior Administrator';
-      case 'reviewer':
+      case "super_admin":
+        return "Super Admin";
+      case "finance":
+        return "Finance Admin";
+      case "support":
+        return "Support Specialist";
+      case "admin":
+        return "Senior Administrator";
+      case "reviewer":
       default:
-        return 'Content Reviewer';
+        return "Content Reviewer";
     }
   };
 
@@ -108,7 +135,11 @@ export const AdminLayout: React.FC = () => {
           {/* Logo & Brand Header */}
           <div className="h-14 flex items-center gap-2.5 px-4 border-b border-zinc-200 dark:border-zinc-800">
             <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center shadow-xs shrink-0">
-              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                className="w-4 h-4 text-white"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M13 2L3 14h8l-2 8 10-12h-8l2-8z" />
               </svg>
             </div>
@@ -147,8 +178,8 @@ export const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] transition-colors ${
                       isActive
-                        ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200'
+                        ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200"
                     }`
                   }
                 >
@@ -169,8 +200,8 @@ export const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center justify-between px-2.5 py-2 rounded-lg text-[13.5px] transition-colors ${
                       isActive
-                        ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200'
+                        ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200"
                     }`
                   }
                 >
@@ -198,8 +229,8 @@ export const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] transition-colors ${
                       isActive
-                        ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200'
+                        ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600"
+                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200"
                     }`
                   }
                 >
@@ -221,8 +252,8 @@ export const AdminLayout: React.FC = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] transition-colors ${
                         isActive
-                          ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200'
+                          ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200"
                       }`
                     }
                   >
@@ -237,8 +268,8 @@ export const AdminLayout: React.FC = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13.5px] transition-colors ${
                         isActive
-                          ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200'
+                          ? "bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-950 dark:text-indigo-200 font-semibold border-l-2 border-indigo-600"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-200"
                       }`
                     }
                   >
@@ -261,12 +292,12 @@ export const AdminLayout: React.FC = () => {
                 className="w-8 h-8 rounded-full object-cover border border-zinc-200 dark:border-zinc-700"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop';
+                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop";
                 }}
               />
               <div className="flex flex-col text-left overflow-hidden">
                 <span className="text-[12.5px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight truncate">
-                  {user?.name || 'Administrator'}
+                  {user?.name || "Administrator"}
                 </span>
                 <span className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
                   {getRoleDisplayName(role)}
@@ -303,7 +334,9 @@ export const AdminLayout: React.FC = () => {
         <header className="fixed top-0 left-60 right-0 h-14 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800 z-40 px-6 flex items-center justify-between transition-colors">
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            <span className="text-zinc-400 dark:text-zinc-500">FastQuiz Admin</span>
+            <span className="text-zinc-400 dark:text-zinc-500">
+              FastQuiz Admin
+            </span>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
             {getBreadcrumb()}
           </div>
@@ -315,7 +348,10 @@ export const AdminLayout: React.FC = () => {
               <div className="hidden sm:flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-800/80 px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700 text-xs">
                 <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span className="text-zinc-700 dark:text-zinc-300">
-                  <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">18</strong> of 42 reviewed today
+                  <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
+                    18
+                  </strong>{" "}
+                  of 42 reviewed today
                 </span>
               </div>
             )}
@@ -341,9 +377,13 @@ export const AdminLayout: React.FC = () => {
               aria-label="Toggle theme"
               className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
               type="button"
-              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={
+                theme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
             >
-              {theme === 'dark' ? (
+              {theme === "dark" ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
                 <Moon className="w-4 h-4 text-zinc-600" />
@@ -377,7 +417,9 @@ export const AdminLayout: React.FC = () => {
                 <span className="p-1 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
                   <HelpCircle className="w-4 h-4" />
                 </span>
-                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">Keyboard Shortcuts</h3>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
+                  Keyboard Shortcuts
+                </h3>
               </div>
               <button
                 onClick={() => setShowShortcutsModal(false)}

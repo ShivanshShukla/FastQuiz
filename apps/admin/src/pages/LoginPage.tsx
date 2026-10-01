@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { Lock, Mail, AlertCircle, ArrowRight, ShieldCheck, Terminal, ShieldAlert } from 'lucide-react';
-import { TotpChallengeModal } from '../components/TotpChallengeModal';
-import { isMockEnabled } from '../config/env';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import {
+  Lock,
+  Mail,
+  AlertCircle,
+  ArrowRight,
+  ShieldCheck,
+  Terminal,
+  ShieldAlert,
+} from "lucide-react";
+import { TotpChallengeModal } from "../components/TotpChallengeModal";
+import { isMockEnabled } from "../config/env";
 
 export const LoginPage: React.FC = () => {
   const mockActive = isMockEnabled();
-  const [email, setEmail] = useState(mockActive ? 'admin@fastquiz.dev' : '');
-  const [password, setPassword] = useState(mockActive ? 'AdminSecret123!' : '');
+  const [email, setEmail] = useState(mockActive ? "admin@fastquiz.dev" : "");
+  const [password, setPassword] = useState(mockActive ? "AdminSecret123!" : "");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totpLoading, setTotpLoading] = useState(false);
@@ -30,7 +38,9 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const destination = (location.state as { from?: { pathname: string } })?.from?.pathname || '/review';
+  const destination =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ||
+    "/review";
 
   // If already authenticated and done initializing, redirect directly to dashboard
   React.useEffect(() => {
@@ -44,7 +54,7 @@ export const LoginPage: React.FC = () => {
     setErrorMsg(null);
 
     if (password.length < 12) {
-      setErrorMsg('Password must be at least 12 characters long.');
+      setErrorMsg("Password must be at least 12 characters long.");
       return;
     }
 
@@ -53,11 +63,14 @@ export const LoginPage: React.FC = () => {
     try {
       const res = await login(email, password);
       if (!res.requiresTotp) {
-        success('Logged in successfully as Administrator');
+        success("Logged in successfully as Administrator");
         navigate(destination, { replace: true });
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Invalid credentials or connection error.';
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Invalid credentials or connection error.";
       setErrorMsg(msg);
     } finally {
       setIsSubmitting(false);
@@ -69,10 +82,10 @@ export const LoginPage: React.FC = () => {
     setTotpLoading(true);
     try {
       await verifyTotp(code);
-      success('Multi-factor authentication verified.');
+      success("Multi-factor authentication verified.");
       navigate(destination, { replace: true });
     } catch (err: unknown) {
-      setTotpError(err instanceof Error ? err.message : 'Verification failed.');
+      setTotpError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
       setTotpLoading(false);
     }
@@ -83,10 +96,12 @@ export const LoginPage: React.FC = () => {
     setTotpLoading(true);
     try {
       await confirmTotp(code);
-      success('2FA enrolled and authenticated successfully.');
+      success("2FA enrolled and authenticated successfully.");
       navigate(destination, { replace: true });
     } catch (err: unknown) {
-      setTotpError(err instanceof Error ? err.message : 'Enrollment confirmation failed.');
+      setTotpError(
+        err instanceof Error ? err.message : "Enrollment confirmation failed.",
+      );
     } finally {
       setTotpLoading(false);
     }
@@ -94,23 +109,24 @@ export const LoginPage: React.FC = () => {
 
   const handleDemoAdmin = () => {
     loginDemoAdmin();
-    success('Logged in as Demo Admin');
+    success("Logged in as Demo Admin");
     navigate(destination, { replace: true });
   };
 
   const handleDemoUser = () => {
     loginDemoUser();
-    navigate('/review');
+    navigate("/review");
   };
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-zinc-900 flex flex-col items-center justify-center p-4 relative font-sans">
       {/* Subtle background precision grid pattern */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none opacity-40"
         style={{
-          backgroundImage: 'radial-gradient(circle, #e4e4e7 1px, transparent 1px)',
-          backgroundSize: '24px 24px'
+          backgroundImage:
+            "radial-gradient(circle, #e4e4e7 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
         }}
       />
 
@@ -128,7 +144,9 @@ export const LoginPage: React.FC = () => {
                 <h1 className="text-base font-bold text-zinc-950 tracking-tight leading-none">
                   FastQuiz Admin
                 </h1>
-                <span className="font-mono text-[10px] text-zinc-400">v2.4.0 (Enterprise)</span>
+                <span className="font-mono text-[10px] text-zinc-400">
+                  v2.4.0 (Enterprise)
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
@@ -146,14 +164,18 @@ export const LoginPage: React.FC = () => {
 
           <div className="pt-2 border-t border-zinc-100">
             <p className="text-xs text-zinc-500 leading-normal">
-              Content Review &amp; Editorial Workbench console. Authentication restricted to verified platform reviewers.
+              Content Review &amp; Editorial Workbench console. Authentication
+              restricted to verified platform reviewers.
             </p>
           </div>
         </div>
 
         {/* Error Alert */}
         {errorMsg && (
-          <div role="alert" className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
+          <div
+            role="alert"
+            className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5"
+          >
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
             <span className="font-medium">{errorMsg}</span>
           </div>
@@ -162,7 +184,10 @@ export const LoginPage: React.FC = () => {
         {/* Authentication Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1.5" htmlFor="email-input">
+            <label
+              className="block text-xs font-semibold text-zinc-700 mb-1.5"
+              htmlFor="email-input"
+            >
               Reviewer Work Email
             </label>
             <div className="relative">
@@ -181,10 +206,15 @@ export const LoginPage: React.FC = () => {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-zinc-700" htmlFor="password-input">
+              <label
+                className="text-xs font-semibold text-zinc-700"
+                htmlFor="password-input"
+              >
                 Hardware / Password Key
               </label>
-              <span className="text-[11px] text-zinc-400 font-mono">Min 12 chars</span>
+              <span className="text-[11px] text-zinc-400 font-mono">
+                Min 12 chars
+              </span>
             </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
@@ -206,8 +236,12 @@ export const LoginPage: React.FC = () => {
             disabled={isSubmitting}
             className="w-full mt-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <span>{isSubmitting ? 'Verifying Credentials...' : 'Sign in to Console'}</span>
-            <kbd className="font-mono text-[10px] bg-white/20 px-1 py-0.2 rounded text-white">↵</kbd>
+            <span>
+              {isSubmitting ? "Verifying Credentials..." : "Sign in to Console"}
+            </span>
+            <kbd className="font-mono text-[10px] bg-white/20 px-1 py-0.2 rounded text-white">
+              ↵
+            </kbd>
             <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
           </button>
         </form>
@@ -216,7 +250,9 @@ export const LoginPage: React.FC = () => {
         <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-lg flex items-start gap-2.5">
           <ShieldAlert className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
           <p className="text-[11px] text-zinc-500 leading-relaxed">
-            Separate admin identity domain. Public registration is disabled. Token audience restricted to <code className="font-mono text-zinc-700">fastquiz-admin</code>.
+            Separate admin identity domain. Public registration is disabled.
+            Token audience restricted to{" "}
+            <code className="font-mono text-zinc-700">fastquiz-admin</code>.
           </p>
         </div>
 
@@ -268,7 +304,8 @@ export const LoginPage: React.FC = () => {
 
       {/* Audit Footnote */}
       <footer className="relative mt-6 text-center text-[11px] text-zinc-400 font-mono">
-        Strict audit logging enabled &bull; All review actions are cryptographic signed
+        Strict audit logging enabled &bull; All review actions are cryptographic
+        signed
       </footer>
     </div>
   );

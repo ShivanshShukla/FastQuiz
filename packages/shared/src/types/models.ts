@@ -6,10 +6,11 @@
 export type UUID = string;
 export type ISODateString = string;
 
-export type UserRole = 'admin' | 'user';
-export type AdminRole = 'super_admin' | 'admin' | 'finance' | 'reviewer' | 'support';
-export type UserStatus = 'active' | 'suspended';
-export type UserSource = 'email' | 'google';
+export type UserRole = "admin" | "user";
+export type AdminRole =
+  "super_admin" | "admin" | "finance" | "reviewer" | "support";
+export type UserStatus = "active" | "suspended";
+export type UserSource = "email" | "google";
 
 export interface User {
   id: UUID;
@@ -50,8 +51,8 @@ export interface Quiz {
   created_at: ISODateString;
 }
 
-export type QuestionSourceType = 'self_authored' | 'community' | 'ai_generated';
-export type ReviewStatus = 'pending' | 'approved' | 'rejected';
+export type QuestionSourceType = "self_authored" | "community" | "ai_generated";
+export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export interface Question {
   id: UUID;
@@ -107,7 +108,7 @@ export interface Attempt {
   completed_at?: ISODateString | null;
 }
 
-export type PurchaseStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PurchaseStatus = "pending" | "completed" | "failed" | "refunded";
 
 export interface Purchase {
   id: UUID;

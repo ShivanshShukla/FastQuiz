@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -8,14 +8,14 @@ import {
   BarChart2,
   Terminal,
   ExternalLink,
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { webMockStore } from '../services/webMockStore';
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { webMockStore } from "../services/webMockStore";
 
 export const DashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const topics = webMockStore.getTopics();
-  const firstName = user?.name ? user.name.split(' ')[0] : 'Engineer';
+  const firstName = user?.name ? user.name.split(" ")[0] : "Engineer";
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-left">
@@ -27,10 +27,13 @@ export const DashboardPage: React.FC = () => {
             <span>FASTQUIZ ENVIRONMENT • PRO PREP</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
-            {isAuthenticated ? `Welcome back, ${firstName}` : 'Technical Assessment Curriculum'}
+            {isAuthenticated
+              ? `Welcome back, ${firstName}`
+              : "Technical Assessment Curriculum"}
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl">
-            Precision engineering diagnostics and system design problem sets designed for senior and staff engineering interviews.
+            Precision engineering diagnostics and system design problem sets
+            designed for senior and staff engineering interviews.
           </p>
         </div>
 
@@ -55,10 +58,16 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="mt-3">
             <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
-              3 <span className="text-xs font-normal text-zinc-500 font-sans">/ 12 modules</span>
+              3{" "}
+              <span className="text-xs font-normal text-zinc-500 font-sans">
+                / 12 modules
+              </span>
             </div>
             <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div className="bg-emerald-500 h-full rounded-full" style={{ width: '25%' }} />
+              <div
+                className="bg-emerald-500 h-full rounded-full"
+                style={{ width: "25%" }}
+              />
             </div>
           </div>
         </div>
@@ -87,7 +96,10 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="mt-3">
             <div className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 font-mono">
-              4.8 <span className="text-xs font-normal text-zinc-500 font-sans">hours</span>
+              4.8{" "}
+              <span className="text-xs font-normal text-zinc-500 font-sans">
+                hours
+              </span>
             </div>
             <div className="text-xs text-zinc-500 mt-1 font-mono">
               Across 3 tracks
@@ -125,7 +137,8 @@ export const DashboardPage: React.FC = () => {
             Distributed Caching & Invalidation Dilemmas
           </h2>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Cache-aside vs write-through patterns, Redis cluster failover, and probabilistic cache stampede prevention.
+            Cache-aside vs write-through patterns, Redis cluster failover, and
+            probabilistic cache stampede prevention.
           </p>
         </div>
 
@@ -146,7 +159,8 @@ export const DashboardPage: React.FC = () => {
               Curriculum Tracks
             </h2>
             <p className="text-xs text-zinc-500">
-              Structured modules with verified technical answer keys and code walkthroughs.
+              Structured modules with verified technical answer keys and code
+              walkthroughs.
             </p>
           </div>
           <Link
@@ -209,7 +223,8 @@ export const DashboardPage: React.FC = () => {
               Recent Assessment Runs
             </h2>
             <p className="text-xs text-zinc-500">
-              Verified test runs with question-level breakdown and diagnostic matrices.
+              Verified test runs with question-level breakdown and diagnostic
+              matrices.
             </p>
           </div>
           <Link

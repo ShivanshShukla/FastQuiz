@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type {
   AdminUserDetail,
   AdminUserQuestionBreakdown,
   AdminUserAttemptItem,
-} from '@fastquiz/shared';
+} from "@fastquiz/shared";
 import {
   ArrowLeft,
   Eye,
@@ -23,38 +23,47 @@ import {
   CheckCircle2,
   XCircle,
   MessageSquare,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const UserDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentAdmin, client } = useAuth();
-  const role = currentAdmin?.role || 'reviewer';
-  const isSupport = role === 'support';
+  const role = currentAdmin?.role || "reviewer";
+  const isSupport = role === "support";
 
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<AdminUserDetail | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'attempts' | 'purchases' | 'free_grants' | 'activity' | 'notes'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "attempts" | "purchases" | "free_grants" | "activity" | "notes"
+  >("overview");
   const [revealedEmail, setRevealedEmail] = useState<string | null>(null);
 
   // Action Modals State
   const [suspendModalOpen, setSuspendModalOpen] = useState<boolean>(false);
-  const [suspendReason, setSuspendReason] = useState<string>('');
+  const [suspendReason, setSuspendReason] = useState<string>("");
   const [grantQuizModalOpen, setGrantQuizModalOpen] = useState<boolean>(false);
-  const [selectedQuizToGrant, setSelectedQuizToGrant] = useState<string>('quiz-sliding-window');
-  const [grantReason, setGrantReason] = useState<string>('');
-  const [resetGrantModalOpen, setResetGrantModalOpen] = useState<boolean>(false);
-  const [selectedTopicToReset, setSelectedTopicToReset] = useState<string>('topic-dsa-1');
-  const [resetReason, setResetReason] = useState<string>('');
+  const [selectedQuizToGrant, setSelectedQuizToGrant] = useState<string>(
+    "quiz-sliding-window",
+  );
+  const [grantReason, setGrantReason] = useState<string>("");
+  const [resetGrantModalOpen, setResetGrantModalOpen] =
+    useState<boolean>(false);
+  const [selectedTopicToReset, setSelectedTopicToReset] =
+    useState<string>("topic-dsa-1");
+  const [resetReason, setResetReason] = useState<string>("");
 
   // Per-Question Breakdown Modal State
   const [breakdownModalOpen, setBreakdownModalOpen] = useState<boolean>(false);
-  const [selectedAttempt, setSelectedAttempt] = useState<AdminUserAttemptItem | null>(null);
-  const [breakdownQuestions, setBreakdownQuestions] = useState<AdminUserQuestionBreakdown[]>([]);
+  const [selectedAttempt, setSelectedAttempt] =
+    useState<AdminUserAttemptItem | null>(null);
+  const [breakdownQuestions, setBreakdownQuestions] = useState<
+    AdminUserQuestionBreakdown[]
+  >([]);
   const [loadingBreakdown, setLoadingBreakdown] = useState<boolean>(false);
 
   // New Note State
-  const [newNoteText, setNewNoteText] = useState<string>('');
+  const [newNoteText, setNewNoteText] = useState<string>("");
   const [submittingNote, setSubmittingNote] = useState<boolean>(false);
 
   const loadUserDetail = useCallback(async () => {
@@ -64,7 +73,7 @@ export const UserDetailPage: React.FC = () => {
       const data = await client.adminUsers.getDetail(id);
       setUser(data);
     } catch (err) {
-      console.error('Failed to load user detail:', err);
+      console.error("Failed to load user detail:", err);
     } finally {
       setLoading(false);
     }
@@ -76,12 +85,13 @@ export const UserDetailPage: React.FC = () => {
 
   // Support Masked Email
   const getDisplayEmail = () => {
-    if (!user) return '';
+    if (!user) return "";
     if (!isSupport || revealedEmail) return revealedEmail || user.email;
-    const parts = user.email.split('@');
+    const parts = user.email.split("@");
     if (parts.length !== 2) return user.email;
     const prefix = parts[0];
-    const maskedPrefix = prefix.length > 2 ? `${prefix.substring(0, 2)}***` : '***';
+    const maskedPrefix =
+      prefix.length > 2 ? `${prefix.substring(0, 2)}***` : "***";
     return `${maskedPrefix}@${parts[1]}`;
   };
 
@@ -91,7 +101,7 @@ export const UserDetailPage: React.FC = () => {
       const res = await client.adminUsers.revealEmail(id);
       setRevealedEmail(res.email);
     } catch (err) {
-      console.error('Failed to reveal email:', err);
+      console.error("Failed to reveal email:", err);
     }
   };
 
@@ -99,16 +109,16 @@ export const UserDetailPage: React.FC = () => {
   const handleToggleSuspend = async () => {
     if (!id || !user || !suspendReason.trim()) return;
     try {
-      if (user.status === 'active') {
+      if (user.status === "active") {
         await client.adminUsers.suspend(id, { reason: suspendReason.trim() });
       } else {
         await client.adminUsers.unsuspend(id, { reason: suspendReason.trim() });
       }
       setSuspendModalOpen(false);
-      setSuspendReason('');
+      setSuspendReason("");
       await loadUserDetail();
     } catch (err) {
-      console.error('Failed to toggle suspend:', err);
+      console.error("Failed to toggle suspend:", err);
     }
   };
 
@@ -116,12 +126,15 @@ export const UserDetailPage: React.FC = () => {
   const handleGrantQuiz = async () => {
     if (!id || !grantReason.trim()) return;
     try {
-      await client.adminUsers.grantQuiz(id, { quiz_id: selectedQuizToGrant, reason: grantReason.trim() });
+      await client.adminUsers.grantQuiz(id, {
+        quiz_id: selectedQuizToGrant,
+        reason: grantReason.trim(),
+      });
       setGrantQuizModalOpen(false);
-      setGrantReason('');
+      setGrantReason("");
       await loadUserDetail();
     } catch (err) {
-      console.error('Failed to grant quiz:', err);
+      console.error("Failed to grant quiz:", err);
     }
   };
 
@@ -129,12 +142,15 @@ export const UserDetailPage: React.FC = () => {
   const handleResetFreeGrant = async () => {
     if (!id || !resetReason.trim()) return;
     try {
-      await client.adminUsers.resetFreeGrant(id, { topic_id: selectedTopicToReset, reason: resetReason.trim() });
+      await client.adminUsers.resetFreeGrant(id, {
+        topic_id: selectedTopicToReset,
+        reason: resetReason.trim(),
+      });
       setResetGrantModalOpen(false);
-      setResetReason('');
+      setResetReason("");
       await loadUserDetail();
     } catch (err) {
-      console.error('Failed to reset grant:', err);
+      console.error("Failed to reset grant:", err);
     }
   };
 
@@ -145,11 +161,14 @@ export const UserDetailPage: React.FC = () => {
     setLoadingBreakdown(true);
     try {
       if (id) {
-        const questions = await client.adminUsers.getQuestionBreakdown(id, attempt.id);
+        const questions = await client.adminUsers.getQuestionBreakdown(
+          id,
+          attempt.id,
+        );
         setBreakdownQuestions(questions);
       }
     } catch (err) {
-      console.error('Failed to load breakdown:', err);
+      console.error("Failed to load breakdown:", err);
     } finally {
       setLoadingBreakdown(false);
     }
@@ -162,10 +181,10 @@ export const UserDetailPage: React.FC = () => {
     setSubmittingNote(true);
     try {
       await client.adminUsers.addNote(id, { text: newNoteText.trim() });
-      setNewNoteText('');
+      setNewNoteText("");
       await loadUserDetail();
     } catch (err) {
-      console.error('Failed to add note:', err);
+      console.error("Failed to add note:", err);
     } finally {
       setSubmittingNote(false);
     }
@@ -185,9 +204,11 @@ export const UserDetailPage: React.FC = () => {
     return (
       <div className="p-12 text-center space-y-4">
         <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Learner Not Found</h2>
+        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          Learner Not Found
+        </h2>
         <button
-          onClick={() => navigate('/users')}
+          onClick={() => navigate("/users")}
           className="px-4 py-2 text-xs font-medium text-white bg-indigo-600 rounded-lg"
         >
           Return to Learner Directory
@@ -200,7 +221,7 @@ export const UserDetailPage: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       {/* Top Back Nav */}
       <button
-        onClick={() => navigate('/users')}
+        onClick={() => navigate("/users")}
         className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
@@ -214,18 +235,18 @@ export const UserDetailPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white font-bold text-xl flex items-center justify-center shadow-xs">
-              {user.name?.charAt(0) || 'U'}
+              {user.name?.charAt(0) || "U"}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
                 <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-                  {user.name || 'Learner'}
+                  {user.name || "Learner"}
                 </h1>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide ${
-                    user.status === 'active'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                      : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                    user.status === "active"
+                      ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                      : "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
                   }`}
                 >
                   {user.status.toUpperCase()}
@@ -249,11 +270,20 @@ export const UserDetailPage: React.FC = () => {
                   )}
                 </div>
                 <span>•</span>
-                <span className="font-mono text-[11px] text-zinc-400">ID: {user.id}</span>
+                <span className="font-mono text-[11px] text-zinc-400">
+                  ID: {user.id}
+                </span>
                 <span>•</span>
-                <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
+                <span>
+                  Joined {new Date(user.created_at).toLocaleDateString()}
+                </span>
                 <span>•</span>
-                <span>Last active {user.last_seen_at ? new Date(user.last_seen_at).toLocaleDateString() : 'Never'}</span>
+                <span>
+                  Last active{" "}
+                  {user.last_seen_at
+                    ? new Date(user.last_seen_at).toLocaleDateString()
+                    : "Never"}
+                </span>
               </div>
             </div>
           </div>
@@ -264,12 +294,12 @@ export const UserDetailPage: React.FC = () => {
             <button
               onClick={() => setSuspendModalOpen(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition ${
-                user.status === 'active'
-                  ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100'
-                  : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
+                user.status === "active"
+                  ? "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100"
+                  : "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100"
               }`}
             >
-              {user.status === 'active' ? (
+              {user.status === "active" ? (
                 <>
                   <Ban className="w-3.5 h-3.5" />
                   <span>Suspend Learner</span>
@@ -304,24 +334,46 @@ export const UserDetailPage: React.FC = () => {
 
         {/* 6 Tabs Navigation */}
         <div className="flex items-center gap-1 border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto text-xs font-medium">
-          {[
-            { key: 'overview', label: 'Overview', icon: BookOpen },
-            { key: 'attempts', label: `Attempts (${user.attempts.length})`, icon: Award },
-            { key: 'purchases', label: `Purchases (${user.purchases.length})`, icon: DollarSign },
-            { key: 'free_grants', label: `Free Grants (${user.free_grants.length})`, icon: Gift },
-            { key: 'activity', label: `Activity (${user.activity.length})`, icon: Clock },
-            { key: 'notes', label: `Admin Notes (${user.notes.length})`, icon: MessageSquare },
-          ].map((tab) => {
+          {(
+            [
+              { key: "overview", label: "Overview", icon: BookOpen },
+              {
+                key: "attempts",
+                label: `Attempts (${user.attempts.length})`,
+                icon: Award,
+              },
+              {
+                key: "purchases",
+                label: `Purchases (${user.purchases.length})`,
+                icon: DollarSign,
+              },
+              {
+                key: "free_grants",
+                label: `Free Grants (${user.free_grants.length})`,
+                icon: Gift,
+              },
+              {
+                key: "activity",
+                label: `Activity (${user.activity.length})`,
+                icon: Clock,
+              },
+              {
+                key: "notes",
+                label: `Admin Notes (${user.notes.length})`,
+                icon: MessageSquare,
+              },
+            ] as const
+          ).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
             return (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
+                onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-medium transition whitespace-nowrap ${
                   isActive
-                    ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-semibold'
-                    : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 font-semibold"
+                    : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -335,40 +387,50 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 1: Overview                                                           */}
       {/* ========================================================================= */}
-      {activeTab === 'overview' && (
+      {activeTab === "overview" && (
         <div className="space-y-6">
           {/* Quick Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
             <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Total Attempts</span>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+                Total Attempts
+              </span>
               <span className="text-xl font-bold text-zinc-900 dark:text-zinc-100 font-mono mt-1 block">
                 {user.attempts_count}
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Average Score</span>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+                Average Score
+              </span>
               <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400 font-mono mt-1 block">
                 {user.avg_score}%
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Purchased Quizzes</span>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+                Purchased Quizzes
+              </span>
               <span className="text-xl font-bold text-zinc-900 dark:text-zinc-100 font-mono mt-1 block">
                 {user.quizzes_purchased}
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Lifetime Spent</span>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+                Lifetime Spent
+              </span>
               <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-1 block">
                 ${user.total_spent.toFixed(2)}
               </span>
             </div>
 
             <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Daily Streak</span>
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+                Daily Streak
+              </span>
               <span className="text-xl font-bold text-amber-500 font-mono mt-1 block">
                 {user.streak_days} days 🔥
               </span>
@@ -382,7 +444,10 @@ export const UserDetailPage: React.FC = () => {
             </h3>
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {user.activity.map((act) => (
-                <div key={act.id} className="py-2.5 flex items-start justify-between text-xs">
+                <div
+                  key={act.id}
+                  className="py-2.5 flex items-start justify-between text-xs"
+                >
                   <div>
                     <span className="font-semibold text-zinc-900 dark:text-zinc-100 block">
                       {act.title}
@@ -404,7 +469,7 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 2: Attempts                                                           */}
       {/* ========================================================================= */}
-      {activeTab === 'attempts' && (
+      {activeTab === "attempts" && (
         <div className="rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden">
           <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
             <div>
@@ -412,7 +477,8 @@ export const UserDetailPage: React.FC = () => {
                 Completed Quiz Attempts
               </h3>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                Click any row to inspect question-by-question responses, mistakes, and explanations.
+                Click any row to inspect question-by-question responses,
+                mistakes, and explanations.
               </p>
             </div>
           </div>
@@ -442,7 +508,9 @@ export const UserDetailPage: React.FC = () => {
                   >
                     {att.quiz_title}
                   </td>
-                  <td className="py-3 px-4 text-zinc-500 dark:text-zinc-400">{att.topic_name}</td>
+                  <td className="py-3 px-4 text-zinc-500 dark:text-zinc-400">
+                    {att.topic_name}
+                  </td>
                   <td className="py-3 px-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">
                     {att.score} / {att.total_questions}
                   </td>
@@ -450,11 +518,11 @@ export const UserDetailPage: React.FC = () => {
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         att.is_free_attempt
-                          ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
-                          : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
+                          ? "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400"
+                          : "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400"
                       }`}
                     >
-                      {att.is_free_attempt ? 'Free Grant' : 'Paid Attempt'}
+                      {att.is_free_attempt ? "Free Grant" : "Paid Attempt"}
                     </span>
                   </td>
                   <td className="py-3 px-4">
@@ -467,7 +535,9 @@ export const UserDetailPage: React.FC = () => {
                     )}
                   </td>
                   <td className="py-3 px-4 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
-                    {att.completed_at ? new Date(att.completed_at).toLocaleDateString() : 'In Progress'}
+                    {att.completed_at
+                      ? new Date(att.completed_at).toLocaleDateString()
+                      : "In Progress"}
                   </td>
                 </tr>
               ))}
@@ -479,7 +549,7 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 3: Purchases                                                          */}
       {/* ========================================================================= */}
-      {activeTab === 'purchases' && (
+      {activeTab === "purchases" && (
         <div className="rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -495,14 +565,19 @@ export const UserDetailPage: React.FC = () => {
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {user.purchases.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-zinc-400 dark:text-zinc-500">
+                  <td
+                    colSpan={6}
+                    className="py-8 text-center text-zinc-400 dark:text-zinc-500"
+                  >
                     No purchase transactions on file.
                   </td>
                 </tr>
               ) : (
                 user.purchases.map((p) => (
                   <tr key={p.id}>
-                    <td className="py-3 px-4 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">{p.id}</td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {p.id}
+                    </td>
                     <td className="py-3 px-4 font-medium text-zinc-900 dark:text-zinc-100">
                       {p.item_title}
                     </td>
@@ -512,11 +587,11 @@ export const UserDetailPage: React.FC = () => {
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                          p.status === 'completed'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
-                            : p.status === 'failed'
-                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400'
-                            : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
+                          p.status === "completed"
+                            ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400"
+                            : p.status === "failed"
+                              ? "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400"
+                              : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400"
                         }`}
                       >
                         {p.status.toUpperCase()}
@@ -539,7 +614,7 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 4: Free Grants                                                        */}
       {/* ========================================================================= */}
-      {activeTab === 'free_grants' && (
+      {activeTab === "free_grants" && (
         <div className="rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -559,19 +634,21 @@ export const UserDetailPage: React.FC = () => {
                   <td className="py-3 px-4">
                     <span
                       className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                        g.status === 'available'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+                        g.status === "available"
+                          ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
                       }`}
                     >
                       {g.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="py-3 px-4 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
-                    {g.used_at ? new Date(g.used_at).toLocaleDateString() : 'Not yet used'}
+                    {g.used_at
+                      ? new Date(g.used_at).toLocaleDateString()
+                      : "Not yet used"}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    {g.status === 'used' && (
+                    {g.status === "used" && (
                       <button
                         onClick={() => {
                           setSelectedTopicToReset(g.topic_id);
@@ -593,19 +670,23 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 5: Activity Timeline                                                  */}
       {/* ========================================================================= */}
-      {activeTab === 'activity' && (
+      {activeTab === "activity" && (
         <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs space-y-4">
           <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-zinc-200 dark:before:bg-zinc-800">
             {user.activity.map((act) => (
               <div key={act.id} className="relative space-y-1">
                 <div className="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-zinc-900" />
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{act.title}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {act.title}
+                  </span>
                   <span className="text-[10px] text-zinc-400 font-mono">
                     {new Date(act.timestamp).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">{act.description}</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  {act.description}
+                </p>
               </div>
             ))}
           </div>
@@ -615,7 +696,7 @@ export const UserDetailPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* Tab 6: Admin Notes Thread                                                 */}
       {/* ========================================================================= */}
-      {activeTab === 'notes' && (
+      {activeTab === "notes" && (
         <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs space-y-6">
           {/* Add Note Form */}
           <form onSubmit={handleAddNote} className="space-y-2">
@@ -666,7 +747,9 @@ export const UserDetailPage: React.FC = () => {
                       {new Date(n.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">{n.text}</p>
+                  <p className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                    {n.text}
+                  </p>
                 </div>
               ))
             )}
@@ -684,7 +767,9 @@ export const UserDetailPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Ban className="w-4 h-4 text-rose-600" />
                 <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
-                  {user.status === 'active' ? 'Confirm Account Suspension' : 'Confirm Account Reactivation'}
+                  {user.status === "active"
+                    ? "Confirm Account Suspension"
+                    : "Confirm Account Reactivation"}
                 </h3>
               </div>
               <button
@@ -696,7 +781,7 @@ export const UserDetailPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              {user.status === 'active'
+              {user.status === "active"
                 ? `Suspending ${user.name} will terminate active login sessions and block access to quiz attempts.`
                 : `Reactivating ${user.name} will restore login access and allow quiz participation.`}
             </p>
@@ -727,7 +812,8 @@ export const UserDetailPage: React.FC = () => {
                 disabled={!suspendReason.trim()}
                 className="px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition disabled:opacity-50"
               >
-                Confirm {user.status === 'active' ? 'Suspension' : 'Reactivation'}
+                Confirm{" "}
+                {user.status === "active" ? "Suspension" : "Reactivation"}
               </button>
             </div>
           </div>
@@ -757,16 +843,26 @@ export const UserDetailPage: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div className="space-y-1">
-                <label className="font-semibold text-zinc-700 dark:text-zinc-300">Select Quiz</label>
+                <label className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  Select Quiz
+                </label>
                 <select
                   value={selectedQuizToGrant}
                   onChange={(e) => setSelectedQuizToGrant(e.target.value)}
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 outline-none"
                 >
-                  <option value="quiz-sliding-window">Sliding Window Mastery (Arrays & Two Pointers)</option>
-                  <option value="quiz-cache-design">Distributed Caching (System Design)</option>
-                  <option value="quiz-concurrency-os">Concurrency & OS Mutexes</option>
-                  <option value="quiz-dp-foundations">Dynamic Programming Foundations</option>
+                  <option value="quiz-sliding-window">
+                    Sliding Window Mastery (Arrays & Two Pointers)
+                  </option>
+                  <option value="quiz-cache-design">
+                    Distributed Caching (System Design)
+                  </option>
+                  <option value="quiz-concurrency-os">
+                    Concurrency & OS Mutexes
+                  </option>
+                  <option value="quiz-dp-foundations">
+                    Dynamic Programming Foundations
+                  </option>
                 </select>
               </div>
 
@@ -826,14 +922,18 @@ export const UserDetailPage: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div className="space-y-1">
-                <label className="font-semibold text-zinc-700 dark:text-zinc-300">Select Topic</label>
+                <label className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  Select Topic
+                </label>
                 <select
                   value={selectedTopicToReset}
                   onChange={(e) => setSelectedTopicToReset(e.target.value)}
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 outline-none"
                 >
                   <option value="topic-dsa-1">Arrays & Two Pointers</option>
-                  <option value="topic-sys-2">System Design Fundamentals</option>
+                  <option value="topic-sys-2">
+                    System Design Fundamentals
+                  </option>
                   <option value="topic-os-3">Concurrency & OS Concepts</option>
                 </select>
               </div>
@@ -884,8 +984,13 @@ export const UserDetailPage: React.FC = () => {
                   {selectedAttempt.quiz_title} — Response Breakdown
                 </h3>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-                  Final Score: {selectedAttempt.score} / {selectedAttempt.total_questions} (
-                  {Math.round((selectedAttempt.score / selectedAttempt.total_questions) * 100)}%)
+                  Final Score: {selectedAttempt.score} /{" "}
+                  {selectedAttempt.total_questions} (
+                  {Math.round(
+                    (selectedAttempt.score / selectedAttempt.total_questions) *
+                      100,
+                  )}
+                  %)
                 </span>
               </div>
               <button
@@ -899,7 +1004,9 @@ export const UserDetailPage: React.FC = () => {
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
               {loadingBreakdown ? (
-                <div className="py-12 text-center text-zinc-400">Loading response details...</div>
+                <div className="py-12 text-center text-zinc-400">
+                  Loading response details...
+                </div>
               ) : (
                 breakdownQuestions.map((q, idx) => (
                   <div
@@ -934,10 +1041,10 @@ export const UserDetailPage: React.FC = () => {
                             key={oIdx}
                             className={`p-2 rounded-lg border text-xs flex items-center justify-between ${
                               isCorrectAnswer
-                                ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 font-medium'
+                                ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 font-medium"
                                 : isLearnerAnswer
-                                ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-300 font-medium'
-                                : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'
+                                  ? "bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-300 font-medium"
+                                  : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
                             }`}
                           >
                             <span>{opt}</span>
@@ -960,7 +1067,9 @@ export const UserDetailPage: React.FC = () => {
 
                     {/* Explanation */}
                     <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-[11px] leading-relaxed">
-                      <strong className="text-zinc-800 dark:text-zinc-200 block mb-0.5">Explanation:</strong>
+                      <strong className="text-zinc-800 dark:text-zinc-200 block mb-0.5">
+                        Explanation:
+                      </strong>
                       {q.explanation}
                     </div>
                   </div>

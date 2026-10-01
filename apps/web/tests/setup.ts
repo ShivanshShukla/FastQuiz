@@ -1,13 +1,16 @@
-import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import "@testing-library/jest-dom";
+import * as axeMatchers from "vitest-axe/matchers";
+import { expect, afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+
+expect.extend(axeMatchers);
 
 afterEach(() => {
   cleanup();
 });
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
     matches: false,
@@ -42,13 +45,13 @@ const storageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: storageMock,
   writable: true,
 });
 
-if (typeof globalThis !== 'undefined') {
-  Object.defineProperty(globalThis, 'localStorage', {
+if (typeof globalThis !== "undefined") {
+  Object.defineProperty(globalThis, "localStorage", {
     value: storageMock,
     writable: true,
   });

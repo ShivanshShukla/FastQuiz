@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type {
   AdminUserListItem,
   AdminUsersListParams,
   AdminUsersSummaryChips,
-} from '@fastquiz/shared';
+} from "@fastquiz/shared";
 import {
   Search,
   Filter,
@@ -22,17 +22,17 @@ import {
   Ban,
   RotateCcw,
   ShieldAlert,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const UsersListPage: React.FC = () => {
   const { user, client } = useAuth();
   const navigate = useNavigate();
-  const role = user?.role || 'reviewer';
+  const role = user?.role || "reviewer";
 
   // Role Gate: Reviewers cannot access Users Directory
-  const isReviewer = role === 'reviewer';
-  const canExportCsv = role === 'super_admin' || role === 'finance';
-  const isSupport = role === 'support';
+  const isReviewer = role === "reviewer";
+  const canExportCsv = role === "super_admin" || role === "finance";
+  const isSupport = role === "support";
 
   // State
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,21 +43,25 @@ export const UsersListPage: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
 
   // Filters
-  const [search, setSearch] = useState<string>('');
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
-  const [status, setStatus] = useState<'all' | 'active' | 'suspended'>('all');
-  const [hasPurchased, setHasPurchased] = useState<'all' | 'yes' | 'no'>('all');
-  const [source, setSource] = useState<'all' | 'email' | 'google'>('all');
-  const [signupFrom, setSignupFrom] = useState<string>('');
-  const [signupTo, setSignupTo] = useState<string>('');
+  const [search, setSearch] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [status, setStatus] = useState<"all" | "active" | "suspended">("all");
+  const [hasPurchased, setHasPurchased] = useState<"all" | "yes" | "no">("all");
+  const [source, setSource] = useState<"all" | "email" | "google">("all");
+  const [signupFrom, setSignupFrom] = useState<string>("");
+  const [signupTo, setSignupTo] = useState<string>("");
   const [showFiltersModal, setShowFiltersModal] = useState<boolean>(false);
 
   // Sorting
-  const [sortBy, setSortBy] = useState<'created_at' | 'last_seen_at' | 'total_spent' | 'quizzes_purchased'>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState<
+    "created_at" | "last_seen_at" | "total_spent" | "quizzes_purchased"
+  >("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Support Email Reveal State (tracks unmasked user IDs)
-  const [revealedEmails, setRevealedEmails] = useState<Record<string, string>>({});
+  const [revealedEmails, setRevealedEmails] = useState<Record<string, string>>(
+    {},
+  );
 
   // Debounce search input
   useEffect(() => {
@@ -91,23 +95,38 @@ export const UsersListPage: React.FC = () => {
       setTotalCount(res.total);
       setSummary(res.summary);
     } catch (err) {
-      console.error('Failed to load users:', err);
+      console.error("Failed to load users:", err);
     } finally {
       setLoading(false);
     }
-  }, [client, isReviewer, page, pageSize, debouncedSearch, status, hasPurchased, source, signupFrom, signupTo, sortBy, sortOrder]);
+  }, [
+    client,
+    isReviewer,
+    page,
+    pageSize,
+    debouncedSearch,
+    status,
+    hasPurchased,
+    source,
+    signupFrom,
+    signupTo,
+    sortBy,
+    sortOrder,
+  ]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
   // Sorting Handler
-  const handleSort = (col: 'created_at' | 'last_seen_at' | 'total_spent' | 'quizzes_purchased') => {
+  const handleSort = (
+    col: "created_at" | "last_seen_at" | "total_spent" | "quizzes_purchased",
+  ) => {
     if (sortBy === col) {
-      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortBy(col);
-      setSortOrder('desc');
+      setSortOrder("desc");
     }
     setPage(1);
   };
@@ -116,10 +135,11 @@ export const UsersListPage: React.FC = () => {
   const getDisplayEmail = (userId: string, email: string) => {
     if (!isSupport) return email;
     if (revealedEmails[userId]) return revealedEmails[userId];
-    const parts = email.split('@');
+    const parts = email.split("@");
     if (parts.length !== 2) return email;
     const prefix = parts[0];
-    const maskedPrefix = prefix.length > 2 ? `${prefix.substring(0, 2)}***` : '***';
+    const maskedPrefix =
+      prefix.length > 2 ? `${prefix.substring(0, 2)}***` : "***";
     return `${maskedPrefix}@${parts[1]}`;
   };
 
@@ -130,7 +150,7 @@ export const UsersListPage: React.FC = () => {
       const res = await client.adminUsers.revealEmail(userId);
       setRevealedEmails((prev) => ({ ...prev, [userId]: res.email }));
     } catch (err) {
-      console.error('Failed to reveal email:', err);
+      console.error("Failed to reveal email:", err);
     }
   };
 
@@ -148,28 +168,31 @@ export const UsersListPage: React.FC = () => {
         sort_order: sortOrder,
       });
 
-      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `fastquiz_learners_${new Date().toISOString().split('T')[0]}.csv`);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `fastquiz_learners_${new Date().toISOString().split("T")[0]}.csv`,
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      console.error('CSV export failed:', err);
+      console.error("CSV export failed:", err);
     }
   };
 
   // Reset Filters
   const handleResetFilters = () => {
-    setSearch('');
-    setDebouncedSearch('');
-    setStatus('all');
-    setHasPurchased('all');
-    setSource('all');
-    setSignupFrom('');
-    setSignupTo('');
+    setSearch("");
+    setDebouncedSearch("");
+    setStatus("all");
+    setHasPurchased("all");
+    setSource("all");
+    setSignupFrom("");
+    setSignupTo("");
     setPage(1);
   };
 
@@ -183,10 +206,15 @@ export const UsersListPage: React.FC = () => {
           Access Restricted
         </h2>
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Your account role (<strong className="font-semibold text-zinc-700 dark:text-zinc-300">Content Reviewer</strong>) is restricted to question moderation and content hierarchy tools. Contact an administrator to request elevated permissions.
+          Your account role (
+          <strong className="font-semibold text-zinc-700 dark:text-zinc-300">
+            Content Reviewer
+          </strong>
+          ) is restricted to question moderation and content hierarchy tools.
+          Contact an administrator to request elevated permissions.
         </p>
         <button
-          onClick={() => navigate('/review')}
+          onClick={() => navigate("/review")}
           className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition"
         >
           Return to Review Queue
@@ -208,7 +236,8 @@ export const UsersListPage: React.FC = () => {
             Learner Accounts Directory
           </h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Search, filter, inspect quiz attempts, manage suspensions, and audit purchases.
+            Search, filter, inspect quiz attempts, manage suspensions, and audit
+            purchases.
           </p>
         </div>
 
@@ -241,9 +270,11 @@ export const UsersListPage: React.FC = () => {
             <Users className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Total Registered</span>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+              Total Registered
+            </span>
             <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-              {summary ? summary.total_registered.toLocaleString() : '—'}
+              {summary ? summary.total_registered.toLocaleString() : "—"}
             </span>
           </div>
         </div>
@@ -253,9 +284,11 @@ export const UsersListPage: React.FC = () => {
             <UserCheck className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">30d Active Users</span>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+              30d Active Users
+            </span>
             <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-              {summary ? summary.active_30d.toLocaleString() : '—'}
+              {summary ? summary.active_30d.toLocaleString() : "—"}
             </span>
           </div>
         </div>
@@ -265,9 +298,11 @@ export const UsersListPage: React.FC = () => {
             <CreditCard className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Paying Customers</span>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+              Paying Customers
+            </span>
             <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono">
-              {summary ? summary.paying_customers.toLocaleString() : '—'}
+              {summary ? summary.paying_customers.toLocaleString() : "—"}
             </span>
           </div>
         </div>
@@ -277,9 +312,11 @@ export const UsersListPage: React.FC = () => {
             <Ban className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Suspended</span>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">
+              Suspended
+            </span>
             <span className="text-lg font-bold text-rose-600 dark:text-rose-400 font-mono">
-              {summary ? summary.suspended.toLocaleString() : '—'}
+              {summary ? summary.suspended.toLocaleString() : "—"}
             </span>
           </div>
         </div>
@@ -306,7 +343,7 @@ export const UsersListPage: React.FC = () => {
           <select
             value={status}
             onChange={(e) => {
-              setStatus(e.target.value as 'all' | 'active' | 'suspended');
+              setStatus(e.target.value as "all" | "active" | "suspended");
               setPage(1);
             }}
             className="h-9 px-3 text-xs bg-zinc-50/60 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 outline-none cursor-pointer"
@@ -320,7 +357,7 @@ export const UsersListPage: React.FC = () => {
           <select
             value={hasPurchased}
             onChange={(e) => {
-              setHasPurchased(e.target.value as 'all' | 'yes' | 'no');
+              setHasPurchased(e.target.value as "all" | "yes" | "no");
               setPage(1);
             }}
             className="h-9 px-3 text-xs bg-zinc-50/60 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 outline-none cursor-pointer"
@@ -334,7 +371,7 @@ export const UsersListPage: React.FC = () => {
           <select
             value={source}
             onChange={(e) => {
-              setSource(e.target.value as 'all' | 'email' | 'google');
+              setSource(e.target.value as "all" | "email" | "google");
               setPage(1);
             }}
             className="h-9 px-3 text-xs bg-zinc-50/60 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 outline-none cursor-pointer"
@@ -348,15 +385,20 @@ export const UsersListPage: React.FC = () => {
             onClick={() => setShowFiltersModal(!showFiltersModal)}
             className={`flex items-center gap-1.5 px-3 h-9 text-xs font-medium rounded-lg border transition ${
               signupFrom || signupTo
-                ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
-                : 'bg-zinc-50/60 dark:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'
+                ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
+                : "bg-zinc-50/60 dark:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100"
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
             <span>Dates</span>
           </button>
 
-          {(search || status !== 'all' || hasPurchased !== 'all' || source !== 'all' || signupFrom || signupTo) && (
+          {(search ||
+            status !== "all" ||
+            hasPurchased !== "all" ||
+            source !== "all" ||
+            signupFrom ||
+            signupTo) && (
             <button
               onClick={handleResetFilters}
               title="Reset all filters"
@@ -372,7 +414,9 @@ export const UsersListPage: React.FC = () => {
         {showFiltersModal && (
           <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-4 text-xs animate-in fade-in duration-100">
             <div className="flex items-center gap-2">
-              <span className="text-zinc-500 dark:text-zinc-400 font-medium">Joined Between:</span>
+              <span className="text-zinc-500 dark:text-zinc-400 font-medium">
+                Joined Between:
+              </span>
               <input
                 type="date"
                 value={signupFrom}
@@ -410,52 +454,68 @@ export const UsersListPage: React.FC = () => {
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Source</th>
                 <th
-                  onClick={() => handleSort('quizzes_purchased')}
+                  onClick={() => handleSort("quizzes_purchased")}
                   className="py-3 px-4 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 transition"
                 >
                   <div className="flex items-center gap-1">
                     <span>Purchases</span>
-                    {sortBy === 'quizzes_purchased' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-indigo-600" /> : <ArrowDown className="w-3 h-3 text-indigo-600" />
+                    {sortBy === "quizzes_purchased" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp className="w-3 h-3 text-indigo-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-indigo-600" />
+                      )
                     ) : (
                       <ArrowUpDown className="w-3 h-3 opacity-40" />
                     )}
                   </div>
                 </th>
                 <th
-                  onClick={() => handleSort('total_spent')}
+                  onClick={() => handleSort("total_spent")}
                   className="py-3 px-4 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 transition"
                 >
                   <div className="flex items-center gap-1">
                     <span>Total Spent</span>
-                    {sortBy === 'total_spent' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-indigo-600" /> : <ArrowDown className="w-3 h-3 text-indigo-600" />
+                    {sortBy === "total_spent" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp className="w-3 h-3 text-indigo-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-indigo-600" />
+                      )
                     ) : (
                       <ArrowUpDown className="w-3 h-3 opacity-40" />
                     )}
                   </div>
                 </th>
                 <th
-                  onClick={() => handleSort('last_seen_at')}
+                  onClick={() => handleSort("last_seen_at")}
                   className="py-3 px-4 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 transition"
                 >
                   <div className="flex items-center gap-1">
                     <span>Last Active</span>
-                    {sortBy === 'last_seen_at' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-indigo-600" /> : <ArrowDown className="w-3 h-3 text-indigo-600" />
+                    {sortBy === "last_seen_at" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp className="w-3 h-3 text-indigo-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-indigo-600" />
+                      )
                     ) : (
                       <ArrowUpDown className="w-3 h-3 opacity-40" />
                     )}
                   </div>
                 </th>
                 <th
-                  onClick={() => handleSort('created_at')}
+                  onClick={() => handleSort("created_at")}
                   className="py-3 px-4 cursor-pointer hover:text-zinc-900 dark:hover:text-zinc-100 transition"
                 >
                   <div className="flex items-center gap-1">
                     <span>Joined Date</span>
-                    {sortBy === 'created_at' ? (
-                      sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 text-indigo-600" /> : <ArrowDown className="w-3 h-3 text-indigo-600" />
+                    {sortBy === "created_at" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp className="w-3 h-3 text-indigo-600" />
+                      ) : (
+                        <ArrowDown className="w-3 h-3 text-indigo-600" />
+                      )
                     ) : (
                       <ArrowUpDown className="w-3 h-3 opacity-40" />
                     )}
@@ -522,9 +582,9 @@ export const UsersListPage: React.FC = () => {
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          u.status === 'active'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                          u.status === "active"
+                            ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                            : "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
                         }`}
                       >
                         {u.status.toUpperCase()}
@@ -556,7 +616,9 @@ export const UsersListPage: React.FC = () => {
 
                     {/* Last Active */}
                     <td className="py-3.5 px-4 text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
-                      {u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString() : 'Never'}
+                      {u.last_seen_at
+                        ? new Date(u.last_seen_at).toLocaleDateString()
+                        : "Never"}
                     </td>
 
                     {/* Joined Date */}
@@ -587,7 +649,7 @@ export const UsersListPage: React.FC = () => {
               <option value={50}>50</option>
             </select>
             <span>
-              Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1} -{' '}
+              Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1} -{" "}
               {Math.min(page * pageSize, totalCount)} of {totalCount} learners
             </span>
           </div>
