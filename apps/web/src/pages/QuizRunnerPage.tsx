@@ -11,17 +11,40 @@ import {
   Sliders,
   Keyboard,
 } from "lucide-react";
-import { webMockStore, QuestionData } from "../services/webMockStore";
+import { quizApi, QuizData, QuestionData } from "../services/api";
 import { ExitConfirmModal } from "../components/Common/ExitConfirmModal";
 import { useToast } from "../context/ToastContext";
 
 export const QuizRunnerPage: React.FC = () => {
-  const { quizId = "quiz-cache-1" } = useParams<{ quizId: string }>();
+  const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const quiz =
-    webMockStore.getQuiz(quizId) || webMockStore.getTopics()[0]?.quizzes?.[0];
+  const [quiz, setQuiz] = useState<QuizData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchQuiz = async () => {
+      let loadedQuiz: QuizData | null = null;
+      if (quizId) {
+        loadedQuiz = await quizApi.getQuiz(quizId);
+      }
+      if (!loadedQuiz) {
+        const topics = await quizApi.getTopics();
+        loadedQuiz = topics[0]?.quizzes?.[0] || null;
+      }
+      if (isMounted) {
+        setQuiz(loadedQuiz);
+        setLoading(false);
+      }
+    };
+    fetchQuiz();
+    return () => {
+      isMounted = false;
+    };
+  }, [quizId]);
+
   const questions: QuestionData[] = quiz?.questions || [];
 
   // Active question index (0-based)
@@ -43,20 +66,25 @@ export const QuizRunnerPage: React.FC = () => {
   const totalQuestions = questions.length;
   const answeredCount = Object.keys(answers).length;
 
-  const handleSubmitQuiz = useCallback(() => {
+  const handleSubmitQuiz = useCallback(async () => {
     const submissionId = `att-${Date.now()}`;
-    webMockStore.submitAttempt({
-      attemptId: submissionId,
-      quizId: quiz?.id || quizId,
-      answers,
-      flaggedQuestions: Array.from(flagged),
-      timeSpentSeconds: 8 * 60 + 39 - remainingSeconds || 378,
-    });
-    showToast(
-      "Assessment submitted. Generating diagnostic matrix...",
-      "success",
-    );
-    navigate(`/attempts/${submissionId}/results`);
+    const targetQuizId = quiz?.id || quizId || "unknown-quiz";
+    try {
+      await quizApi.submitQuiz({
+        attemptId: submissionId,
+        quizId: targetQuizId,
+        answers,
+        flaggedQuestions: Array.from(flagged),
+        timeSpentSeconds: 8 * 60 + 39 - remainingSeconds || 378,
+      });
+      showToast(
+        "Assessment submitted. Generating diagnostic matrix...",
+        "success",
+      );
+      navigate(`/attempts/${submissionId}/results`);
+    } catch {
+      showToast("Failed to submit assessment. Please try again.", "error");
+    }
   }, [
     quiz?.id,
     quizId,
@@ -146,6 +174,15 @@ export const QuizRunnerPage: React.FC = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleSelectOption, handleNext, handlePrev]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 space-y-4">
+        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs font-mono text-zinc-500">Loading assessment...</p>
+      </div>
+    );
+  }
 
   if (!quiz || questions.length === 0) {
     return (

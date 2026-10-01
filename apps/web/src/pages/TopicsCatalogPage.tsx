@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, ArrowRight } from "lucide-react";
-import { webMockStore } from "../services/webMockStore";
+import { quizApi, TopicData } from "../services/api";
 
 export const TopicsCatalogPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const queryFromUrl = searchParams.get("q") ?? "";
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [topics, setTopics] = useState<TopicData[]>([]);
 
   useEffect(() => {
     setSearchTerm(queryFromUrl);
   }, [queryFromUrl]);
 
-  const topics = webMockStore.getTopics();
+  useEffect(() => {
+    let isMounted = true;
+    quizApi.getTopics().then((data) => {
+      if (isMounted) setTopics(data);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredTopics = topics.filter((t) => {
     const matchesSearch =

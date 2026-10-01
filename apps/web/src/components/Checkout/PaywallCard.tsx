@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Lock, CheckCircle2, Shield, CreditCard, Sparkles } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
-import { webMockStore } from "../../services/webMockStore";
+import { quizApi } from "../../services/api";
 
 interface PaywallCardProps {
   quizId?: string;
@@ -10,8 +10,8 @@ interface PaywallCardProps {
 }
 
 export const PaywallCard: React.FC<PaywallCardProps> = ({
-  quizId = "quiz-cache-1",
-  topicTitle = "Distributed Caching",
+  quizId = "current-quiz",
+  topicTitle = "Current Topic",
   onUnlocked,
 }) => {
   const [selectedPlan, setSelectedPlan] = useState<"single" | "bundle">(
@@ -25,15 +25,15 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
     const amount = selectedPlan === "single" ? "₹99" : "₹399";
     showToast(`Initializing secure checkout for ${amount}...`, "info");
 
-    setTimeout(() => {
-      webMockStore.purchaseItem(
-        selectedPlan === "single" ? quizId : "master-bundle",
+    setTimeout(async () => {
+      await quizApi.purchaseItem(
+        selectedPlan === "single" ? quizId || "single-quiz" : "master-bundle",
       );
       setIsProcessing(false);
       showToast(
         selectedPlan === "single"
           ? `Successfully unlocked explanations for ${topicTitle}!`
-          : "Successfully unlocked System Architecture Master Bundle (All 8 Quizzes)!",
+          : "Successfully unlocked System Architecture Master Bundle!",
         "success",
       );
       if (onUnlocked) onUnlocked();

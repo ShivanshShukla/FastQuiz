@@ -2,13 +2,13 @@ import React from "react";
 import { CheckCircle2, ArrowRight, ShieldCheck, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
-import { webMockStore } from "../services/webMockStore";
+import { quizApi } from "../services/api";
 
 export const PricingPage: React.FC = () => {
   const { showToast } = useToast();
 
-  const handleBuy = (planName: string, amount: string) => {
-    webMockStore.purchaseItem("master-bundle");
+  const handleBuy = async (planName: string, amount: string) => {
+    await quizApi.purchaseItem("master-bundle");
     showToast(
       `Purchased ${planName} for ${amount}. Access unlocked.`,
       "success",

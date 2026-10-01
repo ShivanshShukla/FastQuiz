@@ -39,11 +39,11 @@ describe("QuizRunner Integration & Keyboard Navigation", () => {
     vi.restoreAllMocks();
   });
 
-  it("mutates selected answer option dynamically", () => {
+  it("mutates selected answer option dynamically", async () => {
     renderQuizRunner();
 
     // Find radio options
-    const radioOptions = screen.getAllByRole("radio");
+    const radioOptions = await screen.findAllByRole("radio");
     expect(radioOptions.length).toBeGreaterThanOrEqual(4);
 
     // Select Option A (index 0)
@@ -57,10 +57,10 @@ describe("QuizRunner Integration & Keyboard Navigation", () => {
     expect(radioOptions[1]).toHaveAttribute("aria-checked", "true");
   });
 
-  it("persists selected answer across forward and backward question navigation", () => {
+  it("persists selected answer across forward and backward question navigation", async () => {
     renderQuizRunner();
 
-    const radioOptions = screen.getAllByRole("radio");
+    const radioOptions = await screen.findAllByRole("radio");
     // Select Option C (index 2) on Question 1
     fireEvent.click(radioOptions[2]);
     expect(radioOptions[2]).toHaveAttribute("aria-checked", "true");
@@ -87,10 +87,10 @@ describe("QuizRunner Integration & Keyboard Navigation", () => {
     expect(q1ReturnedOptions[2]).toHaveAttribute("aria-checked", "true");
   });
 
-  it("supports full keyboard controls (numeric keys, arrows, enter)", () => {
+  it("supports full keyboard controls (numeric keys, arrows, enter)", async () => {
     renderQuizRunner();
 
-    const radioOptions = screen.getAllByRole("radio");
+    const radioOptions = await screen.findAllByRole("radio");
 
     // Press '2' to select option B
     fireEvent.keyDown(window, { key: "2" });
@@ -110,10 +110,12 @@ describe("QuizRunner Integration & Keyboard Navigation", () => {
     expect(screen.getByText(/Question 01/i)).toBeInTheDocument();
   });
 
-  it("toggles question flag for review and reflects in question palette", () => {
+  it("toggles question flag for review and reflects in question palette", async () => {
     renderQuizRunner();
 
-    const flagBtn = screen.getByRole("button", { name: /flag for review/i });
+    const flagBtn = await screen.findByRole("button", {
+      name: /flag for review/i,
+    });
     fireEvent.click(flagBtn);
 
     // Flagged badge should appear
@@ -124,10 +126,10 @@ describe("QuizRunner Integration & Keyboard Navigation", () => {
     expect(screen.queryByText(/Flagged for Review/i)).toBeNull();
   });
 
-  it("opens exit confirmation modal and dismisses on cancel", () => {
+  it("opens exit confirmation modal and dismisses on cancel", async () => {
     renderQuizRunner();
 
-    const exitBtn = screen.getByRole("button", { name: /exit/i });
+    const exitBtn = await screen.findByRole("button", { name: /exit/i });
     fireEvent.click(exitBtn);
 
     // Exit confirm modal dialog should appear

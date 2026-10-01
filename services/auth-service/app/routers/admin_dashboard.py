@@ -330,7 +330,7 @@ async def get_recent_signups(
         AdminRecentSignup(
             id=u.id,
             name=u.name,
-            email=u.email,
+            email=u.email or "",
             source="google" if u.source == "google" else "email",
             created_at=u.created_at.isoformat(),
         )

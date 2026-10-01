@@ -148,13 +148,17 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8001"
+    env_file:
+      - path: .env
+        required: false
+      - path: ./services/auth-service/.env
+        required: false
     environment:
       SERVICE_NAME: auth-service
-      ENVIRONMENT: development
+      ENVIRONMENT: ${ENVIRONMENT:-development}
       PORT: 8001
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/fastquiz
-      REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: dev-secret-key-change-in-production-12345
+      DATABASE_URL: ${AUTH_DATABASE_URL:-postgresql+asyncpg://postgres:postgres@postgres:5432/fastquiz}
+      REDIS_URL: ${AUTH_REDIS_URL:-redis://redis:6379/0}
     depends_on:
       postgres:
         condition: service_healthy

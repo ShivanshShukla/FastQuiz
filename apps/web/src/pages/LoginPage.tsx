@@ -15,6 +15,8 @@ import {
   Mail,
   User,
   Zap,
+  AlertCircle,
+  Info,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -72,10 +74,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [searchParams] = useSearchParams();
   const queryMode =
     searchParams.get("mode") === "signup" ? "signup" : initialMode;
-  const [mode, setMode] = useState<"login" | "signup">(queryMode);
+  const errorCode = searchParams.get("error");
+  const errorEmail = searchParams.get("email");
+  const noticeCode = searchParams.get("notice");
+
+  // If linking is required, force login mode so user can enter password to link
+  const [mode, setMode] = useState<"login" | "signup">(
+    errorCode === "linking_required" ? "login" : queryMode,
+  );
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(errorEmail || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   // DPDPA & Dark Pattern Compliance: Consent checkboxes MUST NOT be pre-ticked
@@ -94,22 +103,34 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     (location.state as { from?: { pathname?: string } })?.from?.pathname ||
     "/curriculum";
 
+  const isTestOrMock =
+    mockActive ||
+    (typeof import.meta !== "undefined" && import.meta.env?.MODE === "test");
+
   const handleGoogleLogin = () => {
     setSocialLoading("google");
-    setTimeout(() => {
-      loginOAuth("google");
-      showToast("Signed in with Google as Alex Chen.", "success");
-      navigate(destination);
-    }, 400);
+    if (isTestOrMock) {
+      setTimeout(() => {
+        loginOAuth("google", destination);
+        showToast("Signed in with Google as Alex Chen.", "success");
+        navigate(destination);
+      }, 50);
+    } else {
+      loginOAuth("google", destination);
+    }
   };
 
   const handleGitHubLogin = () => {
     setSocialLoading("github");
-    setTimeout(() => {
-      loginOAuth("github");
-      showToast("Signed in with GitHub as Alex Chen.", "success");
-      navigate(destination);
-    }, 400);
+    if (isTestOrMock) {
+      setTimeout(() => {
+        loginOAuth("github", destination);
+        showToast("Signed in with GitHub as Alex Chen.", "success");
+        navigate(destination);
+      }, 50);
+    } else {
+      loginOAuth("github", destination);
+    }
   };
 
   const handleGuestLogin = () => {
@@ -118,7 +139,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     navigate(destination);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
     const cleanPassword = password.trim();
@@ -146,21 +167,36 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       }
 
       setIsSubmitting(true);
-      setTimeout(() => {
-        signup(name, cleanEmail);
-        showToast(
-          "Account created successfully! Welcome to FastQuiz.",
-          "success",
-        );
-        navigate(destination);
-      }, 350);
+      try {
+        const newUser = await signup(name, cleanEmail, cleanPassword);
+        if (newUser?.status === "pending_consent") {
+          navigate(`/consent?next=${encodeURIComponent(destination)}`);
+        } else {
+          showToast(
+            "Account created successfully! Welcome to FastQuiz.",
+            "success",
+          );
+          navigate(destination);
+        }
+      } catch (err: unknown) {
+        showToast((err as Error).message || "Account creation failed", "error");
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       setIsSubmitting(true);
-      setTimeout(() => {
-        login(cleanEmail, cleanEmail.split("@")[0]);
+      try {
+        await login(cleanEmail, cleanPassword);
         showToast("Signed in successfully. Welcome back!", "success");
         navigate(destination);
-      }, 350);
+      } catch (err: unknown) {
+        showToast(
+          (err as Error).message || "Invalid email or password",
+          "error",
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -285,6 +321,72 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </p>
               </div>
             </div>
+
+            {/* Error or Notice Alert Banner */}
+            {errorCode && (
+              <div
+                role="alert"
+                className="p-3.5 rounded-lg border text-xs flex items-start gap-2.5 transition-all bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200"
+              >
+                <AlertCircle
+                  className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
+                <div className="space-y-1">
+                  <p className="font-semibold text-amber-950 dark:text-amber-100">
+                    {errorCode === "linking_required" &&
+                      "Account Linking Required"}
+                    {errorCode === "access_denied" && "Sign-in Cancelled"}
+                    {(errorCode === "missing_code_or_state" ||
+                      errorCode === "invalid_state") &&
+                      "Session Expired"}
+                    {errorCode === "account_suspended" && "Account Suspended"}
+                    {errorCode === "account_deleted" && "Account Not Found"}
+                    {errorCode === "token_exchange_failed" &&
+                      "Authentication Error"}
+                    {errorCode === "oauth_failed" && "Sign-In Failed"}
+                  </p>
+                  <p className="leading-relaxed opacity-90">
+                    {errorCode === "linking_required" &&
+                      `An account registered with ${errorEmail || "this email"} already exists. To securely connect your social identity, please enter your existing password below. You can then manage linked providers in Settings.`}
+                    {errorCode === "access_denied" &&
+                      "You declined or cancelled authorization on the provider's sign-in page. Please try again when ready."}
+                    {(errorCode === "missing_code_or_state" ||
+                      errorCode === "invalid_state") &&
+                      "The sign-in request timed out or was invalid. Please click the sign-in button again."}
+                    {errorCode === "account_suspended" &&
+                      "This account has been suspended by administration. Please reach out to support@fastquiz.dev."}
+                    {errorCode === "account_deleted" &&
+                      "This account has been deleted. Please create a new account to continue."}
+                    {(errorCode === "token_exchange_failed" ||
+                      errorCode === "oauth_failed") &&
+                      "We were unable to complete authentication with the provider. Please try again or sign in with email."}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {noticeCode === "consent_declined" && (
+              <div
+                role="status"
+                className="p-3.5 rounded-lg border text-xs flex items-start gap-2.5 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200"
+              >
+                <Info
+                  className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="font-semibold text-blue-950 dark:text-blue-100">
+                    Registration Cancelled
+                  </p>
+                  <p className="leading-relaxed opacity-90">
+                    Your account registration was cancelled because data
+                    protection consent was declined. No personal data was
+                    stored.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Social Authentication: Google & GitHub */}
             <div className="space-y-2.5">

@@ -87,6 +87,17 @@ describe("Theme and Navigation Integration", () => {
     renderNavbar();
 
     expect(screen.getAllByText(/Rohan V./i).length).toBeGreaterThan(0);
+
+    // Open User Menu Dropdown
+    const userMenuTrigger = screen.getByLabelText(/user account menu/i);
+    fireEvent.click(userMenuTrigger);
+
+    // Verify Dropdown Items
+    expect(screen.getByText(/Profile/i)).toBeDefined();
+    expect(screen.getByText(/Notifications/i)).toBeDefined();
+    expect(screen.getByText(/Account/i)).toBeDefined();
+    expect(screen.getByText(/Troubleshooting/i)).toBeDefined();
+    expect(screen.getByText(/Theme/i)).toBeDefined();
     expect(screen.getByLabelText(/log out/i)).toBeDefined();
   });
 
