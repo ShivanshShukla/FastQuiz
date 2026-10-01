@@ -106,12 +106,12 @@ describe('LandingPage Component - Mock Mode Enabled (mock=true)', () => {
     webMockStore.setMockData(true);
   });
 
-  it('renders trust stats, interactive challenge, curriculum tracks, and testimonials when mock=true', () => {
+  it('renders trust stats, interactive challenge, curriculum tracks, and calibrated methodology when mock=true', () => {
     renderLandingPage();
 
-    // Trust stats
-    expect(screen.getByText(/10,000\+/i)).toBeDefined();
-    expect(screen.getByText(/Engineers Benchmarked/i)).toBeDefined();
+    // Trust stats (truthful metrics)
+    expect(screen.getByText(/3 Tracks/i)).toBeDefined();
+    expect(screen.getByText(/Targeted Curriculum/i)).toBeDefined();
 
     // Live challenge
     expect(screen.getAllByText(/Cache Stampede/i).length).toBeGreaterThan(0);
@@ -128,8 +128,10 @@ describe('LandingPage Component - Mock Mode Enabled (mock=true)', () => {
     // Curriculum tracks
     expect(screen.getByText(/Distributed Caching: Redis, Memcached & Cache Invalidation/i)).toBeDefined();
 
-    // Scoreboard preview and testimonials
+    // Scoreboard preview and calibrated methodology
     expect(screen.getByText(/BENCHMARK PASSED • TOP 8% CANDIDATE/i)).toBeDefined();
-    expect(screen.getByText(/Vikram S\./i)).toBeDefined();
+    expect(screen.getByText(/Calibrated Against Real Distributed Systems/i)).toBeDefined();
+    expect(screen.getByText(/Cache Stampede & Failover Dilemmas/i)).toBeDefined();
+    expect(screen.queryByText(/Vikram S\./i)).toBeNull();
   });
 });

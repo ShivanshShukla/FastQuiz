@@ -117,17 +117,19 @@ describe('Unified LoginPage - Production Mode (mock=false)', () => {
     });
   });
 
-  it('creates new account in Sign Up mode', async () => {
+  it('creates new account in Sign Up mode with explicit consent', async () => {
     renderAuthPage('signup');
 
     const nameInput = screen.getByLabelText(/Full Name/i);
     const emailInput = screen.getByLabelText(/Email Address/i);
-    const passwordInput = screen.getByLabelText(/^Password$/i);
+    const passwordInput = screen.getByLabelText(/^Password/i);
+    const agreeCheckbox = screen.getByLabelText(/Terms and Conditions/i);
     const submitBtn = screen.getByRole('button', { name: /Create Free Account/i });
 
     fireEvent.change(nameInput, { target: { value: 'Priya Sharma' } });
     fireEvent.change(emailInput, { target: { value: 'priya.s@techcorp.io' } });
     fireEvent.change(passwordInput, { target: { value: 'securePass789' } });
+    fireEvent.click(agreeCheckbox);
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -144,13 +146,16 @@ describe('Unified LoginPage - Mock Mode Enabled (mock=true)', () => {
     window.localStorage.setItem('fastquiz_mock_override', 'true');
   });
 
-  it('renders Instant Demo button and testimonial when mock=true', () => {
+  it('renders Instant Demo button and privacy notice when mock=true', () => {
     renderAuthPage('login');
 
     const demoBtn = screen.getByRole('button', { name: /Instant Demo/i });
     expect(demoBtn).toBeDefined();
 
-    expect(screen.getByText(/Vikram S\. • Staff Infra Engineer/i)).toBeDefined();
+    // Fake testimonial quote MUST NOT be present
+    expect(screen.queryByText(/Vikram S\. • Staff Infra Engineer/i)).toBeNull();
+    // Privacy pledge should be present
+    expect(screen.getByText(/Zero Data Mining Pledge/i)).toBeDefined();
 
     fireEvent.click(demoBtn);
 

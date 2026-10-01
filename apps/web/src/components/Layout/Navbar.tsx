@@ -76,10 +76,14 @@ export const Navbar: React.FC = () => {
           {/* Minimal Search Input */}
           <form
             onSubmit={submitSearch}
-            className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 focus-within:border-zinc-400 dark:focus-within:border-zinc-700 transition-colors"
+            className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 focus-within:border-indigo-500 dark:focus-within:border-indigo-400 transition-colors"
           >
-            <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            <label htmlFor="nav-search-desktop" className="sr-only">
+              Search topics
+            </label>
+            <Search className="w-3.5 h-3.5 text-zinc-400 shrink-0" aria-hidden="true" />
             <input
+              id="nav-search-desktop"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -87,7 +91,7 @@ export const Navbar: React.FC = () => {
               aria-label="Search topics"
               className="bg-transparent border-none text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none w-24 lg:w-32 placeholder:text-zinc-400"
             />
-            <kbd className="hidden lg:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-200/60 dark:bg-zinc-800 px-1 py-0.5 rounded">
+            <kbd className="hidden lg:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-200/60 dark:bg-zinc-800 px-1 py-0.5 rounded" aria-hidden="true">
               ⌘K
             </kbd>
           </form>
@@ -187,8 +191,12 @@ export const Navbar: React.FC = () => {
           </nav>
 
           <form onSubmit={submitSearch} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <Search className="w-3.5 h-3.5 text-zinc-400" />
+            <label htmlFor="nav-search-mobile" className="sr-only">
+              Search topics
+            </label>
+            <Search className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
             <input
+              id="nav-search-mobile"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}

@@ -32,7 +32,8 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         {!imgError ? (
           <img
             src="/assets/logo-icon.png"
-            alt="FastQuiz Logo"
+            alt=""
+            aria-hidden="true"
             className={`${emblemSizes[size]} rounded-lg object-contain transition-opacity hover:opacity-90`}
             onError={() => setImgError(true)}
           />

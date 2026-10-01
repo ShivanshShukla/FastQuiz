@@ -46,7 +46,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <img
       src={avatarSrc}
-      alt={name}
+      alt={name ? `${name}'s profile avatar` : 'Candidate profile avatar'}
       onError={() => setHasError(true)}
       className={`${sizeClasses[size]} rounded-full object-cover border border-zinc-200 dark:border-zinc-800 shrink-0 ${className}`}
     />

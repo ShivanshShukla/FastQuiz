@@ -9,6 +9,7 @@ import {
   Check,
   Code2,
   RotateCcw,
+  Shield,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { webMockStore } from '../services/webMockStore';
@@ -170,20 +171,20 @@ export const LandingPage: React.FC = () => {
           {mockActive && (
             <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800/80 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto text-center">
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">10,000+</div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Engineers Benchmarked</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">3 Tracks</div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Targeted Curriculum</div>
               </div>
               <div className="p-3">
                 <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">₹0 Free</div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Full Diagnostic Per Track</div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Full Diagnostic Per Track</div>
               </div>
               <div className="p-3">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">92% Index</div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">FAANG Loop Correlation</div>
+                <div className="text-xl sm:text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-100">100% Original</div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Calibrated Diagnostics</div>
               </div>
               <div className="p-3">
                 <div className="text-xl sm:text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">Staff L6</div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Calibrated Difficulty</div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Calibrated Difficulty</div>
               </div>
             </div>
           )}
@@ -235,8 +236,10 @@ export const LandingPage: React.FC = () => {
                     <button
                       key={option.id}
                       type="button"
+                      role="radio"
+                      aria-checked={isSelected}
                       onClick={() => handleSelectOption(idx)}
-                      className={`w-full text-left p-3.5 rounded-lg border text-xs sm:text-sm transition-all flex items-start gap-3 cursor-pointer ${optionStyle}`}
+                      className={`w-full text-left p-3.5 rounded-lg border text-xs sm:text-sm transition-all flex items-start gap-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${optionStyle}`}
                     >
                       <span
                         className={`w-5 h-5 rounded flex items-center justify-center font-mono font-medium text-xs shrink-0 mt-0.5 ${
@@ -249,7 +252,7 @@ export const LandingPage: React.FC = () => {
                       </span>
                       <span className="flex-1 leading-normal">{option.text}</span>
                       {isAnswerSubmitted && option.isCorrect && (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
                       )}
                     </button>
                   );
@@ -618,49 +621,73 @@ export const LandingPage: React.FC = () => {
         </section>
       )}
 
-      {/* 7. TESTIMONIALS & SOCIAL PROOF (Mock Data Gated) */}
+      {/* 7. CALIBRATION STANDARDS & METHODOLOGY (Mock Data Gated) */}
       {mockActive && (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-left space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-              ENGINEER FEEDBACK
+              METHODOLOGY & RUBRICS
             </span>
             <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
-              Trusted by Engineers Cracking Staff Loops
+              Calibrated Against Real Distributed Systems
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-              Hear from candidates who replaced generic LeetCode grinding with calibrated diagnostics.
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+              Our assessment rubrics mirror production engineering trade-offs, RFC standards, and systems literature.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 flex flex-col justify-between space-y-4">
-              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed italic">
-                "The XFetch and cache stampede questions are identical to what I was grilled on during my L6 interview at Stripe. The code snippets in the explanations are gold."
-              </p>
-              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <div className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">Vikram S.</div>
-                <div className="text-[11px] text-zinc-500">Staff Infrastructure Engineer • Ex-Stripe</div>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-mono text-xs font-semibold">
+                  <Terminal className="w-4 h-4" aria-hidden="true" />
+                  <span>Real System Postmortems</span>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  Cache Stampede & Failover Dilemmas
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  Questions are modeled on documented production edge cases: Redis Sentinel split-brain quorums, XFetch probabilistic early expirations, and Linux kernel TCP socket buffers.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
+                Peer-reviewed against open RFCs
               </div>
             </div>
 
             <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 flex flex-col justify-between space-y-4">
-              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed italic">
-                "Finally a prep tool where I don't have to pay $350 upfront just to practice two weeks of distributed systems and memory models. ₹99 per module is unmatched."
-              </p>
-              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <div className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">Ananya M.</div>
-                <div className="text-[11px] text-zinc-500">Senior Systems Engineer • Datadog</div>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                  <span>Transparent Pay-Per-Track</span>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  No Annual Subscription Traps
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  Practice one full diagnostic assessment per track completely free. Pay only ₹99 for targeted single modules or ₹399 for complete topic passes when you need them.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
+                INR (₹) / Razorpay verified checkout
               </div>
             </div>
 
             <div className="p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 flex flex-col justify-between space-y-4">
-              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed italic">
-                "The time-pacing telemetry made all the difference. It diagnosed that I was taking 4 minutes too long on partition split-brain questions, helping me lock down the offer."
-              </p>
-              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <div className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">Karthik R.</div>
-                <div className="text-[11px] text-zinc-500">Backend Lead • Uber</div>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-mono text-xs font-semibold">
+                  <Shield className="w-4 h-4" aria-hidden="true" />
+                  <span>Data Minimization & Honor Code</span>
+                </div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  Indian DPDPA 2023 Compliant
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  Strictly zero third-party advertising cookies or background data mining. Your quiz response telemetry is stored only to generate your personal skill breakdown.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] font-mono text-zinc-500">
+                Audited privacy & security practices
               </div>
             </div>
           </div>
@@ -802,7 +829,7 @@ export const LandingPage: React.FC = () => {
               Ready to test your systems and algorithmic depth?
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Join thousands of engineers calibrating their skills for tier-1 interviews. Take your first diagnostic in under 15 minutes.
+              Sharpen your distributed systems and algorithmic instincts with calibrated diagnostics. Take your first diagnostic in under 15 minutes.
             </p>
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link

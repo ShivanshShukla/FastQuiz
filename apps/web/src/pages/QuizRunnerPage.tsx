@@ -248,8 +248,10 @@ export const QuizRunnerPage: React.FC = () => {
                     <button
                       key={opt.id}
                       type="button"
+                      role="radio"
+                      aria-checked={isSelected}
                       onClick={() => handleSelectOption(optIdx)}
-                      className={`w-full p-4 rounded-md text-left transition-colors flex items-start gap-3.5 cursor-pointer border ${
+                      className={`w-full p-4 rounded-md text-left transition-colors flex items-start gap-3.5 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                         isSelected
                           ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20'
                           : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 hover:border-zinc-300 dark:hover:border-zinc-700'

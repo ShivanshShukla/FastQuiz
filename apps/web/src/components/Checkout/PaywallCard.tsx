@@ -153,13 +153,14 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({
         </label>
       </div>
 
-      {/* Primary Action Button */}
+        {/* Primary Action Button */}
       <div className="space-y-3 pt-2">
         <button
           type="button"
           onClick={handleCheckout}
           disabled={isProcessing}
-          className="w-full py-2.5 px-4 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-medium transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+          aria-label={`Unlock ${selectedPlan === 'single' ? `${topicTitle} single quiz for ₹99` : 'System Architecture Master Bundle for ₹399'}`}
+          className="w-full py-2.5 px-4 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-medium transition-colors shadow-sm cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           {isProcessing
             ? 'Processing...'
