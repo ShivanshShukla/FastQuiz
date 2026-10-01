@@ -205,7 +205,7 @@ async def list_users(
         AdminUserListItem(
             id=u.id,
             name=u.name,
-            email=u.email,
+            email=u.email or "",
             status="suspended" if u.status == "suspended" else "active",
             source="google" if u.source == "google" else "email",
             created_at=u.created_at.isoformat(),
@@ -319,7 +319,7 @@ async def get_user_detail(
     return AdminUserDetail(
         id=user.id,
         name=user.name,
-        email=user.email,
+        email=user.email or "",
         status="suspended" if user.status == "suspended" else "active",
         source="google" if user.source == "google" else "email",
         created_at=user.created_at.isoformat(),
@@ -589,7 +589,7 @@ async def reveal_user_email(
         {"revealed_email": user.email, "admin_role": admin.role},
     )
 
-    return {"email": user.email}
+    return {"email": user.email or ""}
 
 
 @router.get(

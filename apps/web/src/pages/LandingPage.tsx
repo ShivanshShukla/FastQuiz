@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -12,7 +12,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { webMockStore } from "../services/webMockStore";
+import { quizApi, TopicData } from "../services/api";
 import { isMockEnabled } from "../config/env";
 
 // Interactive Sample Question Data for the Live Demo
@@ -82,7 +82,17 @@ const FAQ_ITEMS = [
 export const LandingPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const mockActive = isMockEnabled();
-  const topics = webMockStore.getTopics();
+  const [topics, setTopics] = useState<TopicData[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    quizApi.getTopics().then((data) => {
+      if (isMounted) setTopics(data);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const firstName = user?.name ? user.name.split(" ")[0] : "Engineer";
 
   // Interactive sample state
@@ -317,7 +327,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 <Link
-                  to="/quiz/quiz-cache-1/take"
+                  to={mockActive ? "/quiz/quiz-cache-1/take" : "/curriculum"}
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
                   <span>Take full 10-question diagnostic</span>
@@ -843,7 +853,7 @@ export const LandingPage: React.FC = () => {
                 </p>
               </div>
               <Link
-                to="/quiz/quiz-cache-1/take"
+                to={mockActive ? "/quiz/quiz-cache-1/take" : "/curriculum"}
                 className="w-full py-2.5 rounded-md border border-zinc-300 dark:border-zinc-700 text-center text-xs font-medium text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
               >
                 Start Free Diagnostic

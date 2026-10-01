@@ -9,7 +9,8 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:leaks": "node scripts/check-bundle-leak.mjs"
   },
   "dependencies": {
     "@fastquiz/shared": "*",

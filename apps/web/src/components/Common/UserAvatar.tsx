@@ -40,9 +40,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       .toUpperCase() || "U";
 
   const avatarSrc =
-    src && !isGoogleUserContentHost(src)
-      ? src
-      : "/assets/avatar.png";
+    src && !isGoogleUserContentHost(src) ? src : "/assets/avatar.png";
 
   if (hasError) {
     return (

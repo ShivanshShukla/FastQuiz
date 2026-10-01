@@ -128,7 +128,7 @@ describe("LandingPage Component - Mock Mode Enabled (mock=true)", () => {
     webMockStore.setMockData(true);
   });
 
-  it("renders trust stats, interactive challenge, curriculum tracks, and calibrated methodology when mock=true", () => {
+  it("renders trust stats, interactive challenge, curriculum tracks, and calibrated methodology when mock=true", async () => {
     renderLandingPage();
 
     // Trust stats (truthful metrics)
@@ -151,7 +151,7 @@ describe("LandingPage Component - Mock Mode Enabled (mock=true)", () => {
 
     // Curriculum tracks
     expect(
-      screen.getByText(
+      await screen.findByText(
         /Distributed Caching: Redis, Memcached & Cache Invalidation/i,
       ),
     ).toBeDefined();

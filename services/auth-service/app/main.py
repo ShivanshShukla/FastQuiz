@@ -5,11 +5,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.cli.bootstrap import bootstrap_super_admin, init_db
+from app.cli.bootstrap import (
+    backfill_password_identities,
+    bootstrap_super_admin,
+    init_db,
+)
 from app.core.config import settings
 from app.routers.admin_auth import router as admin_auth_router
 from app.routers.admin_dashboard import router as admin_dashboard_router
 from app.routers.admin_users import router as admin_users_router
+from app.routers.auth import router as auth_router
 from app.routers.health import router as health_router
 
 logger = logging.getLogger("auth-service")
@@ -21,7 +26,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         await init_db()
         await bootstrap_super_admin()
-        logger.info("Database initialized and super admin verified.")
+        await backfill_password_identities()
+        logger.info(
+            "Database initialized, super admin verified, and identities backfilled."
+        )
     except Exception as e:
         logger.warning("Database startup initialization deferred: %s", e)
     yield
@@ -47,6 +55,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(admin_auth_router)
 app.include_router(admin_dashboard_router)
 app.include_router(admin_users_router)

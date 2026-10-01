@@ -12,7 +12,10 @@ import { QuizResultsPage } from "./pages/QuizResultsPage";
 import { TopicsCatalogPage } from "./pages/TopicsCatalogPage";
 import { PricingPage } from "./pages/PricingPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ConsentPage } from "./pages/ConsentPage";
+import { SettingsConnectionsPage } from "./pages/SettingsConnectionsPage";
 import { LoadingDemoPage } from "./pages/LoadingDemoPage";
+import { isMockEnabled } from "./config/env";
 import { PrivacyPolicyPage } from "./pages/legal/PrivacyPolicyPage";
 import { TermsAndConditionsPage } from "./pages/legal/TermsAndConditionsPage";
 import { CookiePolicyPage } from "./pages/legal/CookiePolicyPage";
@@ -54,7 +57,14 @@ export const App: React.FC = () => {
                   path="register"
                   element={<LoginPage initialMode="signup" />}
                 />
-                <Route path="loading" element={<LoadingDemoPage />} />
+                <Route path="consent" element={<ConsentPage />} />
+                <Route
+                  path="settings/connections"
+                  element={<SettingsConnectionsPage />}
+                />
+                {isMockEnabled() && (
+                  <Route path="loading" element={<LoadingDemoPage />} />
+                )}
 
                 {/* Legal & Compliance Routes */}
                 <Route path="privacy" element={<PrivacyPolicyPage />} />

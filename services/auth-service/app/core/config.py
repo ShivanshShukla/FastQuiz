@@ -14,11 +14,23 @@ class Settings(BaseSettings):
     )
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # Learner JWT Authentication
+    # Learner JWT Authentication & Sessions
     JWT_SECRET: str = "dev-secret-key-change-in-production-12345"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    LEARNER_JWT_AUDIENCE: str = "fastquiz-learner"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+
+    # Social OAuth (Google OIDC & GitHub OAuth2)
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    OAUTH_REDIRECT_BASE_URL: str = "http://localhost:3000"
+    SESSION_SECRET: str = "dev-session-secret-key-for-oauth-state-signing"
+
+    # DPDPA Consent
+    DPDPA_CURRENT_POLICY_VERSION: str = "2026.1"
 
     # Admin Identity & Isolation Settings
     ADMIN_JWT_SECRET: str = "admin-secret-key-change-in-production-67890"
@@ -42,7 +54,11 @@ class Settings(BaseSettings):
     TOTP_ENCRYPTION_KEY: str = "c2VjcmV0LWtleS0zMi1ieXRlcy1mb3ItYWVzLWdjbS0xMjM="
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(
+            ".env",
+            "services/auth-service/.env",
+            "../services/auth-service/.env",
+        ),
         env_file_encoding="utf-8",
         extra="ignore",
     )

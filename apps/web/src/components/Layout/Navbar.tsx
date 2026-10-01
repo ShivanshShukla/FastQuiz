@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Sun, Moon, Search, Menu, X, LogOut, Activity } from "lucide-react";
+import { Sun, Moon, Search, Menu, X, Activity } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { BrandLogo } from "../Common/BrandLogo";
 import { UserAvatar } from "../Common/UserAvatar";
+import { isMockEnabled } from "../../config/env";
+
+import { UserMenuDropdown } from "./UserMenuDropdown";
 
 const navLinks = [
   { label: "Curriculum", path: "/curriculum" },
@@ -48,14 +51,24 @@ export const Navbar: React.FC = () => {
   return (
     <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 transition-colors">
       <div className="h-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center shrink-0 transition-opacity hover:opacity-85"
-          aria-label="FastQuiz Home"
-        >
-          <BrandLogo size="md" showBadge={true} />
-        </Link>
+        {/* Logo & Mock Mode Badge */}
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            to="/"
+            className="flex items-center shrink-0 transition-opacity hover:opacity-85"
+            aria-label="FastQuiz Home"
+          >
+            <BrandLogo size="md" showBadge={true} />
+          </Link>
+          {isMockEnabled() && (
+            <span
+              data-testid="mock-badge"
+              className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            >
+              MOCK MODE
+            </span>
+          )}
+        </div>
 
         {/* Desktop Navigation Links */}
         <nav
@@ -119,7 +132,7 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Clean Theme Toggle */}
+          {/* Clean Theme Toggle (Desktop non-menu toggle) */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -138,27 +151,10 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
-          {/* User Account / Auth */}
+          {/* User Account / Auth Dropdown */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-zinc-800">
-              <UserAvatar src={user.avatarUrl} name={user.name} size="md" />
-              <div className="hidden xl:flex flex-col text-left min-w-0">
-                <span className="text-xs font-medium text-zinc-900 dark:text-zinc-200 leading-none truncate">
-                  {user.name}
-                </span>
-                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5 truncate">
-                  {user.tierTitle}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                aria-label="Log out"
-                title="Log out"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex items-center pl-2 border-l border-zinc-200 dark:border-zinc-800">
+              <UserMenuDropdown />
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -169,7 +165,7 @@ export const Navbar: React.FC = () => {
                 Sign in
               </Link>
               <Link
-                to="/quiz/quiz-cache-1/take"
+                to="/curriculum"
                 className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition-colors shadow-sm"
               >
                 Start Free
@@ -259,7 +255,7 @@ export const Navbar: React.FC = () => {
                 Sign in
               </Link>
               <Link
-                to="/quiz/quiz-cache-1/take"
+                to="/curriculum"
                 onClick={() => setMobileOpen(false)}
                 className="flex-1 text-center px-3 py-2 rounded-md bg-indigo-600 text-white text-xs font-medium"
               >

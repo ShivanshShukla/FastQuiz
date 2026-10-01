@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   FolderOpen,
@@ -12,17 +12,25 @@ import {
   FileCode,
   ShieldCheck,
 } from "lucide-react";
-import { webMockStore } from "../services/webMockStore";
+import { quizApi, TopicData } from "../services/api";
 import { useToast } from "../context/ToastContext";
 
 export const TopicDetailPage: React.FC = () => {
   const { topicId = "distributed-caching" } = useParams<{ topicId: string }>();
-  const topic = webMockStore.getTopic(topicId) || webMockStore.getTopics()[0];
+  const [topic, setTopic] = useState<TopicData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { showToast } = useToast();
-  const [, setRefreshKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleBuySingle = (quizId: string, title: string) => {
-    webMockStore.purchaseItem(quizId);
+  useEffect(() => {
+    quizApi.getTopic(topicId).then((res) => {
+      setTopic(res);
+      setIsLoading(false);
+    });
+  }, [topicId, refreshKey]);
+
+  const handleBuySingle = async (quizId: string, title: string) => {
+    await quizApi.purchaseItem(quizId);
     showToast(
       `Unlocked ${title} (₹99). Reference explanations are now active.`,
       "success",
@@ -30,11 +38,41 @@ export const TopicDetailPage: React.FC = () => {
     setRefreshKey((k) => k + 1);
   };
 
-  const handleBuyBundle = () => {
-    webMockStore.purchaseItem("master-bundle");
+  const handleBuyBundle = async () => {
+    await quizApi.purchaseItem("master-bundle");
     showToast("Unlocked full track access for all 8 modules.", "success");
     setRefreshKey((k) => k + 1);
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto px-4 py-16 text-center text-xs text-zinc-500">
+        Loading assessment track...
+      </div>
+    );
+  }
+
+  if (!topic) {
+    return (
+      <div className="w-full max-w-2xl mx-auto px-4 py-16 text-center space-y-4">
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+          Track Not Found
+        </h2>
+        <p className="text-xs text-zinc-500">
+          The requested curriculum track is not published or currently
+          unavailable.
+        </p>
+        <Link
+          to="/topics"
+          className="inline-flex px-4 py-2 text-xs font-semibold rounded bg-indigo-600 text-white"
+        >
+          Back to Curriculum
+        </Link>
+      </div>
+    );
+  }
+
+  const firstQuizId = topic.quizzes.length > 0 ? topic.quizzes[0].id : null;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left space-y-8">
@@ -180,18 +218,18 @@ export const TopicDetailPage: React.FC = () => {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
               <Link
-                to="/quiz/quiz-cache-1/take"
+                to={firstQuizId ? `/quiz/${firstQuizId}/take` : "/topics"}
                 className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium hover:bg-zinc-800 dark:hover:bg-white transition-colors shadow-sm"
               >
                 <Terminal className="w-3.5 h-3.5" />
                 <span>Start Assessment</span>
               </Link>
-              <Link
-                to="/attempts/att-seed-1/results"
+              <a
+                href="#modules"
                 className="px-4 py-2.5 rounded-md border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-medium transition-colors text-center"
               >
-                View Diagnostic Report
-              </Link>
+                View Track Modules
+              </a>
             </div>
           </div>
 

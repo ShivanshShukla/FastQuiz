@@ -28,10 +28,10 @@ describe("QuizResultsPage - Production Mode (mock=false)", () => {
     webMockStore.setMockData(false);
   });
 
-  it("renders Attempt Record Not Found when mock data is disabled and no attempt exists", () => {
+  it("renders Attempt Record Not Found when mock data is disabled and no attempt exists", async () => {
     renderResultsPage();
 
-    expect(screen.getByText(/Attempt Record Not Found/i)).toBeDefined();
+    expect(await screen.findByText(/Attempt Record Not Found/i)).toBeDefined();
     expect(
       screen.getByText(/No diagnostic results found for this attempt ID/i),
     ).toBeDefined();
@@ -48,11 +48,11 @@ describe("Results and Paywall Integration - Mock Mode Enabled (mock=true)", () =
     webMockStore.setMockData(true);
   });
 
-  it("renders diagnostic scoreboard with 90% accuracy", () => {
+  it("renders diagnostic scoreboard with 90% accuracy", async () => {
     renderResultsPage();
 
     expect(
-      screen.getByText(/Interview Ready! Staff Assessment Passed/i),
+      await screen.findByText(/Interview Ready! Staff Assessment Passed/i),
     ).toBeDefined();
     expect(
       screen.getByText(/Diagnostic Skill Competency Matrix/i),

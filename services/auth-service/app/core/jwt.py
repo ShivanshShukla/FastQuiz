@@ -81,3 +81,41 @@ def decode_admin_preauth_token(token: str) -> dict[str, Any]:
         audience=settings.ADMIN_JWT_PREAUTH_AUDIENCE,
         issuer="fastquiz-auth-service",
     )
+
+
+def create_user_access_token(
+    user_id: str,
+    email: str | None,
+    name: str,
+    status: str,
+) -> tuple[str, int]:
+    """Issues a short-lived (15 min) access token for learners with audience 'fastquiz-learner'."""
+    expires_delta = datetime.timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire_time = utc_now() + expires_delta
+
+    payload: dict[str, Any] = {
+        "sub": user_id,
+        "email": email,
+        "name": name,
+        "status": status,
+        "aud": settings.LEARNER_JWT_AUDIENCE,  # "fastquiz-learner"
+        "iss": "fastquiz-auth-service",
+        "iat": utc_now(),
+        "exp": expire_time,
+    }
+
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    expires_in_seconds = int(expires_delta.total_seconds())
+    return token, expires_in_seconds
+
+
+def decode_user_token(token: str) -> dict[str, Any]:
+    """Decodes and strictly verifies a learner access token with
+    audience 'fastquiz-learner'. Rejects admin tokens or expired/tampered tokens."""
+    return jwt.decode(
+        token,
+        settings.JWT_SECRET,
+        algorithms=[settings.JWT_ALGORITHM],
+        audience=settings.LEARNER_JWT_AUDIENCE,
+        issuer="fastquiz-auth-service",
+    )
