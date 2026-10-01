@@ -7,6 +7,15 @@ interface UserAvatarProps {
   className?: string;
 }
 
+const isGoogleUserContentHost = (value: string): boolean => {
+  try {
+    const parsed = new URL(value);
+    return parsed.hostname.toLowerCase() === "lh3.googleusercontent.com";
+  } catch {
+    return false;
+  }
+};
+
 export const UserAvatar: React.FC<UserAvatarProps> = ({
   src,
   name = "Learner",
@@ -31,7 +40,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       .toUpperCase() || "U";
 
   const avatarSrc =
-    src && !src.includes("lh3.googleusercontent.com")
+    src && !isGoogleUserContentHost(src)
       ? src
       : "/assets/avatar.png";
 
