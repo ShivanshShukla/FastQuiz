@@ -345,11 +345,7 @@ async def social_callback(
                 id_token = token_data.get("id_token")
                 claims = jwt.decode(id_token, options={"verify_signature": False})
                 if nonce and claims.get("nonce") != nonce:
-                    logger.error(
-                        "Google nonce mismatch: expected %s, got %s",
-                        nonce,
-                        claims.get("nonce"),
-                    )
+                    logger.error("Google nonce mismatch during OAuth callback")
                     return RedirectResponse(url="/login?error=nonce_mismatch")
 
                 provider_user_id = str(claims.get("sub"))
